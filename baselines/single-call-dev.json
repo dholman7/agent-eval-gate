@@ -1,0 +1,418 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v1",
+    "target_ref": "9f0a5c448661ffea1de23457f54ffb151ff4c207",
+    "agent": "single-call-dev",
+    "mode": "replay",
+    "split": "dev",
+    "trials": 1,
+    "harness_version": "0.1.0",
+    "started_at": "2026-10-27T21:58:35+00:00",
+    "model": "claude-haiku-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "AUTH-06",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "logout-keeps-cookie": true
+      },
+      "bugs": [
+        "logout-keeps-cookie"
+      ],
+      "usage": {
+        "input_tokens": 12539,
+        "output_tokens": 1103,
+        "cost_usd": 0.001805,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.5010991669259965
+    },
+    {
+      "task_id": "VEN-03",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-name-case-sensitive": true
+      },
+      "bugs": [
+        "vendor-name-case-sensitive"
+      ],
+      "usage": {
+        "input_tokens": 12587,
+        "output_tokens": 805,
+        "cost_usd": 0.001661,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.249321541050449
+    },
+    {
+      "task_id": "VEN-05",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 2,
+      "load_errors": [],
+      "clean_failures": [
+        "paginates the tenant's vendors with limit and offset: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "searches vendors by name, ignoring case: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": true,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "pagination-skips-first"
+      ],
+      "usage": {
+        "input_tokens": 12631,
+        "output_tokens": 2460,
+        "cost_usd": 0.002493,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 12.3161881249398
+    },
+    {
+      "task_id": "VEN-07",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Vendors from another tenant are invisible: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 12557,
+        "output_tokens": 622,
+        "cost_usd": 0.001567,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.63708733394742
+    },
+    {
+      "task_id": "VEN-09",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a vendor under review cannot be edited: Error: expect(received).toBe(expected) // Object.is equality | Expected: 200 | Received: 409"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "update-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 12558,
+        "output_tokens": 681,
+        "cost_usd": 0.001596,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.266257375013083
+    },
+    {
+      "task_id": "DOC-02",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Extraction completes in the background: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "coverage-field-dropped"
+      ],
+      "usage": {
+        "input_tokens": 12625,
+        "output_tokens": 1762,
+        "cost_usd": 0.002144,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.520111875142902
+    },
+    {
+      "task_id": "DOC-03",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Fields that cannot be parsed get low confidence: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "unparseable-date-confident"
+      ],
+      "usage": {
+        "input_tokens": 12587,
+        "output_tokens": 1404,
+        "cost_usd": 0.001961,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.784048292087391
+    },
+    {
+      "task_id": "DOC-06",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Documents cannot be added to a vendor under review: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 12585,
+        "output_tokens": 1186,
+        "cost_usd": 0.001852,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.60960783297196
+    },
+    {
+      "task_id": "REV-01",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "submitting a vendor with all documents extracted moves it to in_review and records an audit event: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "submit-audit-misnamed"
+      ],
+      "usage": {
+        "input_tokens": 12583,
+        "output_tokens": 1462,
+        "cost_usd": 0.001989,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.201539542060345
+    },
+    {
+      "task_id": "REV-05",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "approving every extraction approves the vendor: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "approval-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 12556,
+        "output_tokens": 2172,
+        "cost_usd": 0.002342,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.921952874865383
+    },
+    {
+      "task_id": "REV-07",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "an expired insurance certificate cannot be approved: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "expiry-comparison-inverted"
+      ],
+      "usage": {
+        "input_tokens": 12562,
+        "output_tokens": 2165,
+        "cost_usd": 0.002339,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 9.441351999994367
+    },
+    {
+      "task_id": "AUD-02",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "audit trails from another tenant are invisible: Error: create vendor in Globex tenant | expect(received).toBe(expected) // Object.is equality | Expected: 201"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 12520,
+        "output_tokens": 637,
+        "cost_usd": 0.001571,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.4790560419205576
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 0.16666666666666666,
+      "low": 0.04696514218385378,
+      "high": 0.4480308622529734,
+      "n": 12,
+      "successes": 2
+    },
+    "pass_all_k": {
+      "value": 0.16666666666666666,
+      "low": 0.04696514218385378,
+      "high": 0.4480308622529734,
+      "n": 12,
+      "successes": 2
+    },
+    "bug_detection": {
+      "value": 0.16666666666666666,
+      "low": 0.04696514218385378,
+      "high": 0.4480308622529734,
+      "n": 12,
+      "successes": 2
+    },
+    "false_failure": {
+      "value": 0.8333333333333334,
+      "low": 0.5519691377470266,
+      "high": 0.9530348578161463,
+      "n": 12,
+      "successes": 10
+    },
+    "cost_usd": {
+      "value": 0.0019433333333333334,
+      "low": 0.0017655,
+      "high": 0.0021263333333333334,
+      "n": 12,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 6.910635166743305,
+      "low": 5.534291222575121,
+      "high": 8.420021850906778,
+      "n": 12,
+      "successes": null
+    },
+    "by_category": {
+      "audit": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.6576197724933469,
+        "n": 2,
+        "successes": 0
+      },
+      "authorization": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.6576197724933469,
+        "n": 2,
+        "successes": 0
+      },
+      "dates": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.7934506856227626,
+        "n": 1,
+        "successes": 0
+      },
+      "extraction": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.6576197724933469,
+        "n": 2,
+        "successes": 0
+      },
+      "pagination": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.7934506856227626,
+        "n": 1,
+        "successes": 0
+      },
+      "security": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "state": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.6576197724933469,
+        "n": 2,
+        "successes": 0
+      },
+      "validation": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      }
+    }
+  }
+}

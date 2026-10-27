@@ -73,6 +73,34 @@ def test_parse_report_counts_statuses_and_restores_tag_prefix() -> None:
     assert run.passed_tags == {"@VEN-01", "@AUD-01"}
 
 
+def test_parse_report_keeps_the_first_error_lines_without_color_codes() -> None:
+    message = (
+        "\x1b[2mexpect(\x1b[22mreceived).toBe(expected)\n\n"
+        "Expected: 201\nReceived: 422\n  at x.ts:5"
+    )
+    report = {
+        "suites": [
+            {
+                "specs": [
+                    {
+                        "title": "creates a vendor",
+                        "tags": [],
+                        "tests": [
+                            {"status": "unexpected", "results": [{"error": {"message": message}}]}
+                        ],
+                    }
+                ]
+            }
+        ]
+    }
+
+    run = parse_report(report)
+
+    assert run.failures == [
+        "creates a vendor: expect(received).toBe(expected) | Expected: 201 | Received: 422"
+    ]
+
+
 def _bug(old: str) -> Bug:
     return Bug(
         id="b", category="c", tasks=["T"], expected_failure="x", file="app.py", old=old, new="NEW"

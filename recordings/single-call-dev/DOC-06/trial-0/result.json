@@ -1,0 +1,13 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\n    \"Documents cannot be added to a vendor under review\",\n    { tag: \"@DOC-06\" },\n    async ({ apiAs }) => {\n      // Background: signed in as a member, and a vendor in status \"draft\"\n      const member = await apiAs(\"member\");\n      const createResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"DOC06 Vendor\"),\n          category: \"services\",\n          contact_email: `doc06-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}@northwind.test`,\n        },\n      });\n      expect(createResponse.status()).toBe(201);\n      const vendor = await createResponse.json();\n      expect(vendor.status).toBe(\"draft\");\n\n      // Given the vendor is in status \"in_review\"\n      const submitResponse = await member.post(`/api/vendors/${vendor.id}/submit`);\n      expect(submitResponse.status()).toBe(200);\n      const submitted = await submitResponse.json();\n      expect(submitted.status).toBe(\"in_review\");\n\n      // When I upload \"w9.txt\" as kind \"w9\"\n      const uploadResponse = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"w9\",\n          file: {\n            name: \"w9.txt\",\n            mimeType: \"text/plain\",\n            buffer: Buffer.from(\"Form W-9 test content for DOC-06\\n\", \"utf-8\"),\n          },\n        },\n      });\n\n      // Then the response status is 409 and the error code is \"vendor_locked\"\n      expect(uploadResponse.status()).toBe(409);\n      const body = await uploadResponse.json();\n      expect(body.error.code).toBe(\"vendor_locked\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12585,
+    "output_tokens": 1186,
+    "cost_usd": 0.001852,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.60960783297196,
+  "error": null
+}

@@ -87,6 +87,7 @@ def run(
                         clean_passed=scored.clean.passed,
                         clean_failed=scored.clean.failed,
                         load_errors=scored.clean.errors,
+                        clean_failures=scored.clean.failures[:5],
                         tagged=scored.tagged,
                         success=scored.success,
                         kills=scored.kills,

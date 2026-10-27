@@ -1,0 +1,13 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"AUD-02 vendor audit trail tenant isolation\", () => {\n  test(\n    \"audit trails from another tenant are invisible\",\n    { tag: \"@AUD-02\" },\n    async ({ apiAs }) => {\n      // Arrange: a vendor exists in the Globex Procurement tenant.\n      const globex = await apiAs(\"otherTenant\");\n      const createResponse = await globex.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"Globex Audit Vendor\"),\n          category: \"services\",\n          contact_email: `audit-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}@globex.test`,\n        },\n      });\n      expect(createResponse.status(), \"create vendor in Globex tenant\").toBe(201);\n      const vendorId = ((await createResponse.json()) as { id: string }).id;\n\n      // Act: a Northwind member requests that vendor's audit trail.\n      const member = await apiAs(\"member\");\n      const response = await member.get(`/api/vendors/${vendorId}/audit`);\n\n      // Assert\n      expect(response.status()).toBe(404);\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12520,
+    "output_tokens": 637,
+    "cost_usd": 0.001571,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.4790560419205576,
+  "error": null
+}

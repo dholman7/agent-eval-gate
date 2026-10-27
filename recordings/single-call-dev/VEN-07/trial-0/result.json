@@ -1,0 +1,13 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\n    \"Vendors from another tenant are invisible\",\n    { tag: \"@VEN-07\" },\n    async ({ apiAs }) => {\n      // Arrange: a vendor exists in the Globex Procurement tenant\n      const globex = await apiAs(\"otherTenant\");\n      const created = await globex.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"Globex Vendor\"),\n          category: \"software\",\n          contact_email: \"billing@globex-vendor.test\",\n        },\n      });\n      expect(created.status()).toBe(201);\n      const globexVendor = await created.json();\n\n      // Act: a Northwind member requests that vendor by id\n      const member = await apiAs(\"member\");\n      const response = await member.get(`/api/vendors/${globexVendor.id}`);\n\n      // Assert\n      expect(response.status()).toBe(404);\n      expect((await response.json()).error.code).toBe(\"vendor_not_found\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12557,
+    "output_tokens": 622,
+    "cost_usd": 0.001567,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.63708733394742,
+  "error": null
+}

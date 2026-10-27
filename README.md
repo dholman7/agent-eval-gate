@@ -12,9 +12,11 @@ Dev split, 1 trial per task. These two runs anchor the scale; model-backed agent
 |---|---|---|---|
 | `reference` (hand-written oracle) | 100% (12/12), CI 76–100% | 100% (12/12), CI 76–100% | 0% (0/12) |
 | `existing-tests` (the repo's current API tests) | 0% (0/12), CI 0–24% | 0% (0/12), CI 0–24% | 0% (0/12) |
-| `single-call` (one Claude call, no tools) | not run yet | | |
+| `single-call-dev` (one Claude Haiku 5.5 call, no tools) | 17% (2/12), CI 5–45% | 17% (2/12), CI 5–45% | 83% (10/12), CI 55–95% |
 
 Twelve tasks give wide intervals. That's the point of reporting them: a 12/12 result is consistent with a true rate as low as 76%.
+
+**Why the one-call baseline fails.** Its tests are mostly well-formed but never ran before being submitted. Nine of the ten failures create a vendor with a reserved `.test` email address, which the app rejects with 422. The seeded accounts in the repo's fixtures use `.test`, so the model copied the pattern. Most of its tests also don't wait for background extraction. Running the tests once and reading the error would fix both, which is the gap an agent with a verify-and-repair loop should close. The run cost $0.023 for all 12 trials. The `report`-profile (Opus 5.5) run is next.
 
 ## How a trial is scored
 

@@ -1,0 +1,13 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor names are unique within a tenant\", () => {\n  test(\n    \"creating a vendor whose name differs only by case is rejected with vendor_name_taken\",\n    { tag: \"@VEN-03\" },\n    async ({ apiAs }) => {\n      // Arrange: an existing vendor in the member's tenant.\n      const member = await apiAs(\"member\");\n      const existingName = uniqueName(\"Acme Freight\");\n      const existing = await member.post(\"/api/vendors\", {\n        data: {\n          name: existingName,\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n      expect(existing.status()).toBe(201);\n\n      // Act: create a vendor with the same name in lowercase.\n      const duplicate = await member.post(\"/api/vendors\", {\n        data: {\n          name: existingName.toLowerCase(),\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n\n      // Assert\n      expect(duplicate.status()).toBe(409);\n      const body = await duplicate.json();\n      expect(body.error.code).toBe(\"vendor_name_taken\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12587,
+    "output_tokens": 805,
+    "cost_usd": 0.001661,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.249321541050449,
+  "error": null
+}

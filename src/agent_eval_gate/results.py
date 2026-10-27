@@ -17,6 +17,8 @@ class TrialRecord(BaseModel):
     clean_passed: int
     clean_failed: int
     load_errors: list[str]
+    # Why tests failed on correct code; the first stop when reading a bad run.
+    clean_failures: list[str] = Field(default_factory=list)
     tagged: bool
     success: bool
     kills: dict[str, bool]

@@ -1,0 +1,13 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign out\", () => {\n  test(\n    \"signing out clears the session cookie\",\n    { tag: \"@AUTH-06\" },\n    async ({ request }) => {\n      // Arrange: sign in so the session cookie is set on the request context.\n      const login = await request.post(\"/api/auth/login\", {\n        data: { email: USERS.member, password: PASSWORD },\n      });\n      expect(login.status()).toBe(200);\n      const loginCookie = login\n        .headersArray()\n        .find((h) => h.name.toLowerCase() === \"set-cookie\");\n      expect(loginCookie?.value).toMatch(/^session=/);\n\n      // Act\n      const response = await request.post(\"/api/auth/logout\");\n\n      // Assert: status is 204.\n      expect(response.status()).toBe(204);\n\n      // Assert: the session cookie is cleared (empty value and expired/zero max-age).\n      const clearCookie = response\n        .headersArray()\n        .find((h) => h.name.toLowerCase() === \"set-cookie\" && /^session=/i.test(h.value));\n      expect(clearCookie, \"logout should send a Set-Cookie for session\").toBeDefined();\n      const cookie = clearCookie!.value;\n      expect(cookie).toMatch(/^session=(\"\"|;|$)/);\n      const lower = cookie.toLowerCase();\n      const expiredByDate = lower.includes(\"expires=thu, 01 jan 1970\");\n      const expiredByAge = /max-age=0(;|$)/.test(lower);\n      expect(expiredByDate || expiredByAge, `session cookie not expired: ${cookie}`).toBe(true);\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12539,
+    "output_tokens": 1103,
+    "cost_usd": 0.001805,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.5010991669259965,
+  "error": null
+}

@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -20,10 +21,25 @@ class SuiteRun:
     # Load or syntax errors: Playwright reports these instead of running tests.
     errors: list[str] = field(default_factory=list)
     passed_tags: set[str] = field(default_factory=set)
+    # "<test title>: <first line of the assertion error>" for each failed test.
+    failures: list[str] = field(default_factory=list)
 
     @property
     def total(self) -> int:
         return self.passed + self.failed
+
+
+_ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _first_error(test: dict[str, Any]) -> str:
+    results = test.get("results") or [{}]
+    last = results[-1]
+    error: dict[str, Any] = last.get("error") or next(iter(last.get("errors") or []), {})
+    message = _ANSI.sub("", str(error.get("message", "no error message")))
+    lines = [line.strip() for line in message.splitlines() if line.strip()]
+    # Playwright puts the matcher on line 1 and Expected/Received below it; keep both.
+    return " | ".join(lines[:3])[:300]
 
 
 @dataclass
@@ -59,6 +75,7 @@ def parse_report(report: dict[str, Any]) -> SuiteRun:
                     run.passed_tags.update(f"@{t.lstrip('@')}" for t in spec.get("tags", []))
                 else:
                     run.failed += 1
+                    run.failures.append(f"{spec.get('title', '?')}: {_first_error(test)}")
         for child in suite.get("suites", []):
             walk(child)
 
