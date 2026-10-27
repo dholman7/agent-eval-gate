@@ -12,16 +12,30 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-MODEL = os.environ.get("AEG_MODEL", "claude-opus-5-5")
-EFFORT = os.environ.get("AEG_EFFORT", "medium")
+# (model, effort) per profile. `dev` is the default so routine runs stay cheap; publish numbers
+# from `report`. AEG_MODEL and AEG_EFFORT override either part.
+PROFILES: dict[str, tuple[str, str]] = {
+    "dev": ("claude-haiku-5-5", "low"),
+    "report": ("claude-opus-5-5", "medium"),
+}
+PROFILE = os.environ.get("AEG_PROFILE", "dev")
+if PROFILE not in PROFILES:
+    raise SystemExit(f"AEG_PROFILE must be one of {sorted(PROFILES)}, got {PROFILE!r}")
+MODEL = os.environ.get("AEG_MODEL", PROFILES[PROFILE][0])
+EFFORT = os.environ.get("AEG_EFFORT", PROFILES[PROFILE][1])
 MAX_TOKENS = 16000
 
+# Models that accept server-side refusal fallback (`fallbacks: "default"`). Haiku 5.5 has none.
+FALLBACK_MODELS = {"claude-opus-5-5", "claude-sonnet-5-5"}
+
 # USD per million tokens (input, output, cache read), from the Claude API pricing table
-# (2026-10-06). Opus 5 / 4.8 cache reads use the standard 10%-of-input rate. This baseline
-# sets no cache breakpoints, so cache reads are normally zero.
+# (2026-10-06). Cache-read rates for Opus 5, Opus 4.8, and Haiku 5.5 aren't listed there and
+# assume the usual 10% of input; this baseline sets no cache breakpoints, so they don't apply.
+# Haiku 5.5 is priced for prompts up to 100K tokens, which these prompts stay well under.
 PRICES: dict[str, tuple[float, float, float]] = {
     "claude-opus-5-5": (4.00, 20.00, 0.20),
     "claude-sonnet-5-5": (2.00, 10.00, 0.20),
+    "claude-haiku-5-5": (0.10, 0.50, 0.01),
     "claude-opus-5": (5.00, 25.00, 0.50),
     "claude-opus-4-8": (5.00, 25.00, 0.50),
 }
@@ -94,20 +108,25 @@ def extract_code(text: str) -> str | None:
     return blocks[-1] if blocks else None
 
 
+def request_params(system: str, user: str) -> dict[str, Any]:
+    params: dict[str, Any] = {
+        "model": MODEL,
+        "max_tokens": MAX_TOKENS,
+        "system": system,
+        "messages": [{"role": "user", "content": user}],
+        "output_config": {"effort": EFFORT},
+    }
+    if MODEL in FALLBACK_MODELS:
+        params |= {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"}
+    return params
+
+
 def generate(client: Any, system: str, user: str) -> Generation:
-    """One request. Server-side fallback is on; the model that actually answered is recorded."""
+    """One request. Where fallback is on, the model that actually answered is recorded."""
     import anthropic
 
     try:
-        response = client.beta.messages.create(
-            model=MODEL,
-            max_tokens=MAX_TOKENS,
-            system=system,
-            messages=[{"role": "user", "content": user}],
-            output_config={"effort": EFFORT},
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-        )
+        response = client.beta.messages.create(**request_params(system, user))
     except anthropic.APIStatusError as exc:
         return Generation(None, MODEL, 0, 0, 0, error=f"API {exc.status_code}: {exc.message}")
     except anthropic.APIConnectionError as exc:

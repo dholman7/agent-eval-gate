@@ -76,7 +76,14 @@ uv sync --extra claude
 uv run aeg run --agent single-call --command "python -m agent_eval_gate.baselines.single_call" --split dev
 ```
 
-Uses `claude-opus-5-5` at medium effort (`AEG_MODEL` and `AEG_EFFORT` override). Server-side refusal fallback is on, and every result records the model that actually answered. Estimated, not yet measured: about $0.10–0.15 per trial (roughly 15k input and 3k output tokens), so one pass over the dev split should stay under $2. The report shows the measured cost.
+`AEG_PROFILE` picks the model, and the cheap one is the default so routine runs cost almost nothing:
+
+| Profile | Model and effort | Use for |
+|---|---|---|
+| `dev` (default) | `claude-haiku-5-5`, low | Iterating on prompts and the harness |
+| `report` | `claude-opus-5-5`, medium | Numbers you publish |
+
+`AEG_MODEL` and `AEG_EFFORT` override either part. On models that support it (Opus 5.5, Sonnet 5.5), server-side refusal fallback is on, and every result records the model that actually answered. The report shows measured cost per trial.
 
 ### GitHub Action
 

@@ -53,7 +53,23 @@ def test_prompt_includes_context_files_and_the_tag(tmp_path: Path) -> None:
     assert "Scenario: Create a vendor" in user
 
 
-def test_generate_extracts_code_records_served_model_and_prices_it() -> None:
+def test_dev_profile_is_the_default_and_uses_the_cheap_model() -> None:
+    assert single_call.PROFILE == "dev"
+    assert (single_call.MODEL, single_call.EFFORT) == ("claude-haiku-5-5", "low")
+
+
+def test_haiku_requests_carry_no_fallback() -> None:
+    # Haiku 5.5 has no server-side refusal fallback; sending one would be rejected.
+    params = single_call.request_params("system", "user")
+
+    assert params["model"] == "claude-haiku-5-5"
+    assert "fallbacks" not in params and "betas" not in params
+
+
+def test_generate_extracts_code_records_served_model_and_prices_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(single_call, "MODEL", "claude-opus-5-5")
     client = _client(
         "Here:\n```ts\ntest('x', { tag: '@VEN-01' }, async () => {});\n```", model="claude-opus-4-8"
     )
