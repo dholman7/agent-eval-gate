@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  harness:
+    name: Harness (lint, types, unit tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # setup-uv publishes only full-version tags (no moving v10), so pin the latest release.
+      - uses: astral-sh/setup-uv@v10.3.2
+        with:
+          enable-cache: true
+      - run: uv sync --extra claude
+      - run: uv run ruff check . && uv run ruff format --check .
+      - run: uv run mypy src tests
+      - run: uv run pytest
+
+  benchmark:
+    name: Benchmark validity (references pass, every bug caught)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.2
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - run: uv sync
+      - run: uv run aeg -v validate
+
+  gate:
+    name: Gate (reference agent holds its baseline)
+    needs: benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./
+        with:
+          agent: reference
+          replay: "false"
+          baseline: baselines/reference-dev.json

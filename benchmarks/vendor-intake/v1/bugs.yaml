@@ -1,0 +1,259 @@
+# Hand-written seeded bugs. Each is an exact text replacement in the target repo, applied only
+# while scoring; `old` must occur exactly once in `file`. `aeg validate` proves that every bug is
+# caught by the reference tests of each task it lists, and that nothing else breaks on clean code.
+bugs:
+  - id: create-vendor-returns-200
+    category: status_codes
+    tasks: [VEN-01, VEN-04]
+    expected_failure: POST /api/vendors answers 200 instead of 201
+    file: backend/src/vendor_intake/routes/vendors.py
+    old: '@router.post("", status_code=201)'
+    new: '@router.post("", status_code=200)'
+
+  - id: vendor-name-case-sensitive
+    category: validation
+    tasks: [VEN-03]
+    expected_failure: a name differing only in case is accepted as a new vendor
+    file: backend/src/vendor_intake/services/vendors.py
+    old: "        name_key=data.name.lower(),"
+    new: "        name_key=data.name,"
+
+  - id: vendor-name-unique-across-tenants
+    category: authorization
+    tasks: [VEN-04]
+    expected_failure: a name used by another tenant is rejected with 409
+    file: backend/src/vendor_intake/repositories/vendors.py
+    old: "            Vendor.tenant_id == tenant_id, Vendor.name_key == name.lower()"
+    new: "            Vendor.name_key == name.lower()"
+
+  - id: vendor-tenant-leak
+    category: authorization
+    tasks: [VEN-07, AUD-02]
+    expected_failure: another tenant's vendor (and its audit trail) is readable
+    file: backend/src/vendor_intake/repositories/vendors.py
+    old: "            select(Vendor).where(Vendor.id == vendor_id, Vendor.tenant_id == tenant_id)"
+    new: "            select(Vendor).where(Vendor.id == vendor_id)"
+
+  - id: document-tenant-leak
+    category: authorization
+    tasks: [DOC-07]
+    expected_failure: another tenant's document is readable
+    file: backend/src/vendor_intake/repositories/documents.py
+    old: "            select(Document).where(Document.id == document_id, Document.tenant_id == tenant_id)"
+    new: "            select(Document).where(Document.id == document_id)"
+
+  - id: pagination-skips-first
+    category: pagination
+    tasks: [VEN-05]
+    expected_failure: each page starts one row late, so the last page is short
+    file: backend/src/vendor_intake/repositories/vendors.py
+    old: ".limit(limit).offset(offset)"
+    new: ".limit(limit).offset(offset + 1)"
+
+  - id: limit-cap-raised
+    category: validation
+    tasks: [VEN-06]
+    expected_failure: limit=101 is accepted
+    file: backend/src/vendor_intake/routes/vendors.py
+    old: "limit: int = Query(default=20, ge=1, le=100),"
+    new: "limit: int = Query(default=20, ge=1, le=1000),"
+
+  - id: update-ignores-lock
+    category: state
+    tasks: [VEN-09]
+    expected_failure: a vendor in review can be edited
+    file: backend/src/vendor_intake/services/vendors.py
+    old: "def update_vendor(session: Session, user: User, vendor: Vendor, data: VendorUpdate) -> Vendor:\n    ensure_editable(vendor)\n"
+    new: "def update_vendor(session: Session, user: User, vendor: Vendor, data: VendorUpdate) -> Vendor:\n"
+
+  - id: update-not-audited
+    category: audit
+    tasks: [VEN-08]
+    expected_failure: editing a vendor records no vendor.updated event
+    file: backend/src/vendor_intake/services/vendors.py
+    old: "    if changes:\n        AuditRepository(session).record("
+    new: "    if not changes:\n        AuditRepository(session).record("
+
+  - id: contact-email-unvalidated
+    category: validation
+    tasks: [VEN-02]
+    expected_failure: an invalid contact email is accepted
+    file: backend/src/vendor_intake/schemas.py
+    old: "    contact_email: EmailStr\n\n\nclass VendorUpdate"
+    new: "    contact_email: str\n\n\nclass VendorUpdate"
+
+  - id: upload-not-audited
+    category: audit
+    tasks: [DOC-01, AUD-01]
+    expected_failure: uploads are recorded as document.added instead of document.uploaded
+    file: backend/src/vendor_intake/services/documents.py
+    old: 'action="document.uploaded",'
+    new: 'action="document.added",'
+
+  - id: coverage-field-dropped
+    category: extraction
+    tasks: [DOC-02]
+    expected_failure: insurance extractions have no coverage_amount field
+    file: backend/src/vendor_intake/services/extraction.py
+    old: "        \"coverage_amount\": (\"coverage_amount\", _money),\n"
+    new: ""
+
+  - id: unparseable-date-confident
+    category: extraction
+    tasks: [DOC-03]
+    expected_failure: an unparseable date gets high confidence
+    file: backend/src/vendor_intake/services/extraction.py
+    old: "    return None, 0.3\n\n\ndef _money"
+    new: "    return None, 0.9\n\n\ndef _money"
+
+  - id: empty-file-accepted
+    category: validation
+    tasks: [DOC-04]
+    expected_failure: an empty upload is accepted
+    file: backend/src/vendor_intake/services/documents.py
+    old: "    if size == 0:"
+    new: "    if size < 0:"
+
+  - id: upload-limit-plus-one
+    category: validation
+    tasks: [DOC-04]
+    expected_failure: a file one byte over 10 MiB is accepted
+    file: backend/src/vendor_intake/services/documents.py
+    old: "    if size > max_bytes:"
+    new: "    if size > max_bytes + 1:"
+
+  - id: upload-limit-rejects-exact
+    category: validation
+    tasks: [DOC-05]
+    expected_failure: a file of exactly 10 MiB is rejected
+    file: backend/src/vendor_intake/services/documents.py
+    old: "    if size > max_bytes:"
+    new: "    if size >= max_bytes:"
+
+  - id: upload-ignores-lock
+    category: state
+    tasks: [DOC-06]
+    expected_failure: documents can be added to a vendor in review
+    file: backend/src/vendor_intake/services/documents.py
+    old: ") -> Document:\n    ensure_editable(vendor)\n"
+    new: ") -> Document:\n"
+
+  - id: missing-kinds-truncated
+    category: validation
+    tasks: [REV-02]
+    expected_failure: only the first missing document kind is reported
+    file: backend/src/vendor_intake/services/review.py
+    old: "    return sorted(kind.value for kind in DocumentKind if kind not in ready)"
+    new: "    return sorted(kind.value for kind in DocumentKind if kind not in ready)[:1]"
+
+  - id: queue-order-reversed
+    category: ordering
+    tasks: [REV-03]
+    expected_failure: the most confident vendor is listed first
+    file: backend/src/vendor_intake/services/review.py
+    old: "    return sorted(items, key=lambda i: (i.lowest_confidence, i.submitted_at or utcnow()))"
+    new: "    return sorted(items, key=lambda i: (i.lowest_confidence, i.submitted_at or utcnow()), reverse=True)"
+
+  - id: member-can-review
+    category: authorization
+    tasks: [REV-04]
+    expected_failure: members can open the review queue
+    file: backend/src/vendor_intake/routes/review.py
+    old: "reviewer = require_roles(Role.REVIEWER, Role.ADMIN)"
+    new: "reviewer = require_roles(Role.MEMBER, Role.REVIEWER, Role.ADMIN)"
+
+  - id: approval-not-audited
+    category: audit
+    tasks: [REV-05]
+    expected_failure: approving the last extraction records no vendor.approved event
+    file: backend/src/vendor_intake/services/review.py
+    old: "    if vendor.status != VendorStatus.IN_REVIEW:\n        audit.record("
+    new: "    if vendor.status == VendorStatus.REJECTED:\n        audit.record("
+
+  - id: reject-note-optional
+    category: validation
+    tasks: [REV-06]
+    expected_failure: rejecting without a note is accepted
+    file: backend/src/vendor_intake/schemas.py
+    old: "validate_default=True)"
+    new: "validate_default=False)"
+
+  - id: expiry-comparison-inverted
+    category: dates
+    tasks: [REV-07]
+    expected_failure: an insurance certificate that expired yesterday can be approved
+    file: backend/src/vendor_intake/services/review.py
+    old: "    if expiry < today:"
+    new: "    if expiry > today:"
+
+  - id: expiring-window-excludes-day-30
+    category: dates
+    tasks: [REV-08]
+    expected_failure: a certificate expiring in exactly 30 days is not flagged
+    file: backend/src/vendor_intake/services/vendors.py
+    old: "    if expiry <= today + timedelta(days=EXPIRING_SOON_DAYS):"
+    new: "    if expiry < today + timedelta(days=EXPIRING_SOON_DAYS):"
+
+  - id: submit-audit-misnamed
+    category: audit
+    tasks: [REV-01]
+    expected_failure: submitting records vendor.submit instead of vendor.submitted
+    file: backend/src/vendor_intake/services/review.py
+    old: 'action="vendor.submitted"'
+    new: 'action="vendor.submit"'
+
+  - id: bad-credentials-403
+    category: status_codes
+    tasks: [AUTH-02, AUTH-03]
+    expected_failure: failed sign-in answers 403 instead of 401
+    file: backend/src/vendor_intake/routes/auth.py
+    old: 'raise AppError(401, "invalid_credentials"'
+    new: 'raise AppError(403, "invalid_credentials"'
+
+  - id: unknown-email-distinct-error
+    category: authorization
+    tasks: [AUTH-03]
+    expected_failure: an unknown email gets a different error code than a wrong password
+    file: backend/src/vendor_intake/routes/auth.py
+    old: "    if not check_credentials(user, body.password) or user is None:\n"
+    new: "    if user is None:\n        raise AppError(401, \"unknown_email\", \"No account uses that email\")\n    if not check_credentials(user, body.password):\n"
+
+  - id: session-cookie-not-httponly
+    category: security
+    tasks: [AUTH-01]
+    expected_failure: the session cookie is readable from JavaScript
+    file: backend/src/vendor_intake/routes/auth.py
+    old: "        httponly=True,\n"
+    new: "        httponly=False,\n"
+
+  - id: logout-keeps-cookie
+    category: security
+    tasks: [AUTH-06]
+    expected_failure: signing out leaves the session cookie in place
+    file: backend/src/vendor_intake/routes/auth.py
+    old: '    response.delete_cookie(SESSION_COOKIE, httponly=True, samesite="lax")'
+    new: '    response.headers["cache-control"] = "no-store"'
+
+  - id: unauthenticated-code-wrong
+    category: contract
+    tasks: [AUTH-05]
+    expected_failure: missing sessions report code unauthorized instead of not_authenticated
+    file: backend/src/vendor_intake/deps.py
+    old: '"not_authenticated"'
+    new: '"unauthorized"'
+
+  - id: profile-tenant-name-wrong
+    category: contract
+    tasks: [AUTH-04]
+    expected_failure: the profile shows the tenant id where the tenant name belongs
+    file: backend/src/vendor_intake/routes/auth.py
+    old: "        tenant=TenantOut.model_validate(tenant),"
+    new: "        tenant=TenantOut(id=tenant.id, name=tenant.id),"
+
+  - id: audit-order-reversed
+    category: ordering
+    tasks: [AUD-01]
+    expected_failure: audit events are listed newest first
+    file: backend/src/vendor_intake/repositories/audit.py
+    old: ".order_by(AuditEvent.id)"
+    new: ".order_by(AuditEvent.id.desc())"

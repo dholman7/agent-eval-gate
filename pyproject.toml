@@ -1,0 +1,59 @@
+[project]
+name = "agent-eval-gate"
+version = "0.1.0"
+description = "Benchmark runner and CI gate for agents that write tests"
+license = "MIT"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.10.0",
+    "pyyaml>=6.0.2",
+    "opentelemetry-sdk>=1.29.0",
+]
+
+[project.optional-dependencies]
+# 1.x is the documented, settled line; 2.0 shipped 2026-10-21 and is not adopted yet.
+claude = ["anthropic>=1.15,<2"]
+
+[project.scripts]
+aeg = "agent_eval_gate.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "types-pyyaml>=6.0.12",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_eval_gate"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF"]
+# S602/S603/S607: the harness runs benchmark-defined shell commands by design.
+# RUF001: reports use en dashes for ranges ("69%–90%") on purpose.
+ignore = ["S602", "S603", "S607", "RUF001"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+strict = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["anthropic", "anthropic.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"

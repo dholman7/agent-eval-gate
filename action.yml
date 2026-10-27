@@ -1,0 +1,71 @@
+name: Agent eval gate
+description: Score an agent on a benchmark and fail the job if it regressed against a stored baseline.
+
+inputs:
+  agent:
+    description: Agent name. Built in "reference" and "existing-tests", or your own.
+    required: true
+  command:
+    description: Shell command that runs your agent (live mode). Omit when replaying.
+    required: false
+  replay:
+    description: Score recorded results instead of calling the agent ("true" or "false").
+    default: "true"
+  recordings:
+    description: Directory of recordings, relative to the workspace.
+    default: recordings
+  benchmark:
+    description: Benchmark directory. Defaults to the vendor-intake benchmark shipped with this action.
+    default: ""
+  split:
+    description: dev, heldout, or all.
+    default: dev
+  trials:
+    description: Trials per task.
+    default: "1"
+  baseline:
+    description: Baseline result JSON to gate against, relative to the workspace.
+    required: true
+
+outputs:
+  result:
+    description: Path to this run's result JSON.
+    value: ${{ steps.run.outputs.result }}
+
+runs:
+  using: composite
+  steps:
+    # setup-uv publishes only full-version tags (no moving v10), so pin the latest release.
+    - uses: astral-sh/setup-uv@v10.3.2
+      with:
+        working-directory: ${{ github.action_path }}
+    - uses: actions/setup-node@v7
+      with:
+        node-version-file: ${{ github.action_path }}/.nvmrc
+    - id: run
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        AEG_AGENT: ${{ inputs.agent }}
+        AEG_COMMAND: ${{ inputs.command }}
+        AEG_REPLAY: ${{ inputs.replay }}
+        AEG_RECORDINGS: ${{ inputs.recordings }}
+        AEG_BENCHMARK: ${{ inputs.benchmark }}
+        AEG_SPLIT: ${{ inputs.split }}
+        AEG_TRIALS: ${{ inputs.trials }}
+      run: |
+        result="$RUNNER_TEMP/aeg-result.json"
+        args=(run --agent "$AEG_AGENT" --split "$AEG_SPLIT" --trials "$AEG_TRIALS"
+              --recordings "$AEG_RECORDINGS" --cache-dir "$RUNNER_TEMP/aeg-cache"
+              --benchmark "${AEG_BENCHMARK:-$ACTION_PATH/benchmarks/vendor-intake/v1}"
+              --out "$result" --trace "$RUNNER_TEMP/aeg-trace.jsonl")
+        if [[ "$AEG_REPLAY" == "true" ]]; then args+=(--replay); fi
+        if [[ -n "$AEG_COMMAND" ]]; then args+=(--command "$AEG_COMMAND"); fi
+        uv run --project "$ACTION_PATH" aeg "${args[@]}"
+        echo "result=$result" >> "$GITHUB_OUTPUT"
+    - shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        AEG_BASELINE: ${{ inputs.baseline }}
+        AEG_RESULT: ${{ steps.run.outputs.result }}
+      run: uv run --project "$ACTION_PATH" aeg gate --baseline "$AEG_BASELINE" --current "$AEG_RESULT"

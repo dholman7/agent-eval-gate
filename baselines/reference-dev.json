@@ -1,0 +1,405 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v1",
+    "target_ref": "9f0a5c448661ffea1de23457f54ffb151ff4c207",
+    "agent": "reference",
+    "mode": "deterministic",
+    "split": "dev",
+    "trials": 1,
+    "harness_version": "0.1.0",
+    "started_at": "2026-10-27T21:35:50+00:00",
+    "model": null
+  },
+  "trials": [
+    {
+      "task_id": "AUTH-06",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "logout-keeps-cookie": true
+      },
+      "bugs": [
+        "logout-keeps-cookie"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-03",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-name-case-sensitive": true
+      },
+      "bugs": [
+        "vendor-name-case-sensitive"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-05",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "pagination-skips-first": true
+      },
+      "bugs": [
+        "pagination-skips-first"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-07",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-tenant-leak": true
+      },
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-09",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "update-ignores-lock": true
+      },
+      "bugs": [
+        "update-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "DOC-02",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "coverage-field-dropped": true
+      },
+      "bugs": [
+        "coverage-field-dropped"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "DOC-03",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unparseable-date-confident": true
+      },
+      "bugs": [
+        "unparseable-date-confident"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "DOC-06",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-ignores-lock": true
+      },
+      "bugs": [
+        "upload-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "REV-01",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-audit-misnamed": true
+      },
+      "bugs": [
+        "submit-audit-misnamed"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "REV-05",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "approval-not-audited": true
+      },
+      "bugs": [
+        "approval-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "REV-07",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "expiry-comparison-inverted": true
+      },
+      "bugs": [
+        "expiry-comparison-inverted"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "AUD-02",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-tenant-leak": true
+      },
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 1.0,
+      "low": 0.7575059933447592,
+      "high": 1.0,
+      "n": 12,
+      "successes": 12
+    },
+    "pass_all_k": {
+      "value": 1.0,
+      "low": 0.7575059933447592,
+      "high": 1.0,
+      "n": 12,
+      "successes": 12
+    },
+    "bug_detection": {
+      "value": 1.0,
+      "low": 0.7575059933447592,
+      "high": 1.0,
+      "n": 12,
+      "successes": 12
+    },
+    "false_failure": {
+      "value": 0.0,
+      "low": 2.7755575615628914e-17,
+      "high": 0.24249400665524085,
+      "n": 12,
+      "successes": 0
+    },
+    "cost_usd": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 12,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 12,
+      "successes": null
+    },
+    "by_category": {
+      "audit": {
+        "value": 1.0,
+        "low": 0.34238022750665303,
+        "high": 1.0,
+        "n": 2,
+        "successes": 2
+      },
+      "authorization": {
+        "value": 1.0,
+        "low": 0.34238022750665303,
+        "high": 1.0,
+        "n": 2,
+        "successes": 2
+      },
+      "dates": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "extraction": {
+        "value": 1.0,
+        "low": 0.34238022750665303,
+        "high": 1.0,
+        "n": 2,
+        "successes": 2
+      },
+      "pagination": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "security": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "state": {
+        "value": 1.0,
+        "low": 0.34238022750665303,
+        "high": 1.0,
+        "n": 2,
+        "successes": 2
+      },
+      "validation": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      }
+    }
+  }
+}

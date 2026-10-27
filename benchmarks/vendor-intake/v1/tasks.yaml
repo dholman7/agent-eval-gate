@@ -1,0 +1,35 @@
+# One task per Gherkin scenario. Split drawn once with random.Random(20261027) and frozen:
+# prompts may be tuned on `dev`; `heldout` is run only for reported numbers.
+tasks:
+  - {id: AUTH-01, split: heldout, feature: features/auth.feature, scenario: Successful sign-in returns a session}
+  - {id: AUTH-02, split: heldout, feature: features/auth.feature, scenario: Wrong password is rejected without revealing which field was wrong}
+  - {id: AUTH-03, split: heldout, feature: features/auth.feature, scenario: Unknown email is rejected the same way as a wrong password}
+  - {id: AUTH-04, split: heldout, feature: features/auth.feature, scenario: Current user is returned for a valid session}
+  - {id: AUTH-05, split: heldout, feature: features/auth.feature, scenario: Requests without a session are rejected}
+  - {id: AUTH-06, split: dev, feature: features/auth.feature, scenario: Signing out clears the session cookie}
+  - {id: VEN-01, split: heldout, feature: features/vendors.feature, scenario: Create a vendor}
+  - {id: VEN-02, split: heldout, feature: features/vendors.feature, scenario: Reject invalid vendor fields}
+  - {id: VEN-03, split: dev, feature: features/vendors.feature, scenario: Vendor names are unique within a tenant}
+  - {id: VEN-04, split: heldout, feature: features/vendors.feature, scenario: The same vendor name is allowed in a different tenant}
+  - {id: VEN-05, split: dev, feature: features/vendors.feature, scenario: "List vendors with search, status filter, and pagination"}
+  - {id: VEN-06, split: heldout, feature: features/vendors.feature, scenario: Pagination limits are enforced}
+  - {id: VEN-07, split: dev, feature: features/vendors.feature, scenario: Vendors from another tenant are invisible}
+  - {id: VEN-08, split: heldout, feature: features/vendors.feature, scenario: Update a draft vendor}
+  - {id: VEN-09, split: dev, feature: features/vendors.feature, scenario: A vendor under review cannot be edited}
+  - {id: DOC-01, split: heldout, feature: features/documents.feature, scenario: Upload a document}
+  - {id: DOC-02, split: dev, feature: features/documents.feature, scenario: Extraction completes in the background}
+  - {id: DOC-03, split: dev, feature: features/documents.feature, scenario: Fields that cannot be parsed get low confidence}
+  - {id: DOC-04, split: heldout, feature: features/documents.feature, scenario: Reject invalid uploads}
+  - {id: DOC-05, split: heldout, feature: features/documents.feature, scenario: A file of exactly 10 MiB is accepted}
+  - {id: DOC-06, split: dev, feature: features/documents.feature, scenario: Documents cannot be added to a vendor under review}
+  - {id: DOC-07, split: heldout, feature: features/documents.feature, scenario: Documents from another tenant are invisible}
+  - {id: REV-01, split: dev, feature: features/review.feature, scenario: Submit a vendor with all documents extracted}
+  - {id: REV-02, split: heldout, feature: features/review.feature, scenario: Submitting with missing documents lists what is missing}
+  - {id: REV-03, split: heldout, feature: features/review.feature, scenario: The review queue shows lowest confidence first}
+  - {id: REV-04, split: heldout, feature: features/review.feature, scenario: Members cannot see the review queue}
+  - {id: REV-05, split: dev, feature: features/review.feature, scenario: Approving every extraction approves the vendor}
+  - {id: REV-06, split: heldout, feature: features/review.feature, scenario: Rejecting an extraction requires a note and returns the vendor to the member}
+  - {id: REV-07, split: dev, feature: features/review.feature, scenario: An expired insurance certificate cannot be approved}
+  - {id: REV-08, split: heldout, feature: features/review.feature, scenario: Insurance expiring within 30 days is flagged}
+  - {id: AUD-01, split: heldout, feature: features/audit.feature, scenario: Audit events are listed oldest first with actor and action}
+  - {id: AUD-02, split: dev, feature: features/audit.feature, scenario: Audit trails from another tenant are invisible}
