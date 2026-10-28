@@ -1,0 +1,14 @@
+{
+  "files": {
+    "REV-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"REV-02 submit vendor with missing documents\", () => {\n  test(\n    \"submitting with only a w9 lists contract and insurance_certificate as missing\",\n    { tag: \"@REV-02\" },\n    async ({ apiAs }) => {\n      // Arrange: a signed-in member, a draft vendor, and one extracted w9 document.\n      const member = await apiAs(\"member\");\n\n      const vendorResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"REV02 Vendor\"),\n          category: \"services\",\n          contact_email: `ops.${Date.now().toString(36)}@rev02.example.test`,\n        },\n      });\n      expect(vendorResponse.status()).toBe(201);\n      const vendor = await vendorResponse.json();\n      expect(vendor.status).toBe(\"draft\");\n\n      const uploadResponse = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"w9\",\n          file: {\n            name: \"w9.pdf\",\n            mimeType: \"application/pdf\",\n            buffer: Buffer.from(\"%PDF-1.4 REV-02 w9 sample\"),\n          },\n        },\n      });\n      expect(uploadResponse.status()).toBe(201);\n      const document = await uploadResponse.json();\n\n      // Wait for extraction to finish so the w9 is in the \"extracted\" state.\n      await expect\n        .poll(\n          async () => {\n            const res = await member.get(`/api/documents/${document.id}`);\n            return ((await res.json()) as { status: string }).status;\n          },\n          { timeout: 60_000, intervals: [500, 1000, 2000] },\n        )\n        .toBe(\"extracted\");\n\n      // Act\n      const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n      // Assert\n      expect(response.status()).toBe(409);\n      const body = await response.json();\n      expect(body.error.code).toBe(\"documents_incomplete\");\n\n      const serialized = JSON.stringify(body);\n      expect(serialized).toContain(\"contract\");\n      expect(serialized).toContain(\"insurance_certificate\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12579,
+    "output_tokens": 1405,
+    "cost_usd": 0.00196,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.801971917040646,
+  "error": null,
+  "log": null
+}

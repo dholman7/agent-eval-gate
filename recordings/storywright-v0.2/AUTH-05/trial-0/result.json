@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"requests without a session are rejected\", { tag: \"@AUTH-05\" }, async ({ request }) => {\n    // Act: no Authorization header and no session cookie\n    const response = await request.get(\"/api/me\", { headers: { Cookie: \"\" } });\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(401);\n    expect(JSON.parse(body).error.code, body).toBe(\"not_authenticated\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13807,
+    "output_tokens": 542,
+    "cost_usd": 0.000433,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.85229599988088,
+  "error": null,
+  "log": "  plan: Send GET /api/me with no Authorization header or session cookie and assert a 401 with error code not_authenticated, using the response body in the status assertion message for diagnosis.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-05: passing: every test passes against the real app\n"
+}

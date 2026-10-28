@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TAG = \"@DOC-04\";\nconst TEN_MIB_PLUS_ONE = 10 * 1024 * 1024 + 1;\n\nconst cases = [\n  {\n    label: \"an empty file\",\n    file: { name: \"empty.pdf\", mimeType: \"application/pdf\", buffer: Buffer.alloc(0) },\n    kind: \"w9\",\n    status: 422,\n    code: \"empty_file\",\n  },\n  {\n    label: \"a file of exactly 10 MiB + 1\",\n    file: {\n      name: \"too-large.pdf\",\n      mimeType: \"application/pdf\",\n      buffer: Buffer.alloc(TEN_MIB_PLUS_ONE, 0x61),\n    },\n    kind: \"w9\",\n    status: 413,\n    code: \"file_too_large\",\n  },\n  {\n    label: 'a \".exe\" file',\n    file: {\n      name: \"setup.exe\",\n      mimeType: \"application/x-msdownload\",\n      buffer: Buffer.from(\"MZ\\x90\\x00 not really a program\"),\n    },\n    kind: \"w9\",\n    status: 415,\n    code: \"unsupported_type\",\n  },\n  {\n    label: \"a valid text file\",\n    file: {\n      name: \"notes.txt\",\n      mimeType: \"text/plain\",\n      buffer: Buffer.from(\"Vendor onboarding notes\"),\n    },\n    kind: \"passport\",\n    status: 422,\n    code: \"validation_error\",\n  },\n] as const;\n\ntest.describe(\"Upload vendor documents\", () => {\n  for (const c of cases) {\n    test(\n      `rejects ${c.label} as kind \"${c.kind}\" with ${c.status} ${c.code}`,\n      { tag: TAG },\n      async ({ apiAs }) => {\n        // Arrange: a draft vendor owned by the member's tenant\n        const member = await apiAs(\"member\");\n        const createResponse = await member.post(\"/api/vendors\", {\n          data: {\n            name: uniqueName(\"DOC-04 Vendor\"),\n            category: \"services\",\n            contact_email: \"billing@doc04.example.com\",\n          },\n        });\n        expect(createResponse.status()).toBe(201);\n        const vendor = await createResponse.json();\n        expect(vendor.status).toBe(\"draft\");\n\n        // Act: upload the invalid document\n        const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n          multipart: {\n            kind: c.kind,\n            file: c.file,\n          },\n        });\n\n        // Assert\n        expect(response.status()).toBe(c.status);\n        const body = await response.json();\n        expect(body.error.code).toBe(c.code);\n      },\n    );\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12699,
+    "output_tokens": 1539,
+    "cost_usd": 0.002039,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.072926792083308,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"unknown email is rejected the same way as a wrong password\", { tag: \"@AUTH-03\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: \"nobody@northwind.test\", password: PASSWORD },\n    });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(401);\n    const body = await response.json();\n    expect(body.error?.code, JSON.stringify(body)).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13831,
+    "output_tokens": 354,
+    "cost_usd": 0.000341,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.584758457960561,
+  "error": null,
+  "log": "  plan: Write one API test under the @AUTH-03 tag that signs in with an unknown email and asserts a 401 with error code invalid_credentials, mirroring the existing wrong-password test. Imports come from the shared fixtures, and the status assertion includes the response body as its message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-03: passing: every test passes against the real app\n"
+}

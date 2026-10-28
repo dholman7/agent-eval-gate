@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-02.spec.ts": "import fs from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"extraction completes in the background\", { tag: \"@DOC-02\" }, async ({ apiAs }) => {\n  // Arrange: a vendor in draft status\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"Doc Vendor\"),\n      category: \"services\",\n      contact_email: \"ops@example.com\",\n    },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = await vendorRes.json();\n  expect(vendor.status, await vendorRes.text()).toBe(\"draft\");\n\n  // Act: upload the insurance certificate sample\n  const uploadRes = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"insurance_certificate\",\n      file: {\n        name: \"insurance_certificate.txt\",\n        mimeType: \"text/plain\",\n        buffer: fs.readFileSync(sample(\"insurance_certificate.txt\")),\n      },\n    },\n  });\n  expect(uploadRes.status(), await uploadRes.text()).toBe(201);\n  const document = await uploadRes.json();\n\n  // Assert: processing finishes in the background\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/documents/${document.id}`);\n        expect(res.status(), await res.text()).toBe(200);\n        return (await res.json()).status;\n      },\n      { timeout: 30_000, message: \"document should reach extracted\" },\n    )\n    .toBe(\"extracted\");\n\n  const extractionRes = await member.get(`/api/documents/${document.id}/extraction`);\n  expect(extractionRes.status(), await extractionRes.text()).toBe(200);\n  const extraction = await extractionRes.json();\n\n  expect(Object.keys(extraction.fields).sort(), await extractionRes.text()).toEqual(\n    [\"coverage_amount\", \"expiry_date\", \"insurer\", \"policy_number\"].sort(),\n  );\n  for (const [name, field] of Object.entries(extraction.fields) as [\n    string,\n    { confidence: number },\n  ][]) {\n    expect(field.confidence, `confidence of ${name}`).toBeGreaterThanOrEqual(0);\n    expect(field.confidence, `confidence of ${name}`).toBeLessThanOrEqual(1);\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 46906,
+    "output_tokens": 1886,
+    "cost_usd": 0.001977,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.564068916020915,
+  "error": null,
+  "log": "  plan: Create a draft vendor through the API as a member, upload the insurance_certificate sample as multipart, then poll the document until it reports extracted and check the extraction's four named fields and their confidence range via the HTTP API.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nDOC-02: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-07.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Documents from another tenant are invisible\", { tag: \"@DOC-07\" }, async ({ apiAs }) => {\n  // Arrange: a document exists in tenant Globex Procurement\n  const globex = await apiAs(\"otherTenant\");\n  const vendorRes = await globex.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Globex Vendor\"), category: \"software\", contact_email: \"ops@globex-vendor.com\" },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = await vendorRes.json();\n\n  const uploadRes = await globex.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: {\n        name: \"w9.txt\",\n        mimeType: \"text/plain\",\n        buffer: readFileSync(sample(\"w9.txt\")),\n      },\n    },\n  });\n  expect(uploadRes.status(), await uploadRes.text()).toBe(201);\n  const document = await uploadRes.json();\n\n  // Act: the Northwind member requests that document by id\n  const member = await apiAs(\"member\");\n  const response = await member.get(`/api/documents/${document.id}`);\n\n  // Assert\n  const body = await response.text();\n  expect(response.status(), body).toBe(404);\n  expect(JSON.parse(body).error.code, body).toBe(\"document_not_found\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 43668,
+    "output_tokens": 3134,
+    "cost_usd": 0.002262,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 20.5266460001003,
+  "error": null,
+  "log": "  plan: Sign in as a Globex member, create a vendor and upload a W-9 there to get a real Globex document id, then request that id as the Northwind member and assert a 404 with the document_not_found error code. Status assertions carry the response body as their message.\n  verify: 0 passed, 1 failed, type errors\n  repair 1: test_bug: The app rejected the setup step, not the scenario behavior. POST /api/vendors returned 422 because contact_email \"ops@globex-vendor.test\" uses the reserved .test special-use domain, which the email validator refuses. The rejection happened in Arrange, before the document request, so nothing about tenant isolation was exercised. The compile error is also a test bug: the file imports a nonexistent `apiAs` export from fixtures (apiAs is a fixture, not a module export), so the unused import is removed. The fix changes only the vendor contact email domain and drops the bad import; the @DOC-07 tag, the 404 and document_not_found assertions, and the cross-tenant flow are unchanged. I have not confirmed that samples/w9.txt exists or that the upload accepts text/plain, since the run never reached the upload step.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nDOC-07: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor tenant isolation\", () => {\n  test(\"vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs }) => {\n    // Arrange: a vendor that belongs to Globex Procurement\n    const other = await apiAs(\"otherTenant\");\n    const created = await other.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Globex Vendor\"),\n        category: \"software\",\n        contact_email: \"accounts@globex-vendor.com\",\n      },\n    });\n    const createdBody = await created.text();\n    expect(created.status(), createdBody).toBe(201);\n    const vendor = JSON.parse(createdBody) as { id: string };\n\n    // Act: Northwind member requests that vendor by id\n    const member = await apiAs(\"member\");\n    const res = await member.get(`/api/vendors/${vendor.id}`);\n    const body = await res.text();\n\n    // Assert\n    expect(res.status(), body).toBe(404);\n    expect(JSON.parse(body).error.code, body).toBe(\"vendor_not_found\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13840,
+    "output_tokens": 1336,
+    "cost_usd": 0.000833,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 9.144762959098443,
+  "error": null,
+  "log": "  plan: Create a vendor as the other-tenant persona (member@globex.test) through the API, then request it by id as the Northwind member and expect a 404 with error code vendor_not_found. The contact email uses a real-looking domain because special-use TLDs like .test can fail email validation.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n"
+}

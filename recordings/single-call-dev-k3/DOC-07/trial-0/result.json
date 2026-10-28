@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-07.spec.ts": "import { sample, uniqueName, expect, test } from \"../../fixtures\";\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\n    \"Documents from another tenant are invisible\",\n    { tag: \"@DOC-07\" },\n    async ({ apiAs }) => {\n      // Arrange: a Globex vendor with an uploaded document, created by a Globex member.\n      const globex = await apiAs(\"otherTenant\");\n      const vendorResponse = await globex.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"Globex Vendor\"),\n          category: \"services\",\n          contact_email: `billing+${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}@example.test`,\n        },\n      });\n      expect(vendorResponse.status()).toBe(201);\n      const vendor = await vendorResponse.json();\n\n      const uploadResponse = await globex.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"w9\",\n          file: {\n            name: \"w9.pdf\",\n            mimeType: \"application/pdf\",\n            buffer: Buffer.from(\"%PDF-1.4\\n% globex test document\\n\"),\n          },\n        },\n      });\n      expect(uploadResponse.status()).toBe(201);\n      const document = await uploadResponse.json();\n\n      // Act: a Northwind member requests the Globex document by id.\n      const northwind = await apiAs(\"member\");\n      const response = await northwind.get(`/api/documents/${document.id}`);\n\n      // Assert\n      expect(response.status()).toBe(404);\n      const body = await response.json();\n      expect(body.error.code).toBe(\"document_not_found\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12575,
+    "output_tokens": 1167,
+    "cost_usd": 0.001841,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.004451249958947,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: PASSWORD },\n    });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(200);\n    const body = await response.json();\n    expect(typeof body.access_token, await response.text()).toBe(\"string\");\n    expect(body.access_token.length, await response.text()).toBeGreaterThan(0);\n\n    const cookie = response\n      .headersArray()\n      .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n    expect(cookie, await response.text()).toBeDefined();\n    expect(cookie?.value.toLowerCase(), await response.text()).toContain(\"httponly\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13835,
+    "output_tokens": 502,
+    "cost_usd": 0.000416,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.034676541108638,
+  "error": null,
+  "log": "  plan: Write one API test under the @AUTH-01 tag that signs in as the seeded member through the login endpoint and asserts the 200 status, a non-empty access token, and an HttpOnly session cookie, following the existing auth.spec.ts pattern. Status assertions carry the response body as their message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-01: passing: every test passes against the real app\n"
+}

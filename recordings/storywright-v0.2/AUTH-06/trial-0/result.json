@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n    // Arrange: sign in so the session cookie is set on this request context\n    const login = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: PASSWORD },\n    });\n    expect(login.status(), await login.text()).toBe(200);\n\n    // Act\n    const logout = await request.post(\"/api/auth/logout\");\n\n    // Assert\n    const body = await logout.text();\n    expect(logout.status(), body).toBe(204);\n\n    const setCookies = logout\n      .headersArray()\n      .filter((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"))\n      .map((h) => h.value);\n    expect(setCookies.length, `no session Set-Cookie in logout response: ${body}`).toBeGreaterThan(0);\n\n    const cleared = setCookies.some((value) => {\n      const lower = value.toLowerCase();\n      const emptyValue = /^session=(;|$)/.test(value);\n      const expiredNow = lower.includes(\"max-age=0\");\n      const expiredDate = lower.includes(\"expires=thu, 01 jan 1970\");\n      return emptyValue || expiredNow || expiredDate;\n    });\n    expect(cleared, `session cookie not cleared: ${setCookies.join(\" | \")}`).toBe(true);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13821,
+    "output_tokens": 1293,
+    "cost_usd": 0.00081,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.114986166125163,
+  "error": null,
+  "log": "  plan: Sign in through the login endpoint so the request context holds the session cookie, call logout, then assert a 204 and that the returned Set-Cookie for \"session\" clears it (empty value or expired). Assertions carry the response body as their message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

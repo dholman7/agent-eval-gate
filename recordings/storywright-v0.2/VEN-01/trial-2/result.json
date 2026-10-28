@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"Create a vendor\", { tag: \"@VEN-01\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const name = uniqueName(\"Acme Freight\");\n\n    // Act\n    const res = await member.post(\"/api/vendors\", {\n      data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n    const body = await res.text();\n\n    // Assert\n    expect(res.status(), body).toBe(201);\n    const vendor = JSON.parse(body);\n    expect(vendor.name, body).toBe(name);\n    expect(vendor.category, body).toBe(\"logistics\");\n    expect(vendor.contact_email, body).toBe(\"ops@acmefreight.example\");\n    expect(vendor.status, body).toBe(\"draft\");\n\n    await expect\n      .poll(async () => {\n        const audit = await member.get(`/api/vendors/${vendor.id}/audit`);\n        expect(audit.status(), await audit.text()).toBe(200);\n        const trail = (await audit.json()) as { items: { action: string }[] };\n        return trail.items.map((item) => item.action);\n      })\n      .toContain(\"vendor.created\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13854,
+    "output_tokens": 1326,
+    "cost_usd": 0.000829,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 9.658478250028566,
+  "error": null,
+  "log": "  plan: Sign in as the member through the apiAs fixture, POST a uniquely named logistics vendor, then assert the 201 status, the draft status, and a vendor.created audit event polled from the audit endpoint.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-01: passing: every test passes against the real app\n"
+}

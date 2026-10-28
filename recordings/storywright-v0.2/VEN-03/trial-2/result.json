@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor names are unique within a tenant\", () => {\n  test(\"creating a vendor whose name differs only by case is rejected with vendor_name_taken\", { tag: \"@VEN-03\" }, async ({ apiAs }) => {\n    // Arrange: an existing vendor in the member's tenant\n    const member = await apiAs(\"member\");\n    const base = uniqueName(\"Acme Freight\");\n    const existing = await member.post(\"/api/vendors\", {\n      data: { name: base, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n    expect(existing.status(), await existing.text()).toBe(201);\n\n    // Act: create a vendor whose name matches the existing one ignoring case\n    const duplicate = await member.post(\"/api/vendors\", {\n      data: { name: base.toLowerCase(), category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n\n    // Assert\n    const body = await duplicate.text();\n    expect(duplicate.status(), body).toBe(409);\n    expect(JSON.parse(body).error.code, body).toBe(\"vendor_name_taken\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13870,
+    "output_tokens": 946,
+    "cost_usd": 0.000641,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.084901500027627,
+  "error": null,
+  "log": "  plan: Create a vendor with a unique name through the member API client, then post a case-variant of that name and expect a 409 with the vendor_name_taken error code. Status assertions include the response body in their messages, and the test uses a unique name because the database is shared.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

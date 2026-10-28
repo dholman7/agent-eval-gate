@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-06.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"listing vendors with limit 101 is rejected with 422\", { tag: \"@VEN-06\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const res = await member.get(\"/api/vendors?limit=101\");\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(422);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13800,
+    "output_tokens": 562,
+    "cost_usd": 0.000442,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.03726137499325,
+  "error": null,
+  "log": "  plan: Sign in as a member through the existing apiAs fixture and request GET /api/vendors?limit=101, asserting a 422 with the response body in the failure message. The file is tagged @VEN-06 and placed under e2e/api/generated.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-06: passing: every test passes against the real app\n"
+}

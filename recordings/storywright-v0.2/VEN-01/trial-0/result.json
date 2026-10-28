@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"Create a vendor\", { tag: \"@VEN-01\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const name = uniqueName(\"Acme Freight\");\n\n    // Act\n    const res = await member.post(\"/api/vendors\", {\n      data: {\n        name,\n        category: \"logistics\",\n        contact_email: \"ops@acmefreight.example\",\n      },\n    });\n\n    // Assert\n    expect(res.status(), await res.text()).toBe(201);\n    const vendor = await res.json();\n    expect(vendor.name, JSON.stringify(vendor)).toBe(name);\n    expect(vendor.category, JSON.stringify(vendor)).toBe(\"logistics\");\n    expect(vendor.contact_email, JSON.stringify(vendor)).toBe(\"ops@acmefreight.example\");\n    expect(vendor.status, JSON.stringify(vendor)).toBe(\"draft\");\n\n    await expect\n      .poll(\n        async () => {\n          const audit = await member.get(`/api/vendors/${vendor.id}/audit`);\n          if (audit.status() !== 200) return `status ${audit.status()}`;\n          const body = (await audit.json()) as { items: { action: string }[] };\n          return body.items.map((item) => item.action);\n        },\n        { message: \"vendor.created audit event recorded\" },\n      )\n      .toContain(\"vendor.created\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13854,
+    "output_tokens": 936,
+    "cost_usd": 0.000634,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.8666563751176,
+  "error": null,
+  "log": "  plan: Create a vendor as the signed-in member through the API with a unique name, then assert the 201 status, the draft status, and a vendor.created entry in the vendor's audit trail, polling because audit writes may be background work. Failure messages include the response body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-01: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst MiB = 1024 * 1024;\n\nconst examples = [\n  {\n    label: \"an empty file\",\n    file: { name: \"empty.pdf\", mimeType: \"application/pdf\", buffer: Buffer.alloc(0) },\n    kind: \"w9\",\n    status: 422,\n    code: \"empty_file\",\n  },\n  {\n    label: \"a file of exactly 10 MiB + 1\",\n    file: {\n      name: \"too-large.pdf\",\n      mimeType: \"application/pdf\",\n      buffer: Buffer.alloc(10 * MiB + 1, 0x25),\n    },\n    kind: \"w9\",\n    status: 413,\n    code: \"file_too_large\",\n  },\n  {\n    label: 'a \".exe\" file',\n    file: {\n      name: \"payload.exe\",\n      mimeType: \"application/x-msdownload\",\n      buffer: Buffer.from(\"MZ\\x90\\x00 not really an executable\"),\n    },\n    kind: \"w9\",\n    status: 415,\n    code: \"unsupported_type\",\n  },\n  {\n    label: \"a valid text file\",\n    file: { name: \"notes.txt\", mimeType: \"text/plain\", buffer: Buffer.from(\"hello vendor\") },\n    kind: \"passport\",\n    status: 422,\n    code: \"validation_error\",\n  },\n] as const;\n\ntest.describe(\"@DOC-04 Upload vendor documents\", () => {\n  for (const example of examples) {\n    test(\n      `rejects ${example.label} as kind \"${example.kind}\" with ${example.status} ${example.code}`,\n      { tag: \"@DOC-04\" },\n      async ({ apiAs }) => {\n        // Arrange: a draft vendor owned by the signed-in member, with a unique name.\n        const member = await apiAs(\"member\");\n        const vendorResponse = await member.post(\"/api/vendors\", {\n          data: {\n            name: uniqueName(\"DOC-04 Vendor\"),\n            category: \"services\",\n            contact_email: `doc04-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}@northwind.test`,\n          },\n        });\n        expect(vendorResponse.status()).toBe(201);\n        const vendor = await vendorResponse.json();\n        expect(vendor.status).toBe(\"draft\");\n\n        // Act: upload the invalid document.\n        const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n          multipart: {\n            kind: example.kind,\n            file: example.file,\n          },\n        });\n\n        // Assert: status and error code from the scenario.\n        expect(response.status()).toBe(example.status);\n        const body = await response.json();\n        expect(body.error.code).toBe(example.code);\n      },\n    );\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12699,
+    "output_tokens": 1632,
+    "cost_usd": 0.002086,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.446815999923274,
+  "error": null,
+  "log": null
+}

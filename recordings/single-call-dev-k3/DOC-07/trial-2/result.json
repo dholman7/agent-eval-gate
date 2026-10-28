@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-07.spec.ts": "import { sample, expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\n    \"Documents from another tenant are invisible\",\n    { tag: \"@DOC-07\" },\n    async ({ apiAs }) => {\n      // Background: signed in as a Northwind member with a draft vendor\n      const northwind = await apiAs(\"member\");\n      const ownVendor = await northwind.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"Northwind Draft Vendor\"),\n          category: \"software\",\n          contact_email: `draft-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.test`,\n        },\n      });\n      expect(ownVendor.status()).toBe(201);\n\n      // Given a document exists in tenant \"Globex Procurement\"\n      const globex = await apiAs(\"otherTenant\");\n      const globexVendor = await globex.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"Globex Vendor\"),\n          category: \"hardware\",\n          contact_email: `globex-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.test`,\n        },\n      });\n      expect(globexVendor.status()).toBe(201);\n      const globexVendorId = (await globexVendor.json()).id as string;\n\n      const upload = await globex.post(`/api/vendors/${globexVendorId}/documents`, {\n        multipart: {\n          kind: \"w9\",\n          file: {\n            name: \"w9.pdf\",\n            mimeType: \"application/pdf\",\n            buffer: Buffer.from(\"%PDF-1.4 globex w9 test document\"),\n          },\n        },\n      });\n      expect(upload.status()).toBe(201);\n      const documentId = (await upload.json()).id as string;\n\n      // When I request that document by id (as the Northwind member)\n      const response = await northwind.get(`/api/documents/${documentId}`);\n\n      // Then the response status is 404 and the error code is \"document_not_found\"\n      expect(response.status()).toBe(404);\n      expect((await response.json()).error.code).toBe(\"document_not_found\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12575,
+    "output_tokens": 1165,
+    "cost_usd": 0.00184,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.81126454193145,
+  "error": null,
+  "log": null
+}

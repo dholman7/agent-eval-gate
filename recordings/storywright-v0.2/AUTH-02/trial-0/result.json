@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-02.spec.ts": "import { USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"wrong password is rejected with invalid_credentials\", { tag: \"@AUTH-02\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: \"wrong-password\" },\n    });\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(401);\n    expect(JSON.parse(body).error.code, body).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13831,
+    "output_tokens": 541,
+    "cost_usd": 0.000435,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.619991542072967,
+  "error": null,
+  "log": "  plan: Add one API test that signs in with the seeded member's email and a wrong password, then asserts a 401 with error code invalid_credentials, using the response body as the assertion message. The error shape (error.code) follows the existing auth spec.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-02: passing: every test passes against the real app\n"
+}

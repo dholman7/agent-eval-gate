@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Vendor audit trail\", () => {\n  test(\"audit trails from another tenant are invisible\", { tag: \"@AUD-02\" }, async ({ apiAs }) => {\n    // Arrange: a vendor that exists in the Globex Procurement tenant\n    const globex = await apiAs(\"otherTenant\");\n    const name = uniqueName(\"Globex Audit\");\n    const created = await globex.post(\"/api/vendors\", {\n      data: {\n        name,\n        category: \"services\",\n        contact_email: `globex.audit.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com`,\n      },\n    });\n    expect(created.status(), await created.text()).toBe(201);\n    const vendor = (await created.json()) as { id: string };\n\n    // Act: Northwind member requests that vendor's audit trail\n    const member = await apiAs(\"member\");\n    const response = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(404);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13803,
+    "output_tokens": 816,
+    "cost_usd": 0.000569,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.113125208998099,
+  "error": null,
+  "log": "  plan: Create a vendor through the otherTenant (Globex) API client, then request its audit trail as the Northwind member and assert a 404 with the response body included in the assertion message. The vendor is created with a unique name and a valid email so the setup is not rejected.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUD-02: passing: every test passes against the real app\n"
+}

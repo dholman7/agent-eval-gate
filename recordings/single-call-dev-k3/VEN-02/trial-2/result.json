@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\n// Scenario: Reject invalid vendor fields (Scenario Outline, VEN-02)\nconst examples = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n] as const;\n\nfor (const { field, value } of examples) {\n  test(\n    `rejects vendor with invalid ${field} (${JSON.stringify(value)}) with validation_error`,\n    { tag: \"@VEN-02\" },\n    async ({ apiAs }) => {\n      // Arrange: a valid vendor payload, overriding only the field under test\n      const member = await apiAs(\"member\");\n      const payload: Record<string, unknown> = {\n        name: uniqueName(\"VEN-02 Vendor\"),\n        category: \"software\",\n        contact_email: \"billing@ven02.test\",\n      };\n      payload[field] = value;\n\n      // Act\n      const response = await member.post(\"/api/vendors\", { data: payload });\n\n      // Assert\n      expect(response.status()).toBe(422);\n      const body = await response.json();\n      expect(body.error.code).toBe(\"validation_error\");\n      expect(JSON.stringify(body.error)).toContain(field);\n    },\n  );\n}\n"
+  },
+  "usage": {
+    "input_tokens": 12608,
+    "output_tokens": 1020,
+    "cost_usd": 0.001771,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.135631458135322,
+  "error": null,
+  "log": null
+}

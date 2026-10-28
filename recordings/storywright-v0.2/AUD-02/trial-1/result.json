@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"audit trail of a vendor in another tenant is not visible\", { tag: \"@AUD-02\" }, async ({ apiAs }) => {\n  // Arrange: a vendor owned by the Globex tenant\n  const globex = await apiAs(\"otherTenant\");\n  const created = await globex.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Globex Vendor\"), category: \"software\", contact_email: \"ops@globex-procurement.com\" },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = (await created.json()) as { id: string };\n\n  // Act: Northwind member requests that vendor's audit trail\n  const member = await apiAs(\"member\");\n  const res = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(404);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 28253,
+    "output_tokens": 1490,
+    "cost_usd": 0.001117,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.211623250041157,
+  "error": null,
+  "log": "  plan: Create a vendor as the Globex tenant user through the API, then request its audit trail as a Northwind member and assert a 404 with the response body included in the failure message.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The vendor creation request failed in setup with 422 because contact_email 'ops@globex.test' uses the reserved special-use domain '.test', which the app's email validator rejects. The scenario does not depend on that address; this is bad setup data, so the test must use a valid, non-reserved email domain. The app's audit-trail 404 behavior was never reached, so no app defect is shown. The corrected file keeps the @AUD-02 tag and all assertions unchanged, changing only the email address.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUD-02: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"audit trail of another tenant's vendor is invisible to a Northwind member\", { tag: \"@AUD-02\" }, async ({ apiAs }) => {\n  // Arrange: a vendor that exists in the Globex Procurement tenant\n  const globex = await apiAs(\"otherTenant\");\n  const created = await globex.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"Globex Vendor\"),\n      category: \"software\",\n      contact_email: \"ops@globex-procurement.com\",\n    },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = await created.json();\n\n  // Act: a Northwind member requests that vendor's audit trail\n  const member = await apiAs(\"member\");\n  const res = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(404);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 28271,
+    "output_tokens": 2039,
+    "cost_usd": 0.001393,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.803490499965847,
+  "error": null,
+  "log": "  plan: Create a vendor as a Globex user through the API, then request its audit trail as a Northwind member and expect 404. The status assertion includes the response body so a failure shows the app's reason.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The 422 comes from the test's setup step, not from the audit endpoint. VendorCreate.contact_email is format email, and the app's validator rejects the reserved special-use domain .test (\"The part after the @-sign is a special-use or reserved name\"). The vendor was never created, so the audit request never ran. The fix is to use a non-reserved domain for the vendor's contact email. The login personas can keep their seeded .test addresses, since login does not validate email format. The scenario's expectation (404 for another tenant's vendor audit trail) is unchanged and the @AUD-02 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUD-02: passing: every test passes against the real app\n"
+}

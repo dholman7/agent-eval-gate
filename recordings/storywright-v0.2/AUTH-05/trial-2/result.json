@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"requests without a session are rejected\", { tag: \"@AUTH-05\" }, async ({ request }) => {\n  // Act\n  const response = await request.get(\"/api/me\");\n\n  // Assert\n  const body = await response.text();\n  expect(response.status(), body).toBe(401);\n  const json = JSON.parse(body) as { error?: { code?: string } };\n  expect(json.error?.code, body).toBe(\"not_authenticated\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13807,
+    "output_tokens": 308,
+    "cost_usd": 0.000316,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.497886167140678,
+  "error": null,
+  "log": "  plan: Write one API test that calls GET /api/me with no Authorization header and asserts a 401 with error code not_authenticated, using the fixture's request client and including the response body in assertion messages. The test is tagged @AUTH-05 as specified and does not need to inspect the repo since the scenario and existing spec pattern are clear.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-05: passing: every test passes against the real app\n"
+}

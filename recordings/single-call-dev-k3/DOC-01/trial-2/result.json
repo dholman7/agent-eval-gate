@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-01.spec.ts": "import fs from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\n    \"Upload a document\",\n    { tag: \"@DOC-01\" },\n    async ({ apiAs }) => {\n      // Arrange: a vendor in status \"draft\" owned by the member's tenant\n      const member = await apiAs(\"member\");\n      const createResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"DOC-01 Vendor\"),\n          category: \"services\",\n          contact_email: `doc01.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.test`,\n        },\n      });\n      expect(createResponse.status()).toBe(201);\n      const vendor = await createResponse.json();\n      expect(vendor.status).toBe(\"draft\");\n\n      // Act: upload the insurance certificate as kind \"insurance_certificate\"\n      const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"insurance_certificate\",\n          file: {\n            name: \"insurance_certificate.txt\",\n            mimeType: \"text/plain\",\n            buffer: fs.readFileSync(sample(\"insurance_certificate.txt\")),\n          },\n        },\n      });\n\n      // Assert: 201 and document is processing\n      expect(response.status()).toBe(201);\n      const document = await response.json();\n      expect(document.status).toBe(\"processing\");\n      expect(document.kind).toBe(\"insurance_certificate\");\n      expect(document.vendor_id).toBe(vendor.id);\n\n      // Assert: audit event \"document.uploaded\" is recorded for the vendor\n      const auditResponse = await member.get(`/api/vendors/${vendor.id}/audit`);\n      expect(auditResponse.status()).toBe(200);\n      const audit = await auditResponse.json();\n      const actions = (audit.items as { action: string }[]).map((event) => event.action);\n      expect(actions).toContain(\"document.uploaded\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12584,
+    "output_tokens": 1232,
+    "cost_usd": 0.001874,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.5439336251001805,
+  "error": null,
+  "log": null
+}

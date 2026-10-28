@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs }) => {\n  // Arrange: a vendor owned by the Globex Procurement tenant\n  const globex = await apiAs(\"otherTenant\");\n  const created = await globex.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Globex Vendor\"), category: \"software\", contact_email: \"ops@globex-procurement.com\" },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = await created.json();\n\n  // Act: the Northwind member requests that vendor by id\n  const member = await apiAs(\"member\");\n  const res = await member.get(`/api/vendors/${vendor.id}`);\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(404);\n  expect((await res.json()).error.code, await res.text()).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 28339,
+    "output_tokens": 2222,
+    "cost_usd": 0.001492,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.441789083182812,
+  "error": null,
+  "log": "  plan: Create a vendor as the Globex tenant user through the API, then request it as the Northwind member and assert a 404 with error code vendor_not_found. Setup uses unique names and every status check includes the response body.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The app rejected the setup request, not the behavior under test. POST /api/vendors returned 422 because contact_email \"ops@globex.test\" uses the reserved .test special-use domain, and the email validator refuses it. The scenario only requires a vendor to exist in the Globex tenant, so the fix is to use a valid, non-reserved email domain for that vendor. The assertions (404 and vendor_not_found) are unchanged and the @VEN-07 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n"
+}

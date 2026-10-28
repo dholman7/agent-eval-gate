@@ -1,0 +1,1053 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v1",
+    "target_ref": "9f0a5c448661ffea1de23457f54ffb151ff4c207",
+    "agent": "storywright-v0.2",
+    "mode": "live",
+    "split": "dev",
+    "trials": 3,
+    "harness_version": "0.1.0",
+    "started_at": "2026-10-28T16:52:51+00:00",
+    "model": "claude-haiku-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "AUTH-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Sign in through the login endpoint so the request context holds the session cookie, call logout, then assert a 204 and that the returned Set-Cookie for \"session\" clears it (empty value or expired). Assertions carry the response body as their message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "logout-keeps-cookie": true
+      },
+      "bugs": [
+        "logout-keeps-cookie"
+      ],
+      "usage": {
+        "input_tokens": 13821,
+        "output_tokens": 1293,
+        "cost_usd": 0.00081,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 11.114986166125163
+    },
+    {
+      "task_id": "AUTH-06",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Sign in through the shared request context so the session cookie lands in its jar, then call POST /api/auth/logout on that same context. Assert a 204 and that the Set-Cookie header for session clears it (empty value, Max-Age=0, or an epoch expiry), with the response body in each status message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "logout-keeps-cookie": true
+      },
+      "bugs": [
+        "logout-keeps-cookie"
+      ],
+      "usage": {
+        "input_tokens": 13821,
+        "output_tokens": 1374,
+        "cost_usd": 0.00085,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.31474379193969
+    },
+    {
+      "task_id": "AUTH-06",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Sign in as the seeded member through the API request context so the session cookie is stored, then call logout on the same context. Assert a 204 and that the session Set-Cookie header clears the cookie (empty value, Max-Age=0, or epoch expiry).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "logout-keeps-cookie": true
+      },
+      "bugs": [
+        "logout-keeps-cookie"
+      ],
+      "usage": {
+        "input_tokens": 13821,
+        "output_tokens": 1483,
+        "cost_usd": 0.000905,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 9.935078917071223
+    },
+    {
+      "task_id": "VEN-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor through the API as a member with a unique name, then POST a case-variant of that name and assert a 409 with error code vendor_name_taken. Status assertions include the response body in their messages.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-name-case-sensitive": true
+      },
+      "bugs": [
+        "vendor-name-case-sensitive"
+      ],
+      "usage": {
+        "input_tokens": 13870,
+        "output_tokens": 1252,
+        "cost_usd": 0.000794,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.736232416005805
+    },
+    {
+      "task_id": "VEN-03",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Create the existing vendor through the member's API client with a unique name, then post a case-variant of that name and assert a 409 with the vendor_name_taken error code. Status assertions carry the response body as their message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-name-case-sensitive": true
+      },
+      "bugs": [
+        "vendor-name-case-sensitive"
+      ],
+      "usage": {
+        "input_tokens": 13870,
+        "output_tokens": 1120,
+        "cost_usd": 0.000728,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.800523292040452
+    },
+    {
+      "task_id": "VEN-03",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor with a unique name through the member API client, then post a case-variant of that name and expect a 409 with the vendor_name_taken error code. Status assertions include the response body in their messages, and the test uses a unique name because the database is shared.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-name-case-sensitive": true
+      },
+      "bugs": [
+        "vendor-name-case-sensitive"
+      ],
+      "usage": {
+        "input_tokens": 13870,
+        "output_tokens": 946,
+        "cost_usd": 0.000641,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.084901500027627
+    },
+    {
+      "task_id": "VEN-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Build the tenant's 25 vendors through the API, with 5 driven to approved via upload, extraction polling, submit, and reviewer approval, and 20 left as drafts. All names share a unique run token so the exact counts (5 approved, 25 total, 5 freight) hold even though the database is shared across parallel tests. The test also checks the status filter, pagination, and case-insensitive search.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nVEN-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "pagination-skips-first": true
+      },
+      "bugs": [
+        "pagination-skips-first"
+      ],
+      "usage": {
+        "input_tokens": 116532,
+        "output_tokens": 9115,
+        "cost_usd": 0.008897,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 46.473615041933954
+    },
+    {
+      "task_id": "VEN-05",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Build the tenant state through the API: five vendors driven to approved via upload, extraction polling, submit, and reviewer approval, plus twenty drafts including one \"Freight\" vendor, then assert the status filter, offset pagination, and case-insensitive search against the scenario's numbers. Approval depends on the insurance sample's 2027-03-31 expiry, so this setup will need a new sample date after that.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing assertion is the status=approved count: the test expected 5 approved vendors but the API returned 8. The test itself created only 5 approved vendors. The other 3 came from other tests running in parallel against the same shared database, and those tests also write to the Northwind member's tenant. The same shared-tenant problem would break the total of 25 in the pagination check and the exact counts in general. The app is behaving correctly, so this is a setup problem in the test. The fix is to tag every vendor this test creates with a unique marker and pass that marker as q on every list call, so only this test's records are counted. The scenario's counts (5 approved, 25 total, 5 on offset 20) are unchanged. The search check still asserts that every returned name contains 'freight'.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 8\nVEN-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "pagination-skips-first": true
+      },
+      "bugs": [
+        "pagination-skips-first"
+      ],
+      "usage": {
+        "input_tokens": 106820,
+        "output_tokens": 11362,
+        "cost_usd": 0.009034,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 57.36435233312659
+    },
+    {
+      "task_id": "VEN-05",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Creates 25 uniquely tagged vendors through the API so search and pagination totals are exact, then checks the status filter, limit/offset paging, and case-insensitive search. Approved vendors need the full document and review flow, so the status-filter test asserts that every returned vendor is approved and that the total is consistent, rather than assuming a fixed count from the shared database.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 7\nVEN-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "pagination-skips-first": true
+      },
+      "bugs": [
+        "pagination-skips-first"
+      ],
+      "usage": {
+        "input_tokens": 65052,
+        "output_tokens": 2612,
+        "cost_usd": 0.002935,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 19.123366749845445
+    },
+    {
+      "task_id": "VEN-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor as the other-tenant persona (member@globex.test) through the API, then request it by id as the Northwind member and expect a 404 with error code vendor_not_found. The contact email uses a real-looking domain because special-use TLDs like .test can fail email validation.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-tenant-leak": true
+      },
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 13840,
+        "output_tokens": 1336,
+        "cost_usd": 0.000833,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 9.144762959098443
+    },
+    {
+      "task_id": "VEN-07",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor as the Globex tenant user through the API, then request it as the Northwind member and assert a 404 with error code vendor_not_found. Setup uses unique names and every status check includes the response body.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The app rejected the setup request, not the behavior under test. POST /api/vendors returned 422 because contact_email \"ops@globex.test\" uses the reserved .test special-use domain, and the email validator refuses it. The scenario only requires a vendor to exist in the Globex tenant, so the fix is to use a valid, non-reserved email domain for that vendor. The assertions (404 and vendor_not_found) are unchanged and the @VEN-07 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-tenant-leak": true
+      },
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 28339,
+        "output_tokens": 2222,
+        "cost_usd": 0.001492,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 15.441789083182812
+    },
+    {
+      "task_id": "VEN-07",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor as the other-tenant persona via the API, then request it by id as the Northwind member and assert a 404 with error code vendor_not_found. Setup uses a unique vendor name and a valid category and email, per the OpenAPI schema.\n  verify: 0 passed, 1 failed, type errors\n  repair 1: test_bug: The 422 is a setup failure, not an app defect. The create request used contact_email with the domain globex.test, and the app's email validator rejects .test as a reserved special-use domain (the error body says so). The scenario only requires a vendor to exist in the Globex tenant, so the test should use a valid, non-reserved domain such as example.com. The TypeScript error is also a test bug: the file imports `apiAs` from ../../fixtures, which does not export it. `apiAs` is a Playwright fixture received through the test's arguments, so the import is unused and must be removed. The @VEN-07 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-tenant-leak": true
+      },
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 28478,
+        "output_tokens": 1865,
+        "cost_usd": 0.001327,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 14.641873041866347
+    },
+    {
+      "task_id": "VEN-09",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor under a unique name, upload the three sample documents, wait until background extraction finishes, submit it to reach in_review, then PATCH its contact email and assert the 409 vendor_locked response. Status assertions include the response body for diagnosis.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 8\nVEN-09: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "update-ignores-lock": true
+      },
+      "bugs": [
+        "update-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 154469,
+        "output_tokens": 2546,
+        "cost_usd": 0.006968,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 21.36127687501721
+    },
+    {
+      "task_id": "VEN-09",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor as a member, upload the three sample documents, wait until each document's extraction has finished, then submit so the vendor is in_review. Attempting to change its contact email must return 409 with the vendor_locked error code, and the vendor must remain unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nVEN-09: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "update-ignores-lock": true
+      },
+      "bugs": [
+        "update-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 83128,
+        "output_tokens": 2442,
+        "cost_usd": 0.003439,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 16.596192750148475
+    },
+    {
+      "task_id": "VEN-09",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor as a member through the API, submit it so it reaches in_review (polling until the status settles), then PATCH its contact email and assert a 409 with error code vendor_locked. Setup uses unique names and every status assertion carries the response body.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The app's submit step (services/review.py submit_vendor -> missing_kinds) requires an extracted, non-rejected document for each of w9, insurance_certificate and contract. The test submitted a bare vendor with no documents, so the app correctly returned 409 documents_incomplete before reaching the in_review state the scenario needs. Document processing also runs in the background (services/documents.py process_document), so the test must upload the three required sample documents, poll until each is extracted, and only then submit. The rejection was a rejected setup step, not a defect in the vendor-lock behavior. The corrected file keeps the @VEN-09 tag and the original assertions unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nVEN-09: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "update-ignores-lock": true
+      },
+      "bugs": [
+        "update-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 84163,
+        "output_tokens": 3851,
+        "cost_usd": 0.004185,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 24.7503279580269
+    },
+    {
+      "task_id": "DOC-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor through the API as a member, upload the insurance_certificate sample as multipart, then poll the document until it reports extracted and check the extraction's four named fields and their confidence range via the HTTP API.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nDOC-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "coverage-field-dropped": true
+      },
+      "bugs": [
+        "coverage-field-dropped"
+      ],
+      "usage": {
+        "input_tokens": 46906,
+        "output_tokens": 1886,
+        "cost_usd": 0.001977,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 14.564068916020915
+    },
+    {
+      "task_id": "DOC-02",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Create a unique draft vendor via the API, upload the insurance certificate sample as a multipart document, then poll the document until it leaves 'processing' and assert it is 'extracted' with the four named fields, each having a confidence between 0 and 1. Assertions carry the response body for diagnosis.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The vendor creation request was rejected with 422 because contact_email used the domain northwind.test. The .test TLD is a reserved special-use domain, and the app's email validator refuses it, as the error body says. The failure came from the setup data, before the upload step ran, so the app's behavior under the scenario was never exercised. The fix is to use a routable domain for the generated contact email. The remaining steps (upload, background processing, extraction fields and confidence range) are unchanged, and I did not verify them against the app because the run stopped at setup.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nDOC-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "coverage-field-dropped": true
+      },
+      "bugs": [
+        "coverage-field-dropped"
+      ],
+      "usage": {
+        "input_tokens": 44260,
+        "output_tokens": 3933,
+        "cost_usd": 0.00272,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 23.072559542022645
+    },
+    {
+      "task_id": "DOC-02",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor as the member persona, upload the insurance certificate sample via multipart, poll the document until it reaches status \"extracted\", then assert the extraction carries the four named fields with confidences in [0, 1]. Every status assertion includes the response body.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The vendor create request returned 422 at setup, before any upload happened. The app's email validator rejected contact_email because the domain \"vendor.test\" uses the reserved .test special-use TLD. The scenario does not depend on that domain, so the test data is wrong. Changing the domain to example.com keeps the unique local part and the rest of the scenario unchanged. The @DOC-02 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nDOC-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "coverage-field-dropped": true
+      },
+      "bugs": [
+        "coverage-field-dropped"
+      ],
+      "usage": {
+        "input_tokens": 44383,
+        "output_tokens": 3894,
+        "cost_usd": 0.002713,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 22.68720820802264
+    },
+    {
+      "task_id": "DOC-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor as a signed-in member, upload an insurance certificate whose Expiry Date line is \"next spring\" as a text file, poll the document until it is extracted, then assert the expiry_date field has a null value and confidence below 0.5. Assertions carry response bodies in their messages.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nDOC-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unparseable-date-confident": true
+      },
+      "bugs": [
+        "unparseable-date-confident"
+      ],
+      "usage": {
+        "input_tokens": 52507,
+        "output_tokens": 2115,
+        "cost_usd": 0.002651,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 14.117320083081722
+    },
+    {
+      "task_id": "DOC-03",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor as the member, upload the unparseable insurance certificate sample as multipart, then poll until the document reaches 'extracted' and assert the expiry_date field has a null value and confidence below 0.5 via the extraction endpoint. Setup uses a valid email and the real sample file, and each status check carries the response body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nDOC-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unparseable-date-confident": true
+      },
+      "bugs": [
+        "unparseable-date-confident"
+      ],
+      "usage": {
+        "input_tokens": 92063,
+        "output_tokens": 2151,
+        "cost_usd": 0.004187,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 15.776654417160898
+    },
+    {
+      "task_id": "DOC-03",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor via the API as the member persona, upload the existing unparseable insurance certificate sample (expiry 'next spring') as multipart text/plain, poll the document until it is extracted, then assert the expiry_date field has a null value and confidence below 0.5. Every status assertion carries the response body as its message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 9\nDOC-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unparseable-date-confident": true
+      },
+      "bugs": [
+        "unparseable-date-confident"
+      ],
+      "usage": {
+        "input_tokens": 141741,
+        "output_tokens": 2337,
+        "cost_usd": 0.00681,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 19.80942791700363
+    },
+    {
+      "task_id": "DOC-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Arrange a draft vendor with all three sample documents, poll until background extraction finishes, submit it to reach in_review, then assert that uploading w9.txt returns 409 with error code vendor_locked. Each assertion carries the response body as its message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 7\nDOC-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-ignores-lock": true
+      },
+      "bugs": [
+        "upload-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 117385,
+        "output_tokens": 3363,
+        "cost_usd": 0.006106,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 22.25702008418739
+    },
+    {
+      "task_id": "DOC-06",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Arrange a draft vendor, upload all three sample documents, wait for background extraction to finish, submit the vendor so it is in_review, then assert that a further upload returns 409 vendor_locked. Uploads use the sample files and the API client from the shared fixtures.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nDOC-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-ignores-lock": true
+      },
+      "bugs": [
+        "upload-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 49098,
+        "output_tokens": 2160,
+        "cost_usd": 0.002333,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 13.73250349983573
+    },
+    {
+      "task_id": "DOC-06",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor, upload the three sample documents from samples/, poll until none are still processing, submit to move the vendor to in_review, then attempt a W-9 upload and expect 409 vendor_locked with the error body included in assertion messages.\n  verify: 1 passed, 0 failed, type errors\n  repair 1: test_bug: The compile error is in the test's import, not the app. The test imports API_URL, USERS and PASSWORD from \"../../fixtures\", but fixtures/index.ts only imports API_URL from playwright.config and never re-exports it. The test does not use API_URL, USERS or PASSWORD anyway, so the import is removed. Nothing in the scenario or the app's behaviour is involved, and the @DOC-06 tag and all assertions are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nDOC-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-ignores-lock": true
+      },
+      "bugs": [
+        "upload-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 252576,
+        "output_tokens": 4883,
+        "cost_usd": 0.011837,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 35.966781167080626
+    },
+    {
+      "task_id": "REV-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor through the member API, upload the three sample text documents (which the app parses into extractions), poll until every document reports extracted, then submit and assert the 200 response, in_review status, and the vendor.submitted audit event. Setup uses the same multipart and create payload shapes seen in the existing e2e specs.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nREV-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-audit-misnamed": true
+      },
+      "bugs": [
+        "submit-audit-misnamed"
+      ],
+      "usage": {
+        "input_tokens": 184873,
+        "output_tokens": 3179,
+        "cost_usd": 0.010325,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 26.351867833873257
+    },
+    {
+      "task_id": "REV-01",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Create a draft vendor as a member, upload the three text samples (which the app parses into extracted fields), poll the document list until all three are extracted, then submit and assert the 200 response, in_review status, and the vendor.submitted audit event. Every status check carries the response body as its message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 11\nREV-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-audit-misnamed": true
+      },
+      "bugs": [
+        "submit-audit-misnamed"
+      ],
+      "usage": {
+        "input_tokens": 121130,
+        "output_tokens": 3006,
+        "cost_usd": 0.006302,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 22.916174165904522
+    },
+    {
+      "task_id": "REV-01",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Set up a draft vendor through the API as a member, upload the three text samples, poll until every document is extracted, then submit and assert the 200 response, in_review status, and the vendor.submitted audit event. Each status assertion includes the response body as its message.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The app returned 422 on POST /api/vendors because contact_email \"rev-check@northwind.test\" uses the reserved .test special-use domain, which the email validator rejects. This is bad setup data chosen by the test, not an app defect. The scenario does not specify the email, so the fix is to use a valid, non-reserved domain. The rest of the test is unchanged and keeps the @REV-01 tag.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 11\nREV-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-audit-misnamed": true
+      },
+      "bugs": [
+        "submit-audit-misnamed"
+      ],
+      "usage": {
+        "input_tokens": 137464,
+        "output_tokens": 4688,
+        "cost_usd": 0.007542,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 31.661985791986808
+    },
+    {
+      "task_id": "REV-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Arrange a vendor through the member API with all three documents uploaded, wait for extraction to finish, then submit it to reach in_review. As the reviewer, approve all three extractions, and poll until the vendor is approved and the vendor.approved audit event appears. Expiry dates are set well in the future so the insurance approval passes the expiry check.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nREV-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "approval-not-audited": true
+      },
+      "bugs": [
+        "approval-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 88109,
+        "output_tokens": 3273,
+        "cost_usd": 0.004353,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 20.032798500033095
+    },
+    {
+      "task_id": "REV-05",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Arrange a vendor through the member API: create it, upload w9, insurance certificate (future expiry) and contract, wait for extraction, and submit. Then have the reviewer approve all three extractions and poll until the vendor is approved and the audit trail contains vendor.approved.\n  verify: 1 passed, 0 failed, type errors\n  repair 1: test_bug: The only reported failure is a TypeScript error: the test imports `apiAs` from \"../../fixtures\", but fixtures/index.ts exports no such named member. `apiAs` is a Playwright fixture that the test already receives through its destructured argument, so the import is wrong and unused. The unused `sample` import is also dead code, so I removed it. No runtime result was reported, so this is the only defect I can confirm. The scenario's expectations (three extractions approved, vendor status \"approved\", audit event \"vendor.approved\") are unchanged, and the @REV-05 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nREV-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "approval-not-audited": true
+      },
+      "bugs": [
+        "approval-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 86931,
+        "output_tokens": 6046,
+        "cost_usd": 0.005606,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 33.41246537491679
+    },
+    {
+      "task_id": "REV-05",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor as a member with three inline documents (valid future insurance expiry), poll until every document is extracted, submit it, then have the reviewer approve each extraction and poll until the vendor is approved and the audit trail contains vendor.approved. Uses only the public API and the fixture helpers.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 8\nREV-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "approval-not-audited": true
+      },
+      "bugs": [
+        "approval-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 72305,
+        "output_tokens": 3909,
+        "cost_usd": 0.004309,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 23.67160370806232
+    },
+    {
+      "task_id": "REV-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Arrange an in-review vendor through the member API with an insurance certificate whose expiry is yesterday (computed from the clock), wait for extraction to finish, then have the reviewer approve the insurance extraction and assert 409 with code insurance_expired. Setup uses the real samples' text format and polls for background extraction.\n  verify: 0 passed, 0 failed, type errors, run errors\n  repair 1: test_bug: The generated spec is a stub. Its only line imports a nonexistent export (apiAs) and defines no test, so Playwright finds no tests. Fixing the import alone would not exercise the scenario. The app behaves as specified: services/review.py raises 409 insurance_expired when an insurance certificate's expiry_date is before today, and the app's today is utcnow().date(). The test needs to build a vendor whose insurance certificate expired yesterday (UTC), wait for background extraction before submitting, then have a reviewer approve the insurance extraction and assert 409 and insurance_expired. The corrected file below does that, following the arrangement in backend/tests/conftest.py and the format from insurance_text.\n  verify: 1 passed, 0 failed, type errors\n  repair 2: test_bug: The only reported failure is a TypeScript compile error: api/generated/REV-07.spec.ts imports APIRequestContext from \"../../fixtures\", but e2e/fixtures/index.ts only imports that type from @playwright/test and never re-exports it. The test never ran, so no app behavior was observed. The fix is to import the type from @playwright/test. The rest of the test is unchanged and keeps the @REV-07 tag and the scenario's expectations (409 and insurance_expired).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 15\nREV-07: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "expiry-comparison-inverted": true
+      },
+      "bugs": [
+        "expiry-comparison-inverted"
+      ],
+      "usage": {
+        "input_tokens": 150649,
+        "output_tokens": 6872,
+        "cost_usd": 0.008672,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 40.13507483317517
+    },
+    {
+      "task_id": "REV-07",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Create a member vendor through the API, upload a W-9, a contract, and an insurance certificate whose ISO expiry date is yesterday, wait for extraction to finish, submit, then have a reviewer approve the insurance extraction and expect 409 insurance_expired. Each status check carries the response body as its message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nREV-07: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "expiry-comparison-inverted": true
+      },
+      "bugs": [
+        "expiry-comparison-inverted"
+      ],
+      "usage": {
+        "input_tokens": 51722,
+        "output_tokens": 2685,
+        "cost_usd": 0.002858,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 15.315345458919182
+    },
+    {
+      "task_id": "REV-07",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Build a fresh vendor through the API with a W-9, contract, and an insurance certificate whose expiry is yesterday (UTC), poll until all three extractions are ready, submit it, then have a reviewer approve the insurance extraction and assert a 409 with code insurance_expired. Test data follows the 'Expiry Date: YYYY-MM-DD' format the extractor parses, and the tests use uniqueName for the vendor.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nREV-07: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "expiry-comparison-inverted": true
+      },
+      "bugs": [
+        "expiry-comparison-inverted"
+      ],
+      "usage": {
+        "input_tokens": 77577,
+        "output_tokens": 3156,
+        "cost_usd": 0.00446,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 19.856355499941856
+    },
+    {
+      "task_id": "AUD-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor through the otherTenant (Globex) API client, then request its audit trail as the Northwind member and assert a 404 with the response body included in the assertion message. The vendor is created with a unique name and a valid email so the setup is not rejected.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUD-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-tenant-leak": true
+      },
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 13803,
+        "output_tokens": 816,
+        "cost_usd": 0.000569,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.113125208998099
+    },
+    {
+      "task_id": "AUD-02",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor as the Globex tenant user through the API, then request its audit trail as a Northwind member and assert a 404 with the response body included in the failure message.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The vendor creation request failed in setup with 422 because contact_email 'ops@globex.test' uses the reserved special-use domain '.test', which the app's email validator rejects. The scenario does not depend on that address; this is bad setup data, so the test must use a valid, non-reserved email domain. The app's audit-trail 404 behavior was never reached, so no app defect is shown. The corrected file keeps the @AUD-02 tag and all assertions unchanged, changing only the email address.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUD-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-tenant-leak": true
+      },
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 28253,
+        "output_tokens": 1490,
+        "cost_usd": 0.001117,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 13.211623250041157
+    },
+    {
+      "task_id": "AUD-02",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor as a Globex user through the API, then request its audit trail as a Northwind member and expect 404. The status assertion includes the response body so a failure shows the app's reason.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The 422 comes from the test's setup step, not from the audit endpoint. VendorCreate.contact_email is format email, and the app's validator rejects the reserved special-use domain .test (\"The part after the @-sign is a special-use or reserved name\"). The vendor was never created, so the audit request never ran. The fix is to use a non-reserved domain for the vendor's contact email. The login personas can keep their seeded .test addresses, since login does not validate email format. The scenario's expectation (404 for another tenant's vendor audit trail) is unchanged and the @AUD-02 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUD-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-tenant-leak": true
+      },
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 28271,
+        "output_tokens": 2039,
+        "cost_usd": 0.001393,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 15.803490499965847
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 1.0,
+      "low": 0.9035813714055363,
+      "high": 1.0,
+      "n": 36,
+      "successes": 36
+    },
+    "pass_all_k": {
+      "value": 1.0,
+      "low": 0.7575059933447592,
+      "high": 1.0,
+      "n": 12,
+      "successes": 12
+    },
+    "bug_detection": {
+      "value": 1.0,
+      "low": 0.9035813714055363,
+      "high": 1.0,
+      "n": 36,
+      "successes": 36
+    },
+    "false_failure": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.09641862859446367,
+      "n": 36,
+      "successes": 0
+    },
+    "cost_usd": {
+      "value": 0.003963277777777777,
+      "low": 0.0029735,
+      "high": 0.004991444444444444,
+      "n": 36,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 20.39859657876918,
+      "low": 17.072062291586512,
+      "high": 24.013354942234905,
+      "n": 36,
+      "successes": null
+    },
+    "by_category": {
+      "audit": {
+        "value": 1.0,
+        "low": 0.6096657120978346,
+        "high": 1.0,
+        "n": 6,
+        "successes": 6
+      },
+      "authorization": {
+        "value": 1.0,
+        "low": 0.6096657120978346,
+        "high": 1.0,
+        "n": 6,
+        "successes": 6
+      },
+      "dates": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "extraction": {
+        "value": 1.0,
+        "low": 0.6096657120978346,
+        "high": 1.0,
+        "n": 6,
+        "successes": 6
+      },
+      "pagination": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "security": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "state": {
+        "value": 1.0,
+        "low": 0.6096657120978346,
+        "high": 1.0,
+        "n": 6,
+        "successes": 6
+      },
+      "validation": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      }
+    }
+  }
+}

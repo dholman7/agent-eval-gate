@@ -1,0 +1,14 @@
+{
+  "files": {
+    "REV-02.spec.ts": "import { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Review vendors\", () => {\n  test(\n    \"submitting with missing documents lists what is missing\",\n    { tag: \"@REV-02\" },\n    async ({ apiAs }) => {\n      // Arrange: a draft vendor with only an extracted w9 document\n      const member = await apiAs(\"member\");\n\n      const vendorResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"REV02 Missing Docs\"),\n          category: \"services\",\n          contact_email: \"billing@rev02-missing.test\",\n        },\n      });\n      expect(vendorResponse.status()).toBe(201);\n      const vendor = await vendorResponse.json();\n      expect(vendor.status).toBe(\"draft\");\n\n      const uploadResponse = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"w9\",\n          file: {\n            name: \"w9.pdf\",\n            mimeType: \"application/pdf\",\n            buffer: Buffer.from(\"%PDF-1.4 rev02 w9 test document\"),\n          },\n        },\n      });\n      expect(uploadResponse.status()).toBe(201);\n      const document = await uploadResponse.json();\n\n      // Wait for extraction to finish so the w9 is in the \"extracted\" state.\n      await expect\n        .poll(\n          async () => {\n            const response = await member.get(`/api/documents/${document.id}`);\n            return ((await response.json()) as { status: string }).status;\n          },\n          { timeout: 60_000, message: \"w9 document should reach extracted\" },\n        )\n        .toBe(\"extracted\");\n\n      // Act\n      const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n      // Assert\n      expect(response.status()).toBe(409);\n      const body = await response.json();\n      expect(body.error.code).toBe(\"documents_incomplete\");\n\n      // The missing kinds must be reported somewhere in the error payload.\n      const serialized = JSON.stringify(body);\n      expect(serialized).toContain(\"contract\");\n      expect(serialized).toContain(\"insurance_certificate\");\n      expect(serialized).not.toContain('\"w9\"]');\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12579,
+    "output_tokens": 1412,
+    "cost_usd": 0.001964,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.57156595797278,
+  "error": null,
+  "log": null
+}

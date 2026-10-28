@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"Successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n\n  expect(response.status(), await response.text()).toBe(200);\n\n  const body = await response.json();\n  expect(body.access_token, JSON.stringify(body)).toBeTruthy();\n\n  const cookie = response\n    .headersArray()\n    .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, JSON.stringify(response.headersArray())).toBeDefined();\n  expect(cookie?.value.toLowerCase()).toContain(\"httponly\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13835,
+    "output_tokens": 458,
+    "cost_usd": 0.000394,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.4596555000171065,
+  "error": null,
+  "log": "  plan: Write one API test under the @AUTH-01 tag that posts the seeded member's credentials to the login endpoint and asserts a 200 status, a non-empty access token, and an HttpOnly session cookie, mirroring the existing auth spec style. No further repository reads are needed since the existing auth spec already demonstrates the exact pattern.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-01: passing: every test passes against the real app\n"
+}

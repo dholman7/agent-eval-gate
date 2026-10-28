@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntest(\"A file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"DOC-05 Vendor\"),\n      category: \"software\",\n      contact_email: \"billing@doc05-vendor.com\",\n    },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = (await vendorRes.json()) as { id: string; status: string };\n  expect(vendor.status, await vendorRes.text()).toBe(\"draft\");\n\n  // Act\n  const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"contract\",\n      file: {\n        name: \"contract-10mib.txt\",\n        mimeType: \"text/plain\",\n        buffer: Buffer.alloc(TEN_MIB, \"x\"),\n      },\n    },\n  });\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(201);\n  const body = (await res.json()) as { vendor_id: string; kind: string; size_bytes: number };\n  expect(body.vendor_id, await res.text()).toBe(vendor.id);\n  expect(body.kind, await res.text()).toBe(\"contract\");\n  expect(body.size_bytes, await res.text()).toBe(TEN_MIB);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 61029,
+    "output_tokens": 2449,
+    "cost_usd": 0.002436,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 19.452307832892984,
+  "error": null,
+  "log": "  plan: Create a unique draft vendor as a signed-in member via the API, then upload a 10 MiB text/plain file as kind contract using multipart form data and assert a 201 with the response body in the message. The test is tagged @DOC-05 and lives in the generated folder.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The 422 came from the setup step that creates the vendor, not from the upload under test. The contact_email \"billing@doc05-vendor.test\" uses the reserved .test special-use TLD, which the app's email validator rejects with validation_error. The scenario does not depend on the email domain, so the test should use a normal, valid domain. The upload assertions and the @DOC-05 tag are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-05: passing: every test passes against the real app\n"
+}

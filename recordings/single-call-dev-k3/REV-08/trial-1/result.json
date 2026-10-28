@@ -1,0 +1,14 @@
+{
+  "files": {
+    "REV-08.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { apiAsHelperPlaceholder as _unused } from \"./_unused\";\n"
+  },
+  "usage": {
+    "input_tokens": 12583,
+    "output_tokens": 815,
+    "cost_usd": 0.001666,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.881050541996956,
+  "error": null,
+  "log": null
+}

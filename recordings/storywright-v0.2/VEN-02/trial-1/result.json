@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst invalidFields = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n] as const;\n\ntest.describe(\"Reject invalid vendor fields\", () => {\n  for (const { field, value } of invalidFields) {\n    test(`rejects ${field} set to ${JSON.stringify(value)} with validation_error`, { tag: \"@VEN-02\" }, async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const payload: Record<string, unknown> = {\n        name: uniqueName(\"Ven02 Vendor\"),\n        category: \"software\",\n        contact_email: \"billing@ven02.test\",\n      };\n      payload[field] = value;\n\n      // Act\n      const res = await member.post(\"/api/vendors\", { data: payload });\n\n      // Assert\n      const body = await res.text();\n      expect(res.status(), body).toBe(422);\n      const json = JSON.parse(body);\n      expect(json.error.code, body).toBe(\"validation_error\");\n      const fields: string[] = (json.error.fields ?? []).map((f: { field: string }) => f.field);\n      expect(fields, body).toContain(field);\n    });\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 43630,
+    "output_tokens": 1163,
+    "cost_usd": 0.001288,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.963417874881998,
+  "error": null,
+  "log": "  plan: Parametrize one API test per invalid-field example: send a valid vendor payload with only the bad field overridden, then assert 422, the validation_error envelope, and that the named field appears in error.fields. Field names come from the app's validation handler, which strips the body prefix from the error location.\n  verify: 3 passed, 0 failed\n  stop: passing\n  tool calls: 2\nVEN-02: passing: every test passes against the real app\n"
+}

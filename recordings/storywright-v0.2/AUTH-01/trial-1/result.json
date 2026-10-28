@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"Successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n  const body = await response.text();\n\n  // Assert\n  expect(response.status(), body).toBe(200);\n  const json = JSON.parse(body) as { access_token?: unknown };\n  expect(typeof json.access_token, body).toBe(\"string\");\n  expect((json.access_token as string).length, body).toBeGreaterThan(0);\n\n  const cookie = response\n    .headersArray()\n    .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, body).toBeDefined();\n  expect(cookie?.value.toLowerCase(), body).toContain(\"httponly\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13835,
+    "output_tokens": 754,
+    "cost_usd": 0.000542,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.925791332963854,
+  "error": null,
+  "log": "  plan: Add one API test under the @AUTH-01 tag that signs in with the seeded member credentials through the shared fixtures, then asserts the 200 status, the access token, and an HttpOnly session cookie, with the response body in each status message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-01: passing: every test passes against the real app\n"
+}

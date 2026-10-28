@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"the same vendor name is allowed in a different tenant\", { tag: \"@VEN-04\" }, async ({ apiAs }) => {\n    const name = \"Acme Freight\";\n    const globex = await apiAs(\"otherTenant\");\n    const northwind = await apiAs(\"member\");\n\n    // Given a vendor named \"Acme Freight\" exists in tenant \"Globex Procurement\"\n    const seed = await globex.post(\"/api/vendors\", {\n      data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n    // 201 on a fresh database; 409 if an earlier run already seeded this vendor.\n    expect([201, 409], await seed.text()).toContain(seed.status());\n\n    const seeded = await globex.get(\"/api/vendors\", { params: { q: name } });\n    expect(seeded.status(), await seeded.text()).toBe(200);\n    const seededPage = await seeded.json();\n    expect(\n      seededPage.items.some((v: { name: string }) => v.name === name),\n      \"Globex tenant should list its Acme Freight vendor\",\n    ).toBe(true);\n\n    // When I create a vendor named \"Acme Freight\" in category \"logistics\" with contact \"ops@acmefreight.example\"\n    const res = await northwind.post(\"/api/vendors\", {\n      data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n\n    // Then the response status is 201\n    expect(res.status(), await res.text()).toBe(201);\n    const created = await res.json();\n    expect(created.name).toBe(name);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13865,
+    "output_tokens": 1998,
+    "cost_usd": 0.001167,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.735472582979128,
+  "error": null,
+  "log": "  plan: Seed \"Acme Freight\" in the Globex tenant through the otherTenant persona (accepting 409 in case an earlier run already seeded it), confirm it is visible there, then create the same name as the Northwind member and assert 201 with the response body in the failure message. Tests go through the HTTP API using the shared fixtures and the @VEN-04 tag.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-04: passing: every test passes against the real app\n"
+}

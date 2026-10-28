@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Fields that cannot be parsed get low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"DOC-03 Vendor\"),\n      category: \"services\",\n      contact_email: \"billing@acme-supply.com\",\n    },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = await vendorRes.json();\n\n  const certificate = [\n    \"Insurer: Harbor Mutual\",\n    \"Policy Number: HM-55-1290\",\n    \"Coverage Amount: two million\",\n    \"Expiry Date: next spring\",\n  ].join(\"\\n\");\n\n  // Act\n  const uploadRes = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"insurance_certificate\",\n      file: { name: \"insurance_certificate.txt\", mimeType: \"text/plain\", buffer: Buffer.from(certificate) },\n    },\n  });\n  expect(uploadRes.status(), await uploadRes.text()).toBe(201);\n  const document = await uploadRes.json();\n\n  // Assert: wait for background processing to finish\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/documents/${document.id}`);\n        expect(res.status(), await res.text()).toBe(200);\n        return (await res.json()).status;\n      },\n      { timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  const extractionRes = await member.get(`/api/documents/${document.id}/extraction`);\n  expect(extractionRes.status(), await extractionRes.text()).toBe(200);\n  const extraction = await extractionRes.json();\n\n  const expiry = extraction.fields.expiry_date;\n  expect(expiry, JSON.stringify(extraction)).toBeDefined();\n  expect(expiry.value, JSON.stringify(extraction)).toBeNull();\n  expect(expiry.confidence, JSON.stringify(extraction)).toBeLessThan(0.5);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 52507,
+    "output_tokens": 2115,
+    "cost_usd": 0.002651,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.117320083081722,
+  "error": null,
+  "log": "  plan: Create a draft vendor as a signed-in member, upload an insurance certificate whose Expiry Date line is \"next spring\" as a text file, poll the document until it is extracted, then assert the expiry_date field has a null value and confidence below 0.5. Assertions carry response bodies in their messages.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nDOC-03: passing: every test passes against the real app\n"
+}

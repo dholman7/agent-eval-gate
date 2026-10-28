@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in with an unknown email\", () => {\n  test(\n    \"unknown email is rejected with 401 and invalid_credentials\",\n    { tag: \"@AUTH-03\" },\n    async ({ request }) => {\n      // Act\n      const response = await request.post(\"/api/auth/login\", {\n        data: { email: \"nobody@northwind.test\", password: PASSWORD },\n      });\n\n      // Assert\n      expect(response.status()).toBe(401);\n      const body = await response.json();\n      expect(body.error.code).toBe(\"invalid_credentials\");\n    },\n  );\n\n  test(\n    \"unknown email gets the same response as a wrong password\",\n    { tag: \"@AUTH-03\" },\n    async ({ request }) => {\n      // Arrange: a known user with a wrong password is the reference failure.\n      const wrongPassword = await request.post(\"/api/auth/login\", {\n        data: { email: USERS.member, password: \"wrong-password\" },\n      });\n\n      // Act\n      const unknownEmail = await request.post(\"/api/auth/login\", {\n        data: { email: \"nobody@northwind.test\", password: PASSWORD },\n      });\n\n      // Assert\n      expect(unknownEmail.status()).toBe(wrongPassword.status());\n      expect(unknownEmail.status()).toBe(401);\n      const unknownBody = await unknownEmail.json();\n      const wrongBody = await wrongPassword.json();\n      expect(unknownBody.error.code).toBe(\"invalid_credentials\");\n      expect(unknownBody.error.code).toBe(wrongBody.error.code);\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12549,
+    "output_tokens": 868,
+    "cost_usd": 0.001689,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.610395582858473,
+  "error": null,
+  "log": null
+}

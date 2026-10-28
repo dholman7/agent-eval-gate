@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n  // Given: signed in as the seeded member (cookie stored in the request context)\n  const login = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n  expect(login.status(), await login.text()).toBe(200);\n\n  // When: sign out\n  const logout = await request.post(\"/api/auth/logout\");\n\n  // Then: 204 and the session cookie is cleared\n  expect(logout.status(), await logout.text()).toBe(204);\n  const cookie = logout\n    .headersArray()\n    .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, \"Set-Cookie for session on sign-out\").toBeTruthy();\n  const value = cookie!.value;\n  const cleared =\n    /^session=(;|$)/.test(value) ||\n    /max-age=0/i.test(value) ||\n    /expires=Thu, 01 Jan 1970/i.test(value);\n  expect(cleared, `session cookie should be cleared, got: ${value}`).toBe(true);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13821,
+    "output_tokens": 1483,
+    "cost_usd": 0.000905,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 9.935078917071223,
+  "error": null,
+  "log": "  plan: Sign in as the seeded member through the API request context so the session cookie is stored, then call logout on the same context. Assert a 204 and that the session Set-Cookie header clears the cookie (empty value, Max-Age=0, or epoch expiry).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

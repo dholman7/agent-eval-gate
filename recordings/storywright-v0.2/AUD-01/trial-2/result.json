@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUD-01.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"audit events are listed oldest first with actor and action\", { tag: \"@AUD-01\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const created = await member.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Audit Trail\"), category: \"services\", contact_email: \"audit@trail.example\" },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = (await created.json()) as { id: string };\n\n  const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n  expect(upload.status(), await upload.text()).toBe(201);\n\n  // Act: extraction runs in the background, so poll until its event is recorded.\n  let items: Array<{ action: string; actor: { email: string }; at: string }> = [];\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/vendors/${vendor.id}/audit`);\n        expect(res.status(), await res.text()).toBe(200);\n        items = ((await res.json()) as { items: typeof items }).items;\n        return items.map((e) => e.action);\n      },\n      { timeout: 15_000 },\n    )\n    .toEqual([\"vendor.created\", \"document.uploaded\", \"document.extracted\"]);\n\n  // Assert\n  const finalRes = await member.get(`/api/vendors/${vendor.id}/audit`);\n  expect(finalRes.status(), await finalRes.text()).toBe(200);\n  const trail = ((await finalRes.json()) as { items: typeof items }).items;\n  expect(trail.map((e) => e.action), await finalRes.text()).toEqual([\n    \"vendor.created\",\n    \"document.uploaded\",\n    \"document.extracted\",\n  ]);\n  for (const event of trail) {\n    expect(event.actor.email, JSON.stringify(event)).toBe(\"member@northwind.test\");\n    expect(Number.isNaN(Date.parse(event.at)), JSON.stringify(event)).toBe(false);\n    expect(event.at, JSON.stringify(event)).toBeTruthy();\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 104709,
+    "output_tokens": 1980,
+    "cost_usd": 0.004147,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.747757332865149,
+  "error": null,
+  "log": "  plan: Create a vendor and upload the sample W-9 as the member through the API, then poll the audit trail until the background extraction event appears, and assert the action order, actor email, and timestamp on each event. Failure messages carry the response body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 7\nAUD-01: passing: every test passes against the real app\n"
+}

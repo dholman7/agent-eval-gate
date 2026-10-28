@@ -1,0 +1,14 @@
+{
+  "files": {
+    "REV-08.spec.ts": "import { expect, test, sample, uniqueName } from \"../../fixtures\";\n\n// Assumption: the insurance certificate's expiry is read by server-side extraction, and the\n// test data provides one sample per day offset, named `insurance-expires-in-<days>d.pdf`.\n// The API has no endpoint to set an expiry date directly, so this is the only way to drive it.\nconst examples = [\n  { days: 0, include: true },\n  { days: 30, include: true },\n  { days: 31, include: false },\n] as const;\n\nconst FLAG = \"insurance_expiring_soon\";\n\ntest.describe(\"insurance expiry flag\", () => {\n  for (const { days, include } of examples) {\n    const verb = include ? \"include\" : \"do not include\";\n\n    test(\n      `vendor with insurance expiring in ${days} days ${verb} the \"${FLAG}\" flag`,\n      { tag: \"@REV-08\" },\n      async ({ apiAs }) => {\n        // Arrange: a member creates a uniquely named vendor and uploads the certificate.\n        const member = await apiAs(\"member\");\n        const created = await member.post(\"/api/vendors\", {\n          data: {\n            name: uniqueName(`Expiry ${days}d`),\n            category: \"services\",\n            contact_email: `expiry-${days}-${Date.now().toString(36)}@example.test`,\n          },\n        });\n        expect(created.status()).toBe(201);\n        const vendor = await created.json();\n\n        const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n          multipart: {\n            kind: \"insurance_certificate\",\n            file: {\n              name: `insurance-expires-in-${days}d.pdf`,\n              mimeType: \"application/pdf\",\n              buffer: require(\"node:fs\").readFileSync(sample(`insurance-expires-in-${days}d.pdf`)),\n            },\n          },\n        });\n        expect(upload.status()).toBe(201);\n        const document = await upload.json();\n\n        // Wait for extraction to finish before reading flags.\n        await expect\n          .poll(async () => {\n            const response = await member.get(`/api/documents/${document.id}`);\n            return (await response.json()).status;\n          })\n          .not.toBe(\"processing\");\n\n        // Act\n        const response = await member.get(`/api/vendors/${vendor.id}`);\n\n        // Assert\n        expect(response.status()).toBe(200);\n        const body = await response.json();\n        if (include) {\n          expect(body.flags).toContain(FLAG);\n        } else {\n          expect(body.flags).not.toContain(FLAG);\n        }\n      },\n    );\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12583,
+    "output_tokens": 1624,
+    "cost_usd": 0.00207,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 9.418938042130321,
+  "error": null,
+  "log": null
+}

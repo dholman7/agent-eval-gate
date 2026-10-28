@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntest(\"A file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"DOC-05 Vendor\"),\n      category: \"software\",\n      contact_email: \"billing@example.com\",\n    },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = (await vendorRes.json()) as { id: string };\n\n  // Act\n  const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"contract\",\n      file: {\n        name: \"contract-10mib.txt\",\n        mimeType: \"text/plain\",\n        buffer: Buffer.alloc(TEN_MIB, \"x\"),\n      },\n    },\n  });\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(201);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 66444,
+    "output_tokens": 2493,
+    "cost_usd": 0.003,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 18.60714125004597,
+  "error": null,
+  "log": "  plan: Create a draft vendor as the member through the API, then upload a text file of exactly 10 MiB (10 * 1024 * 1024 bytes) as kind 'contract' with a .txt name and text/plain type, asserting 201 with the response body in the failure message. The name is unique and the email is valid, so setup data is not what the app rejects.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failure happens at setup, not at the upload under test. Creating the vendor returned 422 because contact_email 'billing@doc05.example.test' uses the '.test' top-level domain, which the email validator treats as a reserved special-use name. The scenario does not depend on that address, so the test chose invalid setup data. The fix is to use an ordinary domain such as example.com. The upload assertion and the @DOC-05 tag are unchanged, and the 10 MiB upload was never reached, so nothing here shows an app defect.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nDOC-05: passing: every test passes against the real app\n"
+}

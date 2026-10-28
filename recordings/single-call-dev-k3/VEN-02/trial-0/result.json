@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst examples = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n] as const;\n\nfor (const { field, value } of examples) {\n  test(`rejects vendor with invalid ${field}`, { tag: \"@VEN-02\" }, async ({ apiAs }) => {\n    // Arrange: a valid vendor payload with only the one field under test made invalid\n    const member = await apiAs(\"member\");\n    const payload: Record<string, unknown> = {\n      name: uniqueName(\"Vendor Validation\"),\n      category: \"software\",\n      contact_email: \"billing@vendor-validation.test\",\n    };\n    payload[field] = value;\n\n    // Act\n    const response = await member.post(\"/api/vendors\", { data: payload });\n\n    // Assert\n    expect(response.status()).toBe(422);\n    const body = await response.json();\n    expect(body.error.code).toBe(\"validation_error\");\n    expect(JSON.stringify(body)).toContain(field);\n  });\n}\n"
+  },
+  "usage": {
+    "input_tokens": 12608,
+    "output_tokens": 857,
+    "cost_usd": 0.001689,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.406274958048016,
+  "error": null,
+  "log": null
+}

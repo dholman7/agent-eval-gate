@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-08.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"update a draft vendor changes its contact email and records an audit event\", { tag: \"@VEN-08\" }, async ({ apiAs }) => {\n  const member = await apiAs(\"member\");\n\n  const created = await member.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Acme Freight\"), category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = await created.json();\n  expect(vendor.status, JSON.stringify(vendor)).toBe(\"draft\");\n\n  const res = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n  expect(res.status(), await res.text()).toBe(200);\n  expect((await res.json()).contact_email).toBe(\"billing@acmefreight.example\");\n\n  await expect\n    .poll(\n      async () => {\n        const audit = await member.get(`/api/vendors/${vendor.id}/audit`);\n        const body = await audit.json();\n        return (body.items as { action: string }[]).map((e) => e.action);\n      },\n      { message: \"audit event vendor.updated is recorded\" },\n    )\n    .toContain(\"vendor.updated\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13840,
+    "output_tokens": 1515,
+    "cost_usd": 0.000923,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.245403499808162,
+  "error": null,
+  "log": "  plan: Create a draft vendor through the API as a member, PATCH its contact email, assert a 200 with the new email, then poll the vendor's audit trail until a vendor.updated event appears. Test data follows the VendorCreate schema.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-08: passing: every test passes against the real app\n"
+}

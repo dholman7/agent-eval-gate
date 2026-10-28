@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-08.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"Update a draft vendor\", { tag: \"@VEN-08\" }, async ({ apiAs }) => {\n    // Arrange: a member creates a vendor, which starts in draft.\n    const member = await apiAs(\"member\");\n    const createResponse = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"VEN-08 Draft Vendor\"),\n        category: \"logistics\",\n        contact_email: \"ops@draftvendor.example\",\n      },\n    });\n    expect(createResponse.status()).toBe(201);\n    const created = await createResponse.json();\n    expect(created.status).toBe(\"draft\");\n\n    // Act: change the contact email.\n    const newEmail = \"billing@acmefreight.example\";\n    const updateResponse = await member.patch(`/api/vendors/${created.id}`, {\n      data: { contact_email: newEmail },\n    });\n\n    // Assert: response status and updated field.\n    expect(updateResponse.status()).toBe(200);\n    const updated = await updateResponse.json();\n    expect(updated.id).toBe(created.id);\n    expect(updated.contact_email).toBe(newEmail);\n\n    // Assert: audit event recorded for the vendor.\n    const auditResponse = await member.get(`/api/vendors/${created.id}/audit`);\n    expect(auditResponse.status()).toBe(200);\n    const audit = await auditResponse.json();\n    const actions = (audit.items as { action: string }[]).map((event) => event.action);\n    expect(actions).toContain(\"vendor.updated\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12557,
+    "output_tokens": 765,
+    "cost_usd": 0.001638,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 4.233836250146851,
+  "error": null,
+  "log": null
+}

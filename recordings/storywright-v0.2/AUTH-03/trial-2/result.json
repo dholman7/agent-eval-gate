@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"unknown email is rejected the same way as a wrong password\", { tag: \"@AUTH-03\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: \"nobody@northwind.test\", password: PASSWORD },\n    });\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(401);\n    expect(JSON.parse(body).error.code, body).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13831,
+    "output_tokens": 350,
+    "cost_usd": 0.000339,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.485758332768455,
+  "error": null,
+  "log": "  plan: Write one API test under the @AUTH-03 tag that signs in with an unknown email and asserts a 401 with error code invalid_credentials, mirroring the existing auth spec's style and including the response body in assertion messages. The import path is adjusted for the generated/ subdirectory.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-03: passing: every test passes against the real app\n"
+}

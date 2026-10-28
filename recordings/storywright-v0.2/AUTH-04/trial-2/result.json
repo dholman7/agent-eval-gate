@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"current user is returned for a valid session\", { tag: \"@AUTH-04\" }, async ({ apiAs }) => {\n  const member = await apiAs(\"member\");\n\n  const response = await member.get(\"/api/me\");\n  const body = await response.text();\n  expect(response.status(), body).toBe(200);\n\n  const profile = JSON.parse(body) as { role: string; tenant: { name: string } };\n  expect(profile.role, body).toBe(\"member\");\n  expect(profile.tenant.name, body).toBe(\"Northwind Supply\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13833,
+    "output_tokens": 322,
+    "cost_usd": 0.000325,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.5367027500178665,
+  "error": null,
+  "log": "  plan: Write a single API test using the apiAs fixture to sign in as the member persona, call GET /api/me, and assert 200 plus role and tenant name, with the response body included in assertion messages. The tag @AUTH-04 is applied to the test.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-04: passing: every test passes against the real app\n"
+}

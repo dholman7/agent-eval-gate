@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"the same vendor name is allowed in a different tenant\", { tag: \"@VEN-04\" }, async ({ apiAs }) => {\n  // Given a vendor named \"Acme Freight\" exists in tenant \"Globex Procurement\"\n  const name = uniqueName(\"Acme Freight\");\n  const globex = await apiAs(\"otherTenant\");\n  const setup = await globex.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n  expect(setup.status(), await setup.text()).toBe(201);\n\n  // When I create a vendor named \"Acme Freight\" in category \"logistics\" with contact \"ops@acmefreight.example\"\n  const northwind = await apiAs(\"member\");\n  const res = await northwind.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Then the response status is 201\n  expect(res.status(), await res.text()).toBe(201);\n  const body = await res.json();\n  expect(body.name, JSON.stringify(body)).toBe(name);\n  expect(body.category, JSON.stringify(body)).toBe(\"logistics\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13865,
+    "output_tokens": 1741,
+    "cost_usd": 0.001038,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.237021625041962,
+  "error": null,
+  "log": "  plan: Create a vendor named with a unique name in the Globex tenant as setup, then create a vendor with the same name as the Northwind member and assert 201 with the response body in every failure message. The name is generated once and shared so the test still checks the same-name-across-tenants rule.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-04: passing: every test passes against the real app\n"
+}

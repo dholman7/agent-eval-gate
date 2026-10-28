@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\n    \"requests without a session are rejected with not_authenticated\",\n    { tag: \"@AUTH-05\" },\n    async ({ request }) => {\n      // Act: request the profile with no bearer token and no session cookie\n      const response = await request.get(\"/api/me\");\n\n      // Assert\n      expect(response.status()).toBe(401);\n      const body = await response.json();\n      expect(body.error.code).toBe(\"not_authenticated\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12525,
+    "output_tokens": 409,
+    "cost_usd": 0.001457,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.6329222498461604,
+  "error": null,
+  "log": null
+}

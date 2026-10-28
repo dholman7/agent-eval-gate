@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { USERS, expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"the same vendor name is allowed in a different tenant\", { tag: \"@VEN-04\" }, async ({ apiAs }) => {\n    // Arrange: a vendor with the same name already exists in another tenant.\n    // A unique suffix keeps reruns against the shared database from colliding within a tenant.\n    const name = uniqueName(\"Acme Freight\");\n    const globex = await apiAs(\"otherTenant\");\n    const setup = await globex.post(\"/api/vendors\", {\n      data: { name, category: \"logistics\", contact_email: \"ops@globex-procurement.example\" },\n    });\n    expect(setup.status(), await setup.text()).toBe(201);\n    const globexVendor = await setup.json();\n\n    // Act: the signed-in Northwind member creates a vendor with that name.\n    const member = await apiAs(\"member\");\n    const res = await member.post(\"/api/vendors\", {\n      data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n\n    // Assert\n    expect(res.status(), await res.text()).toBe(201);\n    const created = await res.json();\n    expect(created.name).toBe(name);\n    expect(created.category).toBe(\"logistics\");\n    expect(created.id).not.toBe(globexVendor.id);\n    expect(USERS.member).toBeTruthy();\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13865,
+    "output_tokens": 1445,
+    "cost_usd": 0.00089,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.070267041912302,
+  "error": null,
+  "log": "  plan: Create the same uniquely suffixed vendor name in the Globex tenant as setup using the Globex persona, then create it as a Northwind member and assert 201 with the vendor's name and a distinct id. Every status assertion includes the response body for diagnostics.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-04: passing: every test passes against the real app\n"
+}

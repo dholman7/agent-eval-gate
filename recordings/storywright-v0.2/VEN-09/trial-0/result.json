@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor under review\", () => {\n  test(\"a vendor in review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const created = await member.post(\"/api/vendors\", {\n      data: { name: uniqueName(\"Acme Freight\"), category: \"logistics\", contact_email: \"ops@acme.example\" },\n    });\n    expect(created.status(), await created.text()).toBe(201);\n    const vendor = (await created.json()) as { id: string };\n\n    const uploads: [string, string][] = [\n      [\"w9\", \"w9.txt\"],\n      [\"insurance_certificate\", \"insurance_certificate.txt\"],\n      [\"contract\", \"contract.txt\"],\n    ];\n    for (const [kind, file] of uploads) {\n      const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind,\n          file: { name: file, mimeType: \"text/plain\", buffer: readFileSync(sample(file)) },\n        },\n      });\n      expect(res.status(), await res.text()).toBe(201);\n    }\n\n    // Documents are extracted in the background; wait until none are still processing.\n    await expect\n      .poll(\n        async () => {\n          const res = await member.get(`/api/vendors/${vendor.id}/documents`);\n          const docs = (await res.json()) as { status: string }[];\n          return docs.length === 3 && docs.every((d) => d.status !== \"processing\");\n        },\n        { timeout: 60_000 },\n      )\n      .toBe(true);\n\n    const submitted = await member.post(`/api/vendors/${vendor.id}/submit`);\n    expect(submitted.status(), await submitted.text()).toBe(200);\n    expect(((await submitted.json()) as { status: string }).status).toBe(\"in_review\");\n\n    // Act\n    const response = await member.patch(`/api/vendors/${vendor.id}`, {\n      data: { contact_email: \"billing@acmefreight.example\" },\n    });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(409);\n    const body = (await response.json()) as { error: { code: string } };\n    expect(body.error.code, await response.text()).toBe(\"vendor_locked\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 154469,
+    "output_tokens": 2546,
+    "cost_usd": 0.006968,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 21.36127687501721,
+  "error": null,
+  "log": "  plan: Create a draft vendor under a unique name, upload the three sample documents, wait until background extraction finishes, submit it to reach in_review, then PATCH its contact email and assert the 409 vendor_locked response. Status assertions include the response body for diagnosis.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 8\nVEN-09: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"VEN-04: manage vendors\", () => {\n  test(\n    \"the same vendor name is allowed in a different tenant\",\n    { tag: \"@VEN-04\" },\n    async ({ apiAs }) => {\n      // Arrange: a vendor with the same name already exists in another tenant.\n      // The name is made unique so repeated or parallel runs do not collide.\n      const name = uniqueName(\"Acme Freight\");\n      const otherTenant = await apiAs(\"otherTenant\");\n      const existing = await otherTenant.post(\"/api/vendors\", {\n        data: {\n          name,\n          category: \"logistics\",\n          contact_email: \"ops@globex-freight.example\",\n        },\n      });\n      expect(existing.status(), \"seed vendor in Globex Procurement\").toBe(201);\n\n      // Act: the member from Northwind creates a vendor with that same name.\n      const member = await apiAs(\"member\");\n      const response = await member.post(\"/api/vendors\", {\n        data: {\n          name,\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n\n      // Assert\n      expect(response.status()).toBe(201);\n      const created = await response.json();\n      expect(created.name).toBe(name);\n      expect(created.id).toBeTruthy();\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12582,
+    "output_tokens": 1113,
+    "cost_usd": 0.001815,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.9556585829705,
+  "error": null,
+  "log": null
+}

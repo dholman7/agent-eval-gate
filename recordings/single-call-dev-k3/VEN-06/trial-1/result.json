@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-06.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"listing vendors with limit 101 is rejected with 422\", { tag: \"@VEN-06\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/vendors\", {\n      params: { limit: 101 },\n    });\n\n    // Assert\n    expect(response.status()).toBe(422);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12517,
+    "output_tokens": 233,
+    "cost_usd": 0.001368,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.3180455840192735,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntype VendorBody = { name: string; category: string; contact_email: string };\n\nconst examples = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n] as const;\n\nfor (const { field, value } of examples) {\n  test(`rejects invalid vendor field ${field}=${JSON.stringify(value)}`, { tag: \"@VEN-02\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const body: VendorBody = {\n      name: uniqueName(\"Ven02 Acme\"),\n      category: \"logistics\",\n      contact_email: \"ops@acme.example\",\n    };\n    (body as Record<string, string>)[field] = value;\n\n    // Act\n    const res = await member.post(\"/api/vendors\", { data: body });\n    const text = await res.text();\n\n    // Assert\n    expect(res.status(), text).toBe(422);\n    const error = JSON.parse(text).error;\n    expect(error.code, text).toBe(\"validation_error\");\n    const named: string[] = (error.fields ?? []).map((f: { field: string }) => f.field);\n    expect(named, text).toContain(field);\n  });\n}\n"
+  },
+  "usage": {
+    "input_tokens": 60587,
+    "output_tokens": 2350,
+    "cost_usd": 0.002342,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 19.471674459055066,
+  "error": null,
+  "log": "  plan: Post a vendor with one invalid field overridden on an otherwise valid body, as an authenticated member, for each scenario row. Assert 422, the validation_error envelope code, and that the named field appears in the error's fields list, with the response body in every status message.\n  verify: 3 passed, 0 failed, type errors\n  repair 1: test_bug: The only reported failure is a TypeScript compile error: the file imports `apiAs` from \"../../fixtures\", but fixtures/index.ts exports `apiAs` only as a fixture on `test`, not as a named export. Because the file fails to compile, no test ran, so this is a test-authoring error and not evidence about the app. The test already obtains `apiAs` correctly through the Playwright fixture argument, so the bad import is removed and the rest of the file is unchanged, with the @VEN-02 tag kept on every test.\n  verify: 3 passed, 0 failed\n  stop: passing\n  tool calls: 3\nVEN-02: passing: every test passes against the real app\n"
+}

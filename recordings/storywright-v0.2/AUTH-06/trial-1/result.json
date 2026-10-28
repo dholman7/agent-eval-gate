@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n  // Arrange: sign in so the session cookie is stored in this request context's cookie jar\n  const login = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n  expect(login.status(), await login.text()).toBe(200);\n  const sessionSet = login.headersArray().find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(sessionSet, \"sign-in should set the session cookie\").toBeTruthy();\n\n  // Act\n  const response = await request.post(\"/api/auth/logout\");\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(204);\n  const clearing = response\n    .headersArray()\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(clearing.length, \"logout should send a session Set-Cookie header\").toBeGreaterThan(0);\n  const cleared = clearing.some((h) =>\n    /^session=(;|\"\";|$)/.test(h.value) ||\n    /max-age=0(;|$)/i.test(h.value) ||\n    /expires=Thu, 01 Jan 1970/i.test(h.value),\n  );\n  expect(cleared, `session cookie should be cleared, got: ${clearing.map((h) => h.value).join(\" | \")}`).toBeTruthy();\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13821,
+    "output_tokens": 1374,
+    "cost_usd": 0.00085,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.31474379193969,
+  "error": null,
+  "log": "  plan: Sign in through the shared request context so the session cookie lands in its jar, then call POST /api/auth/logout on that same context. Assert a 204 and that the Set-Cookie header for session clears it (empty value, Max-Age=0, or an epoch expiry), with the response body in each status message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

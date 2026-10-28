@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\"A file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n    // Arrange: signed in as a member, with a vendor in status \"draft\"\n    const member = await apiAs(\"member\");\n    const createResponse = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"DOC-05 Vendor\"),\n        category: \"services\",\n        contact_email: \"billing@doc05vendor.test\",\n      },\n    });\n    expect(createResponse.status()).toBe(201);\n    const vendor = await createResponse.json();\n    expect(vendor.status).toBe(\"draft\");\n\n    const file = Buffer.alloc(TEN_MIB, \"a\");\n\n    // Act: upload a text file of exactly 10 MiB as kind \"contract\"\n    const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"contract\",\n        file: {\n          name: \"contract-10mib.txt\",\n          mimeType: \"text/plain\",\n          buffer: file,\n        },\n      },\n    });\n\n    // Assert\n    expect(response.status()).toBe(201);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12561,
+    "output_tokens": 867,
+    "cost_usd": 0.00169,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 4.537193124881014,
+  "error": null,
+  "log": null
+}

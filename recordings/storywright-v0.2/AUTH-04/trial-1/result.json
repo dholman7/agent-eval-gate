@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"current user is returned for a valid session\", { tag: \"@AUTH-04\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(\"/api/me\");\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(200);\n  const profile = await response.json();\n  expect(profile.role, JSON.stringify(profile)).toBe(\"member\");\n  expect(profile.tenant?.name, JSON.stringify(profile)).toBe(\"Northwind Supply\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13833,
+    "output_tokens": 355,
+    "cost_usd": 0.000342,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.532893790863454,
+  "error": null,
+  "log": "  plan: Write one API test in the given path using the apiAs fixture to get an authenticated client, call /api/me, and assert 200 plus role member and tenant Northwind Supply, tagged @AUTH-04 with body-bearing status messages. The scenario is simple enough that no further repository reads are needed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-04: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "REV-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"review vendors\", () => {\n  test(\"members cannot see the review queue\", { tag: \"@REV-04\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/review-queue\");\n\n    // Assert\n    expect(response.status()).toBe(403);\n    expect((await response.json()).error.code).toBe(\"forbidden\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12522,
+    "output_tokens": 299,
+    "cost_usd": 0.001402,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.4061238749418408,
+  "error": null,
+  "log": null
+}

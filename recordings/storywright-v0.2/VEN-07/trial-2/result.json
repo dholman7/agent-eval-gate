@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs }) => {\n    // Arrange: a vendor exists in the Globex tenant\n    const globex = await apiAs(\"otherTenant\");\n    const created = await globex.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Globex Vendor\"),\n        category: \"software\",\n        contact_email: `ops-${Date.now().toString(36)}@example.com`,\n      },\n    });\n    expect(created.status(), await created.text()).toBe(201);\n    const vendor = (await created.json()) as { id: string };\n\n    // Act: the Northwind member requests that vendor by id\n    const member = await apiAs(\"member\");\n    const response = await member.get(`/api/vendors/${vendor.id}`);\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(404);\n    const body = (await response.json()) as { error?: { code?: string } };\n    expect(body.error?.code, JSON.stringify(body)).toBe(\"vendor_not_found\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 28478,
+    "output_tokens": 1865,
+    "cost_usd": 0.001327,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.641873041866347,
+  "error": null,
+  "log": "  plan: Create a vendor as the other-tenant persona via the API, then request it by id as the Northwind member and assert a 404 with error code vendor_not_found. Setup uses a unique vendor name and a valid category and email, per the OpenAPI schema.\n  verify: 0 passed, 1 failed, type errors\n  repair 1: test_bug: The 422 is a setup failure, not an app defect. The create request used contact_email with the domain globex.test, and the app's email validator rejects .test as a reserved special-use domain (the error body says so). The scenario only requires a vendor to exist in the Globex tenant, so the test should use a valid, non-reserved domain such as example.com. The TypeScript error is also a test bug: the file imports `apiAs` from ../../fixtures, which does not export it. `apiAs` is a Playwright fixture received through the test's arguments, so the import is unused and must be removed. The @VEN-07 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n"
+}

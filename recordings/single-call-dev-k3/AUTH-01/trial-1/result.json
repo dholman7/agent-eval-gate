@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\n    \"successful sign-in returns a session\",\n    { tag: \"@AUTH-01\" },\n    async ({ request }) => {\n      // Act\n      const response = await request.post(\"/api/auth/login\", {\n        data: { email: USERS.member, password: PASSWORD },\n      });\n\n      // Assert\n      expect(response.status()).toBe(200);\n\n      const body = await response.json();\n      expect(typeof body.access_token).toBe(\"string\");\n      expect(body.access_token.length).toBeGreaterThan(0);\n\n      const sessionCookie = response\n        .headersArray()\n        .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n        .find((h) => h.value.startsWith(\"session=\"));\n      expect(sessionCookie, \"a session cookie is set\").toBeDefined();\n      expect(sessionCookie!.value.toLowerCase()).toContain(\"httponly\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12553,
+    "output_tokens": 526,
+    "cost_usd": 0.001518,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.9375573329161853,
+  "error": null,
+  "log": null
+}

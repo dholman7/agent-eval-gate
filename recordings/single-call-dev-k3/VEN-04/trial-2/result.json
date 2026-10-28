@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"VEN-04: vendor names are unique per tenant, not globally\", () => {\n  test(\n    \"the same vendor name is allowed in a different tenant\",\n    { tag: \"@VEN-04\" },\n    async ({ apiAs }) => {\n      // Arrange: a vendor with the same name already exists in another tenant.\n      // The name is generated so parallel runs don't collide, but both sides use the same name.\n      const name = uniqueName(\"Acme Freight\");\n      const globex = await apiAs(\"otherTenant\");\n      const seeded = await globex.post(\"/api/vendors\", {\n        data: { name, category: \"logistics\", contact_email: \"ops@globex.example\" },\n      });\n      expect(seeded.status(), \"seed Globex vendor\").toBe(201);\n\n      const member = await apiAs(\"member\");\n\n      // Act\n      const response = await member.post(\"/api/vendors\", {\n        data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n      });\n\n      // Assert\n      expect(response.status()).toBe(201);\n      const vendor = await response.json();\n      expect(vendor.name).toBe(name);\n      expect(vendor.category).toBe(\"logistics\");\n      expect(vendor.contact_email).toBe(\"ops@acmefreight.example\");\n      expect(vendor.id).not.toBe((await seeded.json()).id);\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12582,
+    "output_tokens": 930,
+    "cost_usd": 0.001723,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.112880624830723,
+  "error": null,
+  "log": null
+}

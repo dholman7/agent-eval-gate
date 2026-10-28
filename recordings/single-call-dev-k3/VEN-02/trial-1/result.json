@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst INVALID_FIELDS: Array<{ field: string; value: unknown }> = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n];\n\n/** True when the error body names the given field in any of the shapes the API may use. */\nfunction namesField(body: any, field: string): boolean {\n  const candidates: unknown[] = [];\n  if (Array.isArray(body?.detail)) {\n    for (const d of body.detail) candidates.push(d?.loc);\n  }\n  if (body?.error) {\n    candidates.push(body.error.field, body.error.loc, body.error.details, body.error.fields);\n  }\n  return candidates.some((c) => {\n    if (typeof c === \"string\") return c === field || c.includes(field);\n    if (Array.isArray(c)) return c.includes(field) || JSON.stringify(c).includes(`\"${field}\"`);\n    if (c && typeof c === \"object\") return JSON.stringify(c).includes(`\"${field}\"`);\n    return false;\n  });\n}\n\nfor (const { field, value } of INVALID_FIELDS) {\n  test(\n    `rejects a vendor with invalid ${field}`,\n    { tag: \"@VEN-02\" },\n    async ({ apiAs }) => {\n      // Arrange: a valid vendor payload, with only the targeted field made invalid\n      const member = await apiAs(\"member\");\n      const payload: Record<string, unknown> = {\n        name: uniqueName(\"Ven02 Vendor\"),\n        category: \"software\",\n        contact_email: \"billing@ven02.test\",\n      };\n      payload[field] = value;\n\n      // Act\n      const response = await member.post(\"/api/vendors\", { data: payload });\n\n      // Assert\n      expect(response.status()).toBe(422);\n      const body = await response.json();\n      expect(body.error?.code ?? body.code).toBe(\"validation_error\");\n      expect(namesField(body, field), `error should name field \"${field}\"`).toBe(true);\n    },\n  );\n}\n"
+  },
+  "usage": {
+    "input_tokens": 12608,
+    "output_tokens": 1403,
+    "cost_usd": 0.001962,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.830925165908411,
+  "error": null,
+  "log": null
+}

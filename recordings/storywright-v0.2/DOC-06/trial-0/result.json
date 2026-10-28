@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs }) => {\n  // Arrange: a draft vendor with every required document uploaded and extracted, then submitted\n  const member = await apiAs(\"member\");\n  const created = await member.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Doc Lock\"), category: \"logistics\", contact_email: \"ops@acme.example\" },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = await created.json();\n\n  const required = [\n    [\"w9\", \"w9.txt\"],\n    [\"insurance_certificate\", \"insurance_certificate.txt\"],\n    [\"contract\", \"contract.txt\"],\n  ] as const;\n  for (const [kind, file] of required) {\n    const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind,\n        file: { name: file, mimeType: \"text/plain\", buffer: readFileSync(sample(file)) },\n      },\n    });\n    expect(upload.status(), await upload.text()).toBe(201);\n  }\n\n  // Extraction runs in the background; submit only sees extracted documents.\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/vendors/${vendor.id}/documents`);\n        const docs = (await res.json()) as { status: string }[];\n        return docs.length === 3 && docs.every((d) => d.status === \"extracted\");\n      },\n      { timeout: 30_000 },\n    )\n    .toBe(true);\n\n  const submit = await member.post(`/api/vendors/${vendor.id}/submit`);\n  expect(submit.status(), await submit.text()).toBe(200);\n  expect((await submit.json()).status, await submit.text()).toBe(\"in_review\");\n\n  // Act: try to add another document while under review\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert\n  const body = await response.text();\n  expect(response.status(), body).toBe(409);\n  expect(JSON.parse(body).error.code, body).toBe(\"vendor_locked\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 117385,
+    "output_tokens": 3363,
+    "cost_usd": 0.006106,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 22.25702008418739,
+  "error": null,
+  "log": "  plan: Arrange a draft vendor with all three sample documents, poll until background extraction finishes, submit it to reach in_review, then assert that uploading w9.txt returns 409 with error code vendor_locked. Each assertion carries the response body as its message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 7\nDOC-06: passing: every test passes against the real app\n"
+}
