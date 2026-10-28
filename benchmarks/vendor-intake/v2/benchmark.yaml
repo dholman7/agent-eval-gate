@@ -1,0 +1,34 @@
+# Benchmark: write Playwright API tests for one Gherkin scenario of vendor-intake-app.
+# Frozen once agents are scored against it; changes require a new version directory.
+# v2: same tasks, split, bugs, and references as v1; the target's REV-03 scenario no longer
+# states confidences the app can't produce.
+name: vendor-intake
+version: "2"
+
+target:
+  repo: https://github.com/dholman7/vendor-intake-app
+  ref: fbda20325212e30d9e0458cac4d5a24ac77ae8f1
+  # Run once per prepared workspace.
+  setup:
+    - uv sync --project backend --quiet
+    - npm ci --prefix e2e --silent
+  app:
+    cwd: backend
+    command: uv run python -m vendor_intake.seed && exec uv run uvicorn vendor_intake.main:create_app --factory --port {port}
+    env:
+      VI_DATABASE_URL: sqlite:///{data_dir}/vendor_intake.db
+      VI_STORAGE_DIR: "{data_dir}/uploads"
+      VI_EXTRACTION_DELAY_SECONDS: "0"
+    health: http://127.0.0.1:{port}/api/health
+  tests:
+    cwd: e2e
+    # Where the agent's files go, relative to the repo root.
+    generated_dir: e2e/api/generated
+    typecheck: npx tsc --noEmit
+    run: npx playwright test --project=api {paths} --reporter=json
+    env:
+      API_URL: http://127.0.0.1:{port}
+      E2E_EXTERNAL_SERVERS: "1"
+
+# Every test an agent writes for a task must carry this tag, e.g. { tag: "@VEN-01" }.
+tag_format: "@{task_id}"

@@ -53,7 +53,8 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: uv sync
-      - run: uv run aeg -v validate
+      - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v1
+      - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v2
 
   gate:
     name: Gate (reference agent holds its baseline)
