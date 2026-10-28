@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\nimport { API_URL } from \"../../playwright.config\";\n\ntest(\"requests without a session are rejected\", { tag: \"@AUTH-05\" }, async ({ playwright }) => {\n  // Arrange: a fresh context with no Authorization header and no session cookie\n  const anon = await playwright.request.newContext({ baseURL: API_URL });\n\n  try {\n    // Act\n    const response = await anon.get(\"/api/me\");\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(401);\n    const json = JSON.parse(body);\n    expect(json.error?.code, body).toBe(\"not_authenticated\");\n  } finally {\n    await anon.dispose();\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13807,
+    "output_tokens": 373,
+    "cost_usd": 0.011221,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 7.643782125087455,
+  "error": null,
+  "log": "  plan: Send a GET to /api/me from a fresh request context that has no token and no cookie. Check that the status is 401 and that error.code is \"not_authenticated\", using the same error envelope the existing auth tests use (error.code).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-05: passing: every test passes against the real app\n"
+}

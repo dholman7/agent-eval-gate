@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-04.spec.ts": "import { USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"Sign in\", () => {\n  test(\"Current user is returned for a valid session\", { tag: \"@AUTH-04\" }, async ({ apiAs }) => {\n    // Given I am signed in as member@northwind.test\n    const member = await apiAs(\"member\");\n\n    // When I request my profile\n    const response = await member.get(\"/api/me\");\n\n    // Then the response status is 200\n    expect(response.status(), await response.text()).toBe(200);\n\n    // And the profile shows role \"member\" and tenant \"Northwind Supply\"\n    const profile = await response.json();\n    expect(profile.email).toBe(USERS.member);\n    expect(profile.role).toBe(\"member\");\n    expect(profile.tenant.name).toBe(\"Northwind Supply\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13833,
+    "output_tokens": 405,
+    "cost_usd": 0.011965,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 7.596716707805172,
+  "error": null,
+  "log": "  plan: Sign in as the seeded member persona through the apiAs fixture, call GET /api/me, then check that the status is 200 and that the profile has role 'member', tenant 'Northwind Supply' and the member's email.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-04: passing: every test passes against the real app\n"
+}

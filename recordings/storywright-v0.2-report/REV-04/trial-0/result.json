@@ -1,0 +1,14 @@
+{
+  "files": {
+    "REV-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"Review vendors\", () => {\n  test(\"Members cannot see the review queue\", { tag: \"@REV-04\" }, async ({ apiAs }) => {\n    // Given I am signed in as member@northwind.test\n    const member = await apiAs(\"member\");\n\n    // When I open the review queue\n    const response = await member.get(\"/api/review-queue\");\n    const bodyText = await response.text();\n\n    // Then the response status is 403\n    expect(response.status(), bodyText).toBe(403);\n\n    // And the error code is \"forbidden\"\n    const body = JSON.parse(bodyText);\n    expect(body?.error?.code, bodyText).toBe(\"forbidden\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13806,
+    "output_tokens": 381,
+    "cost_usd": 0.011377,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 6.972088291076943,
+  "error": null,
+  "log": "  plan: Sign in as the member, GET /api/review-queue, and check that the response is a 403 with error.code \"forbidden\". The error shape comes from the existing auth spec.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-04: passing: every test passes against the real app\n"
+}

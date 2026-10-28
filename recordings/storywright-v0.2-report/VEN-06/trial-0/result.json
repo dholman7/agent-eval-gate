@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-06.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"Pagination limits are enforced\", { tag: \"@VEN-06\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const res = await member.get(\"/api/vendors\", { params: { limit: 101 } });\n\n    // Assert\n    expect(res.status(), await res.text()).toBe(422);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13800,
+    "output_tokens": 265,
+    "cost_usd": 0.009033,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 6.397094832966104,
+  "error": null,
+  "log": "  plan: Sign in as the member persona, request GET /api/vendors?limit=101, and check that the response status is 422. The response body is passed as the assertion message so any failure explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-06: passing: every test passes against the real app\n"
+}

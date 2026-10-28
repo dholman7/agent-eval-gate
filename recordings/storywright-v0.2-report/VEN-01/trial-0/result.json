@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Create a vendor\", { tag: \"@VEN-01\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const name = uniqueName(\"Acme Freight\");\n\n  // Act\n  const res = await member.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(201);\n  const vendor = await res.json();\n  expect(vendor.status).toBe(\"draft\");\n  expect(vendor.name).toBe(name);\n  expect(vendor.category).toBe(\"logistics\");\n  expect(vendor.contact_email).toBe(\"ops@acmefreight.example\");\n\n  await expect\n    .poll(\n      async () => {\n        const audit = await member.get(`/api/vendors/${vendor.id}/audit`);\n        expect(audit.status(), await audit.text()).toBe(200);\n        const body = await audit.json();\n        return (body.items as Array<{ action: string }>).map((e) => e.action);\n      },\n      { message: \"audit trail should contain vendor.created\" },\n    )\n    .toContain(\"vendor.created\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13854,
+    "output_tokens": 677,
+    "cost_usd": 0.017489,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 9.646151749882847,
+  "error": null,
+  "log": "  plan: Create a vendor with a unique name based on \"Acme Freight\" as the member persona. Check for a 201 status and the \"draft\" status, then poll the vendor's audit trail until a \"vendor.created\" event appears.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-01: passing: every test passes against the real app\n"
+}

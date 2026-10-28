@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n\n  const bodyText = await response.text();\n  expect(response.status(), bodyText).toBe(200);\n\n  const body = JSON.parse(bodyText);\n  expect(typeof body.access_token, bodyText).toBe(\"string\");\n  expect(body.access_token.length, bodyText).toBeGreaterThan(0);\n  expect(body.user?.email, bodyText).toBe(\"member@northwind.test\");\n  expect(body.user?.role, bodyText).toBe(\"member\");\n  expect(body.user?.tenant?.name, bodyText).toBe(\"Northwind Supply\");\n\n  const cookies = response\n    .headersArray()\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n    .map((h) => h.value);\n  const session = cookies.find((c) => /^session=/.test(c.trim()));\n  expect(session, `set-cookie headers: ${JSON.stringify(cookies)}`).toBeTruthy();\n  expect(session!.split(\";\")[0].trim().length, session).toBeGreaterThan(\"session=\".length);\n  expect(session!.toLowerCase(), session).toMatch(/;\\s*httponly/);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13835,
+    "output_tokens": 643,
+    "cost_usd": 0.081744,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 10.906902791932225,
+  "error": null,
+  "log": "  plan: Sign in as the seeded member with an unauthenticated request. Check for a 200 status, a non-empty access_token and an HttpOnly session cookie, and check that the response's user is the member in Northwind Supply.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-01: passing: every test passes against the real app\n"
+}

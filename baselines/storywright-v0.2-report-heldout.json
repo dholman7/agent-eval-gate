@@ -1,0 +1,645 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v1",
+    "target_ref": "9f0a5c448661ffea1de23457f54ffb151ff4c207",
+    "agent": "storywright-v0.2-report",
+    "mode": "live",
+    "split": "heldout",
+    "trials": 1,
+    "harness_version": "0.1.0",
+    "started_at": "2026-10-28T18:08:05+00:00",
+    "model": "claude-opus-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "AUTH-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Sign in as the seeded member with an unauthenticated request. Check for a 200 status, a non-empty access_token and an HttpOnly session cookie, and check that the response's user is the member in Northwind Supply.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "session-cookie-not-httponly": true
+      },
+      "bugs": [
+        "session-cookie-not-httponly"
+      ],
+      "usage": {
+        "input_tokens": 13835,
+        "output_tokens": 643,
+        "cost_usd": 0.081744,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 10.906902791932225
+    },
+    {
+      "task_id": "AUTH-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Send a login request for the seeded member with the wrong password. Then check that the response is 401 with error code invalid_credentials, the only two outcomes the scenario states.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true
+      },
+      "bugs": [
+        "bad-credentials-403"
+      ],
+      "usage": {
+        "input_tokens": 13831,
+        "output_tokens": 590,
+        "cost_usd": 0.015657,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 10.791483042063192
+    },
+    {
+      "task_id": "AUTH-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: POST /api/auth/login with an email that isn't registered and the seeded password, then check that the response is 401 with error.code invalid_credentials. To show it fails the same way as a wrong password, the test also compares it with a wrong-password attempt on the seeded member.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true,
+        "unknown-email-distinct-error": true
+      },
+      "bugs": [
+        "bad-credentials-403",
+        "unknown-email-distinct-error"
+      ],
+      "usage": {
+        "input_tokens": 13831,
+        "output_tokens": 496,
+        "cost_usd": 0.013777,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 9.075636665802449
+    },
+    {
+      "task_id": "AUTH-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Sign in as the seeded member persona through the apiAs fixture, call GET /api/me, then check that the status is 200 and that the profile has role 'member', tenant 'Northwind Supply' and the member's email.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-04: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "profile-tenant-name-wrong": true
+      },
+      "bugs": [
+        "profile-tenant-name-wrong"
+      ],
+      "usage": {
+        "input_tokens": 13833,
+        "output_tokens": 405,
+        "cost_usd": 0.011965,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 7.596716707805172
+    },
+    {
+      "task_id": "AUTH-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Send a GET to /api/me from a fresh request context that has no token and no cookie. Check that the status is 401 and that error.code is \"not_authenticated\", using the same error envelope the existing auth tests use (error.code).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unauthenticated-code-wrong": true
+      },
+      "bugs": [
+        "unauthenticated-code-wrong"
+      ],
+      "usage": {
+        "input_tokens": 13807,
+        "output_tokens": 373,
+        "cost_usd": 0.011221,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 7.643782125087455
+    },
+    {
+      "task_id": "VEN-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a vendor with a unique name based on \"Acme Freight\" as the member persona. Check for a 201 status and the \"draft\" status, then poll the vendor's audit trail until a \"vendor.created\" event appears.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true
+      },
+      "bugs": [
+        "create-vendor-returns-200"
+      ],
+      "usage": {
+        "input_tokens": 13854,
+        "output_tokens": 677,
+        "cost_usd": 0.017489,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 9.646151749882847
+    },
+    {
+      "task_id": "VEN-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: I wrote one parameterized test per example row. Each sends an otherwise valid vendor as member@northwind.test with one field set to the bad value. It then checks for a 422 status, error.code \"validation_error\", and that error.fields lists only that field. The error format comes from the backend error handler, and the valid base data matches what the backend's own tests use.\n  verify: 3 passed, 0 failed\n  stop: passing\n  tool calls: 4\nVEN-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 3,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "contact-email-unvalidated": true
+      },
+      "bugs": [
+        "contact-email-unvalidated"
+      ],
+      "usage": {
+        "input_tokens": 64132,
+        "output_tokens": 1112,
+        "cost_usd": 0.072899,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 16.31487554195337
+    },
+    {
+      "task_id": "VEN-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: I create a vendor with a unique 'Acme Freight' name as the Globex member and check that it was created. Then the Northwind member creates a vendor with the exact same name, category 'logistics' and contact 'ops@acmefreight.example', and I assert it returns 201 and the vendor belongs to Northwind's own list. The backend's own tests already accept the contact email, so it should not be rejected.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nVEN-04: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true,
+        "vendor-name-unique-across-tenants": true
+      },
+      "bugs": [
+        "create-vendor-returns-200",
+        "vendor-name-unique-across-tenants"
+      ],
+      "usage": {
+        "input_tokens": 29338,
+        "output_tokens": 1076,
+        "cost_usd": 0.035938,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 14.472447291947901
+    },
+    {
+      "task_id": "VEN-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Sign in as the member persona, request GET /api/vendors?limit=101, and check that the response status is 422. The response body is passed as the assertion message so any failure explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "limit-cap-raised": true
+      },
+      "bugs": [
+        "limit-cap-raised"
+      ],
+      "usage": {
+        "input_tokens": 13800,
+        "output_tokens": 265,
+        "cost_usd": 0.009033,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 6.397094832966104
+    },
+    {
+      "task_id": "VEN-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: I'll create a new draft vendor as the member, confirm it is in draft, then PATCH its contact email. The test checks for a 200 and the new email, then polls the vendor's audit trail until a 'vendor.updated' event shows up, made by the member and newer than the create event.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nVEN-08: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "update-not-audited": true
+      },
+      "bugs": [
+        "update-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 29402,
+        "output_tokens": 1207,
+        "cost_usd": 0.038814,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 15.48622129089199
+    },
+    {
+      "task_id": "DOC-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Sign in as the member, create a uniquely named draft vendor, then upload samples/insurance_certificate.txt as multipart with kind insurance_certificate. Check for a 201 with status \"processing\", then poll the audit trail until a document.uploaded event for that document appears.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nDOC-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-not-audited": true
+      },
+      "bugs": [
+        "upload-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 64882,
+        "output_tokens": 1547,
+        "cost_usd": 0.084599,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 20.331964542157948
+    },
+    {
+      "task_id": "DOC-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Create a fresh draft vendor as the member in each test, then send each bad upload as multipart: an empty .txt, a .txt of 10 MiB + 1 bytes, a .exe, and the real samples/w9.txt with kind 'passport'. Each test checks the status code and error.code from the app's {error:{code}} envelope, and checks afterwards that no document was saved.\n  verify: 4 passed, 0 failed\n  stop: passing\n  tool calls: 6\nDOC-04: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "empty-file-accepted": true,
+        "upload-limit-plus-one": true
+      },
+      "bugs": [
+        "empty-file-accepted",
+        "upload-limit-plus-one"
+      ],
+      "usage": {
+        "input_tokens": 100839,
+        "output_tokens": 2098,
+        "cost_usd": 0.136513,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 32.801941624842584
+    },
+    {
+      "task_id": "DOC-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: I'll create a draft vendor as the member, then upload a contract.txt file with content type text/plain and a body of exactly 10 * 1024 * 1024 bytes, which is the max_upload_bytes value in the backend config. The test checks that the response is 201, and also checks the kind and that size_bytes is exactly 10 MiB.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-limit-rejects-exact": true
+      },
+      "bugs": [
+        "upload-limit-rejects-exact"
+      ],
+      "usage": {
+        "input_tokens": 59490,
+        "output_tokens": 1026,
+        "cost_usd": 0.052611,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 16.03004683391191
+    },
+    {
+      "task_id": "DOC-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: A Globex member creates a vendor and uploads the sample W-9. The test then confirms the Globex member can read that document, which proves it exists. The Northwind member, who also has their own draft vendor as the Background requires, requests the document by id and must get a 404 with error code document_not_found.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nDOC-07: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "document-tenant-leak": true
+      },
+      "bugs": [
+        "document-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 75757,
+        "output_tokens": 1470,
+        "cost_usd": 0.075092,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 30.345724374987185
+    },
+    {
+      "task_id": "REV-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: I create a draft vendor with a unique name and upload samples/w9.txt as text/plain. Then I poll until the document status is \"extracted\" and submit the vendor. The test checks for a 409, the error code \"documents_incomplete\", and error.missing_kinds containing \"contract\" and \"insurance_certificate\". The error body shape comes from the backend's review service and its unit test.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 8\nREV-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "missing-kinds-truncated": true
+      },
+      "bugs": [
+        "missing-kinds-truncated"
+      ],
+      "usage": {
+        "input_tokens": 114784,
+        "output_tokens": 1759,
+        "cost_usd": 0.185513,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 23.730502750026062
+    },
+    {
+      "task_id": "REV-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Two vendors are built through the real API (create, upload three text documents, wait for extraction, submit). The extractor cannot produce 0.40, so the low vendor uses the lowest score it can make, 0.30 (unparseable insurance expiry). The high vendor reaches 0.95 because a reviewer approves its 0.90 insurance extraction first. The database is shared, so the test checks the low vendor comes before the high vendor and the whole queue is sorted with the lowest confidence first.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nREV-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "queue-order-reversed": true
+      },
+      "bugs": [
+        "queue-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 174815,
+        "output_tokens": 4768,
+        "cost_usd": 0.382882,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 56.24608408403583
+    },
+    {
+      "task_id": "REV-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: Sign in as the member, GET /api/review-queue, and check that the response is a 403 with error.code \"forbidden\". The error shape comes from the existing auth spec.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-04: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "member-can-review": true
+      },
+      "bugs": [
+        "member-can-review"
+      ],
+      "usage": {
+        "input_tokens": 13806,
+        "output_tokens": 381,
+        "cost_usd": 0.011377,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 6.972088291076943
+    },
+    {
+      "task_id": "REV-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: As a member, create a uniquely named vendor and upload the w9, insurance certificate and contract sample files. Poll until every document has status \"extracted\", then submit the vendor so it goes into review. As the reviewer, send a reject decision on the W-9 extraction with no note and expect 422. Send it again with the note \"Tax ID does not match\", then check that the vendor status is \"rejected\" and that the audit trail has an \"extraction.rejected\" event.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nREV-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "reject-note-optional": true
+      },
+      "bugs": [
+        "reject-note-optional"
+      ],
+      "usage": {
+        "input_tokens": 152023,
+        "output_tokens": 3105,
+        "cost_usd": 0.258454,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 32.789713207865134
+    },
+    {
+      "task_id": "REV-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: For each example I create a unique vendor as the member and upload a text insurance certificate whose Expiry Date is today (UTC, the same day the server uses) plus N days. I poll the document until it shows as extracted, then fetch the vendor and check whether \"insurance_expiring_soon\" is in its flags.\n  verify: 3 passed, 0 failed\n  stop: passing\n  tool calls: 10\nREV-08: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 3,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "expiring-window-excludes-day-30": true
+      },
+      "bugs": [
+        "expiring-window-excludes-day-30"
+      ],
+      "usage": {
+        "input_tokens": 116226,
+        "output_tokens": 2333,
+        "cost_usd": 0.202761,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 28.61914704181254
+    },
+    {
+      "task_id": "AUD-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "  plan: I'll sign in as the member, create a uniquely named vendor and upload samples/w9.txt as a W-9. Because extraction runs in the background, the test polls the document until it reaches \"extracted\". It then requests the audit trail and checks the 200 status, that the actions come in the exact order the scenario gives, that each event has an actor (the member) with id, name and email, and that each timestamp is valid and no earlier than the one before.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nAUD-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-not-audited": true,
+        "audit-order-reversed": true
+      },
+      "bugs": [
+        "upload-not-audited",
+        "audit-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 83305,
+        "output_tokens": 1947,
+        "cost_usd": 0.114824,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 24.247254292014986
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 1.0,
+      "low": 0.8388748419471806,
+      "high": 1.0,
+      "n": 20,
+      "successes": 20
+    },
+    "pass_all_k": {
+      "value": 1.0,
+      "low": 0.8388748419471806,
+      "high": 1.0,
+      "n": 20,
+      "successes": 20
+    },
+    "bug_detection": {
+      "value": 1.0,
+      "low": 0.8620237953250198,
+      "high": 1.0,
+      "n": 24,
+      "successes": 24
+    },
+    "false_failure": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.16112515805281938,
+      "n": 20,
+      "successes": 0
+    },
+    "cost_usd": {
+      "value": 0.09065815,
+      "low": 0.051608600000000004,
+      "high": 0.13918255,
+      "n": 20,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 19.02228895415319,
+      "low": 14.032065120595508,
+      "high": 25.191507225029635,
+      "n": 20,
+      "successes": null
+    },
+    "by_category": {
+      "audit": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "authorization": {
+        "value": 1.0,
+        "low": 0.5101091635454027,
+        "high": 1.0,
+        "n": 4,
+        "successes": 4
+      },
+      "contract": {
+        "value": 1.0,
+        "low": 0.34238022750665303,
+        "high": 1.0,
+        "n": 2,
+        "successes": 2
+      },
+      "dates": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "ordering": {
+        "value": 1.0,
+        "low": 0.34238022750665303,
+        "high": 1.0,
+        "n": 2,
+        "successes": 2
+      },
+      "security": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "status_codes": {
+        "value": 1.0,
+        "low": 0.5101091635454027,
+        "high": 1.0,
+        "n": 4,
+        "successes": 4
+      },
+      "validation": {
+        "value": 1.0,
+        "low": 0.6456695649333126,
+        "high": 1.0,
+        "n": 7,
+        "successes": 7
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\"A file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n    // Background: signed in as member, a vendor in draft\n    const member = await apiAs(\"member\");\n    const created = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"DOC-05 Vendor\"),\n        category: \"software\",\n        contact_email: \"vendor@example.com\",\n      },\n    });\n    expect(created.status(), await created.text()).toBe(201);\n    const vendor = await created.json();\n    expect(vendor.status).toBe(\"draft\");\n\n    // When I upload a text file of exactly 10 MiB as kind contract\n    const buffer = Buffer.alloc(TEN_MIB, \"x\");\n    expect(buffer.length).toBe(TEN_MIB);\n    const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"contract\",\n        file: { name: \"contract.txt\", mimeType: \"text/plain\", buffer },\n      },\n      timeout: 120_000,\n    });\n\n    // Then the response status is 201\n    expect(res.status(), await res.text()).toBe(201);\n    const doc = await res.json();\n    expect(doc.kind).toBe(\"contract\");\n    expect(doc.size_bytes).toBe(TEN_MIB);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 59490,
+    "output_tokens": 1026,
+    "cost_usd": 0.052611,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 16.03004683391191,
+  "error": null,
+  "log": "  plan: I'll create a draft vendor as the member, then upload a contract.txt file with content type text/plain and a body of exactly 10 * 1024 * 1024 bytes, which is the max_upload_bytes value in the backend config. The test checks that the response is 201, and also checks the kind and that size_bytes is exactly 10 MiB.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-05: passing: every test passes against the real app\n"
+}

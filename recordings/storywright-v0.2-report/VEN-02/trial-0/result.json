@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst examples: Array<{ field: \"name\" | \"category\" | \"contact_email\"; value: string }> = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n];\n\ntest.describe(\"Manage vendors: reject invalid vendor fields\", () => {\n  for (const { field, value } of examples) {\n    test(`rejects ${field} set to \"${value}\" with validation_error naming the field`, { tag: \"@VEN-02\" }, async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const body: Record<string, string> = {\n        name: uniqueName(\"Invalid Field Vendor\"),\n        category: \"logistics\",\n        contact_email: \"ops@acme.example\",\n      };\n      body[field] = value;\n\n      // Act\n      const response = await member.post(\"/api/vendors\", { data: body });\n      const text = await response.text();\n\n      // Assert\n      expect(response.status(), text).toBe(422);\n      const json = JSON.parse(text);\n      expect(json.error?.code, text).toBe(\"validation_error\");\n      const fieldNames = (json.error?.fields ?? []).map((f: { field: string }) => f.field);\n      expect(fieldNames, text).toContain(field);\n      expect(fieldNames, text).toEqual([field]);\n    });\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 64132,
+    "output_tokens": 1112,
+    "cost_usd": 0.072899,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 16.31487554195337,
+  "error": null,
+  "log": "  plan: I wrote one parameterized test per example row. Each sends an otherwise valid vendor as member@northwind.test with one field set to the bad value. It then checks for a 422 status, error.code \"validation_error\", and that error.fields lists only that field. The error format comes from the backend error handler, and the valid base data matches what the backend's own tests use.\n  verify: 3 passed, 0 failed\n  stop: passing\n  tool calls: 4\nVEN-02: passing: every test passes against the real app\n"
+}

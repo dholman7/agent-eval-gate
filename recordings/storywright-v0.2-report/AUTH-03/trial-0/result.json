@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"unknown email is rejected the same way as a wrong password\", { tag: \"@AUTH-03\" }, async ({ request }) => {\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: \"nobody@northwind.test\", password: \"demo-password\" },\n  });\n\n  // Assert\n  const text = await response.text();\n  expect(response.status(), text).toBe(401);\n  const body = JSON.parse(text);\n  expect(body.error?.code, text).toBe(\"invalid_credentials\");\n\n  // Same rejection as a wrong password for a known user\n  const wrong = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD + \"-wrong\" },\n  });\n  const wrongText = await wrong.text();\n  expect(wrong.status(), wrongText).toBe(401);\n  expect(JSON.parse(wrongText).error?.code, wrongText).toBe(body.error?.code);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13831,
+    "output_tokens": 496,
+    "cost_usd": 0.013777,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 9.075636665802449,
+  "error": null,
+  "log": "  plan: POST /api/auth/login with an email that isn't registered and the seeded password, then check that the response is 401 with error.code invalid_credentials. To show it fails the same way as a wrong password, the test also compares it with a wrong-password attempt on the seeded member.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-03: passing: every test passes against the real app\n"
+}

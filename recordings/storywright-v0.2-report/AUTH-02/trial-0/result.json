@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-02.spec.ts": "import { USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"Sign in\", () => {\n  test(\"Wrong password is rejected without revealing which field was wrong\", { tag: \"@AUTH-02\" }, async ({ request }) => {\n    // When I sign in as \"member@northwind.test\" with password \"wrong-password\"\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: \"wrong-password\" },\n    });\n    const bodyText = await response.text();\n\n    // Then the response status is 401\n    expect(response.status(), bodyText).toBe(401);\n\n    // And the error code is \"invalid_credentials\"\n    const body = JSON.parse(bodyText);\n    expect(body?.error?.code, bodyText).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13831,
+    "output_tokens": 590,
+    "cost_usd": 0.015657,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 10.791483042063192,
+  "error": null,
+  "log": "  plan: Send a login request for the seeded member with the wrong password. Then check that the response is 401 with error code invalid_credentials, the only two outcomes the scenario states.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-02: passing: every test passes against the real app\n"
+}

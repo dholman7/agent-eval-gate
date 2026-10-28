@@ -17,6 +17,8 @@ The shipped benchmark asks an agent to write Playwright API tests for one Gherki
 
 \* Deterministic agents, run once: every trial would be identical.
 
+Storywright v0.2 on Claude Opus 5.5 (1 trial per task): 100% (20/20, CI 84–100%) of tasks, 100% (24/24) of bugs caught, no suites failing on correct code, $0.091 per trial.
+
 Storywright's interval sits entirely above the single call's, so the difference isn't noise. Its prompts were tuned on dev, and its repo tools were added after an earlier version's held-out score was seen, so its numbers come from fresh trials but aren't a blind result. The held-out tasks are easier on average than the dev tasks (the single call scores 60% here against 17% on dev), which is why agents are only compared within a split.
 
 **Known benchmark issue (REV-03).** The scenario states exact confidences ("lowest confidence 0.40") that the app never produces: it scores an unparseable field 0.30. The reference test checks order only, but an agent that holds the scenario's numbers, as Storywright did in two trials, reports a defect. Both of Storywright's held-out failures are this case. The scenario text needs fixing in the target repo, which means a v2 of the benchmark; v1 stays frozen.
