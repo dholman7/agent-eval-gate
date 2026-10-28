@@ -83,6 +83,7 @@ def run(
                         task_id=task.id,
                         trial=trial,
                         agent_error=result.error,
+                        agent_log=result.log,
                         typechecks=scored.typechecks,
                         clean_passed=scored.clean.passed,
                         clean_failed=scored.clean.failed,

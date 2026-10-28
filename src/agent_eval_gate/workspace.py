@@ -21,7 +21,8 @@ def _sh(command: str, cwd: Path) -> None:
 
 class Workspace:
     def __init__(self, path: Path) -> None:
-        self.path = path
+        # Absolute, so symlinks made into agent copies resolve from any directory.
+        self.path = path.resolve()
 
     @classmethod
     def prepare(cls, target: Target, cache_dir: Path, source: str | None = None) -> "Workspace":
@@ -52,8 +53,8 @@ class Workspace:
         for name in _HEAVY:
             for heavy in [*self.path.glob(name), *self.path.glob(f"*/{name}")]:
                 link = destination / heavy.relative_to(self.path)
-                if link.parent.exists() and not link.exists():
-                    link.symlink_to(heavy, target_is_directory=True)
+                if link.parent.exists() and not link.is_symlink() and not link.exists():
+                    link.symlink_to(heavy.resolve(), target_is_directory=True)
         return destination
 
     @contextmanager

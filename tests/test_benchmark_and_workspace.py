@@ -131,6 +131,22 @@ def test_test_files_cannot_escape_their_directory(tmp_path: Path) -> None:
     assert not (tmp_path / "x.ts").exists()
 
 
+def test_agent_copies_link_heavy_dirs_with_targets_that_resolve(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Regression: a relative workspace path produced broken .venv symlinks in agent copies.
+    (tmp_path / "base" / "backend" / ".venv").mkdir(parents=True)
+    (tmp_path / "base" / "backend" / "app.py").write_text("")
+    monkeypatch.chdir(tmp_path)
+
+    copy = Workspace(Path("base")).copy_for_agent(tmp_path / "scratch" / "repo")
+
+    link = copy / "backend" / ".venv"
+    assert link.is_symlink()
+    assert link.resolve() == (tmp_path / "base" / "backend" / ".venv").resolve()
+    assert link.exists()
+
+
 def test_command_agent_follows_the_contract(tmp_path: Path) -> None:
     script = tmp_path / "agent.sh"
     script.write_text(

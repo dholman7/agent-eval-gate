@@ -40,6 +40,8 @@ class AgentResult(BaseModel):
     usage: Usage = Field(default_factory=Usage)
     duration_s: float = 0.0
     error: str | None = None
+    # Tail of the agent's stderr on every run, success included: its own account of what it did.
+    log: str | None = None
 
 
 class Agent(Protocol):
@@ -59,14 +61,17 @@ class CommandAgent:
         output.mkdir(exist_ok=True)
         task_file = workspace.parent / "aeg-task.json"
         task_file.write_text(task.model_dump_json(indent=2))
+        # The harness's own virtualenv would leak into the agent and the app it starts.
+        inherited = {k: v for k, v in os.environ.items() if k != "VIRTUAL_ENV"}
         env = {
-            **os.environ,
+            **inherited,
             "AEG_TASK": str(task_file),
             "AEG_WORKSPACE": str(workspace),
             "AEG_OUTPUT": str(output),
             "AEG_TRIAL": str(trial),
         }
         started = time.monotonic()
+        log: str | None = None
         try:
             completed = subprocess.run(
                 self.command,
@@ -76,9 +81,8 @@ class CommandAgent:
                 text=True,
                 timeout=self.timeout_s,
             )
-            error = (
-                None if completed.returncode == 0 else completed.stderr[-2000:] or "nonzero exit"
-            )
+            log = completed.stderr[-2000:] or None
+            error = None if completed.returncode == 0 else log or "nonzero exit"
         except subprocess.TimeoutExpired:
             error = f"timed out after {self.timeout_s}s"
         usage_file = output / "usage.json"
@@ -89,6 +93,7 @@ class CommandAgent:
             else Usage(),
             duration_s=time.monotonic() - started,
             error=error,
+            log=log,
         )
 
 

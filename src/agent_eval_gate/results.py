@@ -13,6 +13,7 @@ class TrialRecord(BaseModel):
     task_id: str
     trial: int
     agent_error: str | None
+    agent_log: str | None = None
     typechecks: bool
     clean_passed: int
     clean_failed: int
