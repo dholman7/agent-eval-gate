@@ -5,6 +5,6 @@ __pycache__/
 .pytest_cache/
 .coverage
 .aeg-cache/
-results/
-traces/
+/results/
+/traces/
 .DS_Store
