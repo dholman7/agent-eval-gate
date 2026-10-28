@@ -1,0 +1,13 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\nfunction sessionSetCookies(headers: { name: string; value: string }[]): string[] {\n  return headers\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n    .flatMap((h) => h.value.split(\"\\n\"))\n    .map((v) => v.trim())\n    .filter((v) => /^session=/i.test(v));\n}\n\ntest.describe(\"Sign in\", () => {\n  test(\n    \"signing out clears the session cookie\",\n    { tag: \"@AUTH-06\" },\n    async ({ request }) => {\n      // Arrange: sign in as the seeded member, which stores the session cookie in this context\n      const login = await request.post(\"/api/auth/login\", {\n        data: { email: USERS.member, password: PASSWORD },\n      });\n      expect(login.status()).toBe(200);\n      const loginCookies = sessionSetCookies(login.headersArray());\n      expect(loginCookies.length, \"login sets a session cookie\").toBeGreaterThan(0);\n\n      const before = await request.storageState();\n      const sessionBefore = before.cookies.find((c) => c.name === \"session\");\n      expect(sessionBefore?.value, \"session cookie present before sign out\").toBeTruthy();\n\n      // Act\n      const response = await request.post(\"/api/auth/logout\");\n\n      // Assert\n      expect(response.status()).toBe(204);\n\n      const cleared = sessionSetCookies(response.headersArray());\n      expect(cleared.length, \"logout sends a Set-Cookie for session\").toBeGreaterThan(0);\n      const header = cleared[cleared.length - 1];\n\n      // The cookie value is emptied\n      const value = header.slice(\"session=\".length).split(\";\")[0].trim();\n      expect([\"\", '\"\"']).toContain(value);\n\n      // And it is expired immediately (Max-Age=0 or an Expires date in the past)\n      const lower = header.toLowerCase();\n      const maxAge = /max-age=(-?\\d+)/.exec(lower);\n      const expires = /expires=([^;]+)/i.exec(header);\n      const expiredByMaxAge = maxAge !== null && Number(maxAge[1]) <= 0;\n      const expiredByDate =\n        expires !== null && new Date(expires[1].trim()).getTime() <= Date.now();\n      expect(\n        expiredByMaxAge || expiredByDate,\n        `session cookie is expired by logout: ${header}`,\n      ).toBe(true);\n\n      // The client no longer holds a usable session cookie\n      const after = await request.storageState();\n      const sessionAfter = after.cookies.find((c) => c.name === \"session\");\n      expect(sessionAfter?.value ?? \"\").toMatch(/^(\"\"|)$/);\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12539,
+    "output_tokens": 1410,
+    "cost_usd": 0.078356,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 14.284830666845664,
+  "error": null
+}

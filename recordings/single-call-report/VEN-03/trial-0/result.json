@@ -1,0 +1,13 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors: vendor names are unique within a tenant\", () => {\n  test(\n    \"creating a vendor whose name differs only by case from an existing one returns 409 vendor_name_taken\",\n    { tag: \"@VEN-03\" },\n    async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const existingName = uniqueName(\"Acme Freight\");\n      const created = await member.post(\"/api/vendors\", {\n        data: {\n          name: existingName,\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n      expect(created.status(), \"seed the existing vendor\").toBe(201);\n      expect((await created.json()).name).toBe(existingName);\n\n      const duplicateName = existingName.toLowerCase();\n      expect(duplicateName).not.toBe(existingName);\n\n      // Act\n      const response = await member.post(\"/api/vendors\", {\n        data: {\n          name: duplicateName,\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n\n      // Assert\n      expect(response.status()).toBe(409);\n      const body = await response.json();\n      expect(body.error.code).toBe(\"vendor_name_taken\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12587,
+    "output_tokens": 749,
+    "cost_usd": 0.065328,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 7.507554082898423,
+  "error": null
+}

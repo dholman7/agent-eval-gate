@@ -1,0 +1,417 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v1",
+    "target_ref": "9f0a5c448661ffea1de23457f54ffb151ff4c207",
+    "agent": "single-call-report",
+    "mode": "live",
+    "split": "dev",
+    "trials": 1,
+    "harness_version": "0.1.0",
+    "started_at": "2026-10-28T14:29:16+00:00",
+    "model": "claude-opus-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "AUTH-06",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "logout-keeps-cookie": true
+      },
+      "bugs": [
+        "logout-keeps-cookie"
+      ],
+      "usage": {
+        "input_tokens": 12539,
+        "output_tokens": 1410,
+        "cost_usd": 0.078356,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 14.284830666845664
+    },
+    {
+      "task_id": "VEN-03",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-name-case-sensitive": true
+      },
+      "bugs": [
+        "vendor-name-case-sensitive"
+      ],
+      "usage": {
+        "input_tokens": 12587,
+        "output_tokens": 749,
+        "cost_usd": 0.065328,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 7.507554082898423
+    },
+    {
+      "task_id": "VEN-05",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": false,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": false,
+      "kills": {
+        "pagination-skips-first": true
+      },
+      "bugs": [
+        "pagination-skips-first"
+      ],
+      "usage": {
+        "input_tokens": 12631,
+        "output_tokens": 4917,
+        "cost_usd": 0.148864,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 44.0328989578411
+    },
+    {
+      "task_id": "VEN-07",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a vendor from another tenant is invisible and returns vendor_not_found: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 12557,
+        "output_tokens": 694,
+        "cost_usd": 0.064108,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 7.322693374939263
+    },
+    {
+      "task_id": "VEN-09",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a vendor under review cannot be edited: Error: submit vendor for review | expect(received).toBe(expected) // Object.is equality | Expected: 200"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "update-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 12558,
+        "output_tokens": 870,
+        "cost_usd": 0.067632,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 8.327868707943708
+    },
+    {
+      "task_id": "DOC-02",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "coverage-field-dropped": true
+      },
+      "bugs": [
+        "coverage-field-dropped"
+      ],
+      "usage": {
+        "input_tokens": 12625,
+        "output_tokens": 1360,
+        "cost_usd": 0.0777,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 12.053834457881749
+    },
+    {
+      "task_id": "DOC-03",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unparseable-date-confident": false
+      },
+      "bugs": [
+        "unparseable-date-confident"
+      ],
+      "usage": {
+        "input_tokens": 12587,
+        "output_tokens": 2700,
+        "cost_usd": 0.104348,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 23.3825730830431
+    },
+    {
+      "task_id": "DOC-06",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-ignores-lock": true
+      },
+      "bugs": [
+        "upload-ignores-lock"
+      ],
+      "usage": {
+        "input_tokens": 12585,
+        "output_tokens": 1592,
+        "cost_usd": 0.08218,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 14.58012545784004
+    },
+    {
+      "task_id": "REV-01",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-audit-misnamed": true
+      },
+      "bugs": [
+        "submit-audit-misnamed"
+      ],
+      "usage": {
+        "input_tokens": 12583,
+        "output_tokens": 1955,
+        "cost_usd": 0.089432,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 16.04368995805271
+    },
+    {
+      "task_id": "REV-05",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "approving every extraction approves the vendor: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "approval-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 12556,
+        "output_tokens": 2109,
+        "cost_usd": 0.092404,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 17.660621082875878
+    },
+    {
+      "task_id": "REV-07",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": false,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "approving an expired insurance certificate extraction fails with insurance_expired: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "expiry-comparison-inverted"
+      ],
+      "usage": {
+        "input_tokens": 12562,
+        "output_tokens": 2903,
+        "cost_usd": 0.108308,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 25.889648916898295
+    },
+    {
+      "task_id": "AUD-02",
+      "trial": 0,
+      "agent_error": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "audit trails from another tenant are invisible: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "vendor-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 12520,
+        "output_tokens": 698,
+        "cost_usd": 0.06404,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 7.871491624973714
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 0.5,
+      "low": 0.2537815976337061,
+      "high": 0.7462184023662939,
+      "n": 12,
+      "successes": 6
+    },
+    "pass_all_k": {
+      "value": 0.5,
+      "low": 0.2537815976337061,
+      "high": 0.7462184023662939,
+      "n": 12,
+      "successes": 6
+    },
+    "bug_detection": {
+      "value": 0.5,
+      "low": 0.2537815976337061,
+      "high": 0.7462184023662939,
+      "n": 12,
+      "successes": 6
+    },
+    "false_failure": {
+      "value": 0.4166666666666667,
+      "low": 0.19326031365875665,
+      "high": 0.6804886874504503,
+      "n": 12,
+      "successes": 5
+    },
+    "cost_usd": {
+      "value": 0.08689166666666666,
+      "low": 0.07483566666666666,
+      "high": 0.10195366666666666,
+      "n": 12,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 16.57981919766947,
+      "low": 11.578008072664185,
+      "high": 23.07811085031911,
+      "n": 12,
+      "successes": null
+    },
+    "by_category": {
+      "audit": {
+        "value": 0.5,
+        "low": 0.09453120573423074,
+        "high": 0.9054687942657693,
+        "n": 2,
+        "successes": 1
+      },
+      "authorization": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.6576197724933469,
+        "n": 2,
+        "successes": 0
+      },
+      "dates": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.7934506856227626,
+        "n": 1,
+        "successes": 0
+      },
+      "extraction": {
+        "value": 0.5,
+        "low": 0.09453120573423074,
+        "high": 0.9054687942657693,
+        "n": 2,
+        "successes": 1
+      },
+      "pagination": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "security": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "state": {
+        "value": 0.5,
+        "low": 0.09453120573423074,
+        "high": 0.9054687942657693,
+        "n": 2,
+        "successes": 1
+      },
+      "validation": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      }
+    }
+  }
+}

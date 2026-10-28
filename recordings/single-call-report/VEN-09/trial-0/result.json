@@ -1,0 +1,13 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\n    \"a vendor under review cannot be edited\",\n    { tag: \"@VEN-09\" },\n    async ({ apiAs }) => {\n      // Background: signed in as member@northwind.test\n      const member = await apiAs(\"member\");\n\n      // Given a vendor in status \"in_review\"\n      const createResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"Acme Freight\"),\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n      expect(createResponse.status(), \"create vendor\").toBe(201);\n      const vendor = await createResponse.json();\n      expect(vendor.status).toBe(\"draft\");\n\n      const submitResponse = await member.post(`/api/vendors/${vendor.id}/submit`);\n      expect(submitResponse.status(), \"submit vendor for review\").toBe(200);\n      const submitted = await submitResponse.json();\n      expect(submitted.status).toBe(\"in_review\");\n\n      // When I change its contact email to \"billing@acmefreight.example\"\n      const patchResponse = await member.patch(`/api/vendors/${vendor.id}`, {\n        data: { contact_email: \"billing@acmefreight.example\" },\n      });\n\n      // Then the response status is 409\n      expect(patchResponse.status()).toBe(409);\n      // And the error code is \"vendor_locked\"\n      const body = await patchResponse.json();\n      expect(body.error.code).toBe(\"vendor_locked\");\n\n      // The vendor's contact email is unchanged\n      const getResponse = await member.get(`/api/vendors/${vendor.id}`);\n      expect(getResponse.status()).toBe(200);\n      const after = await getResponse.json();\n      expect(after.contact_email).toBe(\"ops@acmefreight.example\");\n      expect(after.status).toBe(\"in_review\");\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12558,
+    "output_tokens": 870,
+    "cost_usd": 0.067632,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 8.327868707943708,
+  "error": null
+}

@@ -1,0 +1,13 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "// features/audit.feature: Audit trails from another tenant are invisible\nimport { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor audit trail tenant isolation\", () => {\n  test(\n    \"audit trails from another tenant are invisible\",\n    { tag: \"@AUD-02\" },\n    async ({ apiAs }) => {\n      // Arrange: a vendor exists in tenant \"Globex Procurement\"\n      const globex = await apiAs(\"otherTenant\");\n      const profileResponse = await globex.get(\"/api/me\");\n      expect(profileResponse.status()).toBe(200);\n      expect((await profileResponse.json()).tenant.name).toBe(\"Globex Procurement\");\n\n      const createResponse = await globex.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"Globex Audit Vendor\"),\n          category: \"software\",\n          contact_email: \"vendor-contact@globex.test\",\n        },\n      });\n      expect(createResponse.status()).toBe(201);\n      const vendorId = ((await createResponse.json()) as { id: string }).id;\n      expect(vendorId).toBeTruthy();\n\n      // Sanity check: the vendor's own tenant can see its audit trail\n      const ownAudit = await globex.get(`/api/vendors/${vendorId}/audit`);\n      expect(ownAudit.status()).toBe(200);\n\n      // Given I am signed in as \"member@northwind.test\"\n      const member = await apiAs(\"member\");\n\n      // Act: request that vendor's audit trail\n      const response = await member.get(`/api/vendors/${vendorId}/audit`);\n\n      // Assert\n      expect(response.status()).toBe(404);\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12520,
+    "output_tokens": 698,
+    "cost_usd": 0.06404,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 7.871491624973714,
+  "error": null
+}

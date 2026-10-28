@@ -12,11 +12,14 @@ Dev split, 1 trial per task. These two runs anchor the scale; model-backed agent
 |---|---|---|---|
 | `reference` (hand-written oracle) | 100% (12/12), CI 76–100% | 100% (12/12), CI 76–100% | 0% (0/12) |
 | `existing-tests` (the repo's current API tests) | 0% (0/12), CI 0–24% | 0% (0/12), CI 0–24% | 0% (0/12) |
+| `single-call-report` (one Claude Opus 5.5 call, no tools) | 50% (6/12), CI 25–75% | 50% (6/12), CI 25–75% | 42% (5/12), CI 19–68% |
 | `single-call-dev` (one Claude Haiku 5.5 call, no tools) | 17% (2/12), CI 5–45% | 17% (2/12), CI 5–45% | 83% (10/12), CI 55–95% |
 
 Twelve tasks give wide intervals. That's the point of reporting them: a 12/12 result is consistent with a true rate as low as 76%.
 
-**Why the one-call baseline fails.** Its tests are mostly well-formed but never ran before being submitted. Nine of the ten failures create a vendor with a reserved `.test` email address, which the app rejects with 422. The seeded accounts in the repo's fixtures use `.test`, so the model copied the pattern. Most of its tests also don't wait for background extraction. Running the tests once and reading the error would fix both, which is the gap an agent with a verify-and-repair loop should close. The run cost $0.023 for all 12 trials. The `report`-profile (Opus 5.5) run is next.
+**Why the one-call baseline fails.** Its tests are mostly well-formed but never ran before being submitted. Nine of the ten failures create a vendor with a reserved `.test` email address, which the app rejects with 422. The seeded accounts in the repo's fixtures use `.test`, so the model copied the pattern. Most of its tests also don't wait for background extraction. Running the tests once and reading the error would fix both, which is the gap an agent with a verify-and-repair loop should close. The Haiku run cost $0.023 for all 12 trials; the Opus run cost $1.04.
+
+Opus makes the same `.test` mistake less often, but it shows why bugs caught is scored separately from tests passing. For DOC-03 ("fields that cannot be parsed get low confidence") it built a PDF in code and uploaded that. The extraction stub doesn't read PDFs, so every field came back empty with zero confidence and the assertions passed. The date was never parsed, so the seeded bug in the date parser went uncaught: a test that passes for the wrong reason.
 
 ## How a trial is scored
 
