@@ -4,9 +4,20 @@ A benchmark runner and CI gate for agents that write tests. It runs an agent on 
 
 The shipped benchmark asks an agent to write Playwright API tests for one Gherkin scenario at a time of [vendor-intake-app](https://github.com/dholman7/vendor-intake-app), pinned to a specific commit.
 
-## Results so far
+## Results
 
-Dev split, 1 trial per task. These two runs anchor the scale; model-backed agents land between them.
+**Held-out split** (20 tasks, never tuned on), 1 trial per task, Claude Haiku 5.5 for the model-backed agents:
+
+| Agent | Task success | Seeded bugs caught | Suites failing on correct code | Cost per trial |
+|---|---|---|---|---|
+| `reference` (hand-written oracle) | 100% (20/20), CI 84–100% | 100% (24/24), CI 86–100% | 0% (0/20) | – |
+| [Storywright](https://github.com/dholman7/storywright) (write, run, repair loop) | 95% (19/20), CI 76–99% | 92% (22/24), CI 74–98% | 5% (1/20) | $0.0015 |
+| `single-call-dev` (one call, no tools) | 55% (11/20), CI 34–74% | 54% (13/24), CI 35–72% | 45% (9/20) | $0.0018 |
+| `existing-tests` (the repo's current API tests) | 0% (0/20), CI 0–16% | 17% (4/24), CI 7–36% | 0% (0/20) | – |
+
+Storywright's interval sits entirely above the single call's, so the difference isn't noise. The held-out tasks are easier on average than the dev tasks (the single call scores 55% here against 17% on dev), which is why agents are only compared within a split.
+
+**Dev split** (12 tasks), 1 trial per task. Storywright's prompts were tuned here (83%, 10/12), so its dev number isn't a fair comparison and isn't listed.
 
 | Agent | Task success | Seeded bugs caught | Suites failing on correct code |
 |---|---|---|---|

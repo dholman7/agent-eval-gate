@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"vendor names are unique within a tenant, ignoring case\", { tag: \"@VEN-03\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const name = uniqueName(\"Acme Freight\");\n  const first = await member.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n  expect(first.status(), await first.text()).toBe(201);\n\n  // Act\n  const duplicate = await member.post(\"/api/vendors\", {\n    data: { name: name.toLowerCase(), category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await duplicate.text();\n  expect(duplicate.status(), body).toBe(409);\n  expect(JSON.parse(body).error.code, body).toBe(\"vendor_name_taken\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13084,
+    "output_tokens": 1130,
+    "cost_usd": 0.000719,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.385711959097534,
+  "error": null,
+  "log": "VEN-03: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"the same vendor name is allowed in a different tenant\", { tag: \"@VEN-04\" }, async ({ apiAs }) => {\n    // Arrange: a vendor with the same name already exists in another tenant (Globex Procurement).\n    // The name is unique per run because tests share one database; the cross-tenant overlap is what is under test.\n    const sharedName = uniqueName(\"Acme Freight\");\n    const globex = await apiAs(\"otherTenant\");\n    const seeded = await globex.post(\"/api/vendors\", {\n      data: {\n        name: sharedName,\n        category: \"logistics\",\n        contact_email: \"ops@globex-freight.example\",\n      },\n    });\n    expect(seeded.status(), \"seed vendor in Globex Procurement\").toBe(201);\n\n    // Act: the Northwind member creates a vendor with the same name.\n    const northwind = await apiAs(\"member\");\n    const response = await northwind.post(\"/api/vendors\", {\n      data: {\n        name: sharedName,\n        category: \"logistics\",\n        contact_email: \"ops@acmefreight.example\",\n      },\n    });\n\n    // Assert\n    expect(response.status()).toBe(201);\n    const created = await response.json();\n    expect(created.name).toBe(sharedName);\n    expect(created.id).not.toBe((await seeded.json()).id);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12582,
+    "output_tokens": 781,
+    "cost_usd": 0.001649,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 4.258994166972116,
+  "error": null,
+  "log": null
+}

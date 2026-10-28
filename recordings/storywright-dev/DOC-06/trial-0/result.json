@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import fs from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\"documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs }) => {\n    // Arrange: a draft vendor owned by the member, with every required document uploaded, then submitted into review.\n    const member = await apiAs(\"member\");\n    const createRes = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Doc Lock Vendor\"),\n        category: \"software\",\n        contact_email: `doc-lock-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com`,\n      },\n    });\n    expect(createRes.status(), await createRes.text()).toBe(201);\n    const vendor = await createRes.json();\n    expect(vendor.status).toBe(\"draft\");\n\n    const requiredKinds = [\"w9\", \"insurance_certificate\", \"contract\"] as const;\n    const sampleFiles: Record<(typeof requiredKinds)[number], string> = {\n      w9: \"w9.txt\",\n      insurance_certificate: \"w9.txt\",\n      contract: \"w9.txt\",\n    };\n    for (const kind of requiredKinds) {\n      const uploadSetupRes = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind,\n          file: {\n            name: sampleFiles[kind],\n            mimeType: \"text/plain\",\n            buffer: fs.readFileSync(sample(sampleFiles[kind])),\n          },\n        },\n      });\n      expect(uploadSetupRes.status(), await uploadSetupRes.text()).toBe(201);\n    }\n\n    const submitRes = await member.post(`/api/vendors/${vendor.id}/submit`);\n    expect(submitRes.status(), await submitRes.text()).toBe(200);\n\n    await expect\n      .poll(async () => {\n        const res = await member.get(`/api/vendors/${vendor.id}`);\n        return (await res.json()).status;\n      }, { message: \"vendor should reach in_review after submit\" })\n      .toBe(\"in_review\");\n\n    // Act: attempt to upload a W-9 while the vendor is under review.\n    const uploadRes = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"w9\",\n        file: {\n          name: \"w9.txt\",\n          mimeType: \"text/plain\",\n          buffer: fs.readFileSync(sample(\"w9.txt\")),\n        },\n      },\n    });\n\n    // Assert: refused with 409 and the vendor_locked error code.\n    const body = await uploadRes.text();\n    expect(uploadRes.status(), body).toBe(409);\n    expect(JSON.parse(body).error.code, body).toBe(\"vendor_locked\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 41271,
+    "output_tokens": 3808,
+    "cost_usd": 0.002537,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.44168374990113,
+  "error": null,
+  "log": "DOC-06: passing: every test passes against the real app\n"
+}

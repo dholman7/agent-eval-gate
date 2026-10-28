@@ -1,0 +1,645 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v1",
+    "target_ref": "9f0a5c448661ffea1de23457f54ffb151ff4c207",
+    "agent": "existing-tests",
+    "mode": "deterministic",
+    "split": "heldout",
+    "trials": 1,
+    "harness_version": "0.1.0",
+    "started_at": "2026-10-28T14:58:19+00:00",
+    "model": null
+  },
+  "trials": [
+    {
+      "task_id": "AUTH-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "session-cookie-not-httponly": true
+      },
+      "bugs": [
+        "session-cookie-not-httponly"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "AUTH-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "bad-credentials-403": true
+      },
+      "bugs": [
+        "bad-credentials-403"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "AUTH-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "bad-credentials-403": true,
+        "unknown-email-distinct-error": false
+      },
+      "bugs": [
+        "bad-credentials-403",
+        "unknown-email-distinct-error"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "AUTH-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "profile-tenant-name-wrong": true
+      },
+      "bugs": [
+        "profile-tenant-name-wrong"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "AUTH-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "unauthenticated-code-wrong": false
+      },
+      "bugs": [
+        "unauthenticated-code-wrong"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "create-vendor-returns-200": false
+      },
+      "bugs": [
+        "create-vendor-returns-200"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "contact-email-unvalidated": false
+      },
+      "bugs": [
+        "contact-email-unvalidated"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "create-vendor-returns-200": false,
+        "vendor-name-unique-across-tenants": false
+      },
+      "bugs": [
+        "create-vendor-returns-200",
+        "vendor-name-unique-across-tenants"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "limit-cap-raised": false
+      },
+      "bugs": [
+        "limit-cap-raised"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "VEN-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "update-not-audited": false
+      },
+      "bugs": [
+        "update-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "DOC-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "upload-not-audited": false
+      },
+      "bugs": [
+        "upload-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "DOC-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "empty-file-accepted": false,
+        "upload-limit-plus-one": false
+      },
+      "bugs": [
+        "empty-file-accepted",
+        "upload-limit-plus-one"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "DOC-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "upload-limit-rejects-exact": false
+      },
+      "bugs": [
+        "upload-limit-rejects-exact"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "DOC-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "document-tenant-leak": false
+      },
+      "bugs": [
+        "document-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "REV-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "missing-kinds-truncated": false
+      },
+      "bugs": [
+        "missing-kinds-truncated"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "REV-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "queue-order-reversed": false
+      },
+      "bugs": [
+        "queue-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "REV-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "member-can-review": false
+      },
+      "bugs": [
+        "member-can-review"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "REV-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "reject-note-optional": false
+      },
+      "bugs": [
+        "reject-note-optional"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "REV-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "expiring-window-excludes-day-30": false
+      },
+      "bugs": [
+        "expiring-window-excludes-day-30"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    },
+    {
+      "task_id": "AUD-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {
+        "upload-not-audited": false,
+        "audit-order-reversed": false
+      },
+      "bugs": [
+        "upload-not-audited",
+        "audit-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "model": null
+      },
+      "duration_s": 0.0
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.16112515805281938,
+      "n": 20,
+      "successes": 0
+    },
+    "pass_all_k": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.16112515805281938,
+      "n": 20,
+      "successes": 0
+    },
+    "bug_detection": {
+      "value": 0.16666666666666666,
+      "low": 0.06678676328632951,
+      "high": 0.3585307064969906,
+      "n": 24,
+      "successes": 4
+    },
+    "false_failure": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.16112515805281938,
+      "n": 20,
+      "successes": 0
+    },
+    "cost_usd": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 20,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 20,
+      "successes": null
+    },
+    "by_category": {
+      "audit": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.5614970317550454,
+        "n": 3,
+        "successes": 0
+      },
+      "authorization": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.4898908364545973,
+        "n": 4,
+        "successes": 0
+      },
+      "contract": {
+        "value": 0.5,
+        "low": 0.09453120573423074,
+        "high": 0.9054687942657693,
+        "n": 2,
+        "successes": 1
+      },
+      "dates": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.7934506856227626,
+        "n": 1,
+        "successes": 0
+      },
+      "ordering": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.6576197724933469,
+        "n": 2,
+        "successes": 0
+      },
+      "security": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "status_codes": {
+        "value": 0.5,
+        "low": 0.15003898915214947,
+        "high": 0.8499610108478506,
+        "n": 4,
+        "successes": 2
+      },
+      "validation": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.35433043506668743,
+        "n": 7,
+        "successes": 0
+      }
+    }
+  }
+}

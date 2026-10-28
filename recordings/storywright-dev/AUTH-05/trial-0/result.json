@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"requests without a session are rejected with not_authenticated\", { tag: \"@AUTH-05\" }, async ({ request }) => {\n  const response = await request.get(\"/api/me\");\n\n  const body = await response.text();\n  expect(response.status(), body).toBe(401);\n  const json = JSON.parse(body) as { error?: { code?: string } };\n  expect(json.error?.code, body).toBe(\"not_authenticated\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13021,
+    "output_tokens": 274,
+    "cost_usd": 0.000285,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.369367167120799,
+  "error": null,
+  "log": "AUTH-05: passing: every test passes against the real app\n"
+}

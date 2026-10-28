@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-02.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"wrong password is rejected without revealing which field was wrong\", { tag: \"@AUTH-02\" }, async ({ request }) => {\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: \"wrong-password\" },\n    });\n    const text = await response.text();\n    expect(response.status(), text).toBe(401);\n    const body = JSON.parse(text);\n    expect(body.error?.code, text).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13045,
+    "output_tokens": 347,
+    "cost_usd": 0.000323,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.636106499936432,
+  "error": null,
+  "log": "AUTH-02: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-01.spec.ts": "import { readFileSync } from \"node:fs\";\nimport path from \"node:path\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\"uploading a document returns 201 with status processing and records an audit event\", { tag: \"@DOC-01\" }, async ({ apiAs }) => {\n    // Arrange: a vendor in draft status owned by the member's tenant\n    const member = await apiAs(\"member\");\n    const created = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Doc Vendor\"),\n        category: \"services\",\n        contact_email: `billing.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com`,\n      },\n    });\n    expect(created.status(), await created.text()).toBe(201);\n    const vendor = await created.json();\n    expect(vendor.status).toBe(\"draft\");\n\n    // Act: upload the insurance certificate as a real file part\n    const filePath = sample(\"insurance_certificate.txt\");\n    const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: {\n          name: path.basename(filePath),\n          mimeType: \"text/plain\",\n          buffer: readFileSync(filePath),\n        },\n      },\n    });\n\n    // Assert: response status and initial document status\n    expect(upload.status(), await upload.text()).toBe(201);\n    const document = await upload.json();\n    expect(document.kind).toBe(\"insurance_certificate\");\n    expect(document.vendor_id).toBe(vendor.id);\n    expect(document.status, JSON.stringify(document)).toBe(\"processing\");\n\n    // Assert: audit event is recorded (may be written asynchronously)\n    await expect\n      .poll(async () => {\n        const audit = await member.get(`/api/vendors/${vendor.id}/audit`);\n        expect(audit.status(), await audit.text()).toBe(200);\n        const body = (await audit.json()) as { items: { action: string }[] };\n        return body.items.map((event) => event.action);\n      }, { message: \"document.uploaded audit event\" })\n      .toContain(\"document.uploaded\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 27159,
+    "output_tokens": 2860,
+    "cost_usd": 0.001821,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 18.04723354196176,
+  "error": null,
+  "log": "DOC-01: passing: every test passes against the real app\n"
+}

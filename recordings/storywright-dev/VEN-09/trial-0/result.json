@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs }) => {\n    const member = await apiAs(\"member\");\n\n    const created = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Lock Test\"),\n        category: \"logistics\",\n        contact_email: `ops.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@acmefreight.example`,\n      },\n    });\n    expect(created.status(), await created.text()).toBe(201);\n    const vendor = await created.json();\n\n    const kinds = [\"w9\", \"insurance_certificate\", \"contract\"] as const;\n    const documentIds: string[] = [];\n    for (const kind of kinds) {\n      const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind,\n          file: {\n            name: `${kind}.pdf`,\n            mimeType: \"application/pdf\",\n            buffer: Buffer.from(\"%PDF-1.4 test document\"),\n          },\n        },\n      });\n      expect(upload.status(), await upload.text()).toBe(201);\n      documentIds.push((await upload.json()).id);\n    }\n\n    for (const documentId of documentIds) {\n      await expect\n        .poll(async () => {\n          const res = await member.get(`/api/documents/${documentId}`);\n          return (await res.json()).status;\n        })\n        .toBe(\"extracted\");\n    }\n\n    const submitted = await member.post(`/api/vendors/${vendor.id}/submit`);\n    expect(submitted.status(), await submitted.text()).toBe(200);\n\n    await expect\n      .poll(async () => {\n        const res = await member.get(`/api/vendors/${vendor.id}`);\n        return (await res.json()).status;\n      })\n      .toBe(\"in_review\");\n\n    const res = await member.patch(`/api/vendors/${vendor.id}`, {\n      data: { contact_email: \"billing@acmefreight.example\" },\n    });\n    expect(res.status(), await res.text()).toBe(409);\n    expect((await res.json()).error.code, await res.text()).toBe(\"vendor_locked\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 40752,
+    "output_tokens": 3618,
+    "cost_usd": 0.00239,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 23.47304237494245,
+  "error": null,
+  "log": "VEN-09: passing: every test passes against the real app\n"
+}

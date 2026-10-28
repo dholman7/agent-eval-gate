@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-01.spec.ts": "// features/vendors.feature: Manage vendors / Create a vendor\nimport { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"Create a vendor\", { tag: \"@VEN-01\" }, async ({ apiAs }) => {\n    // Arrange: background, signed in as the Northwind member\n    const member = await apiAs(\"member\");\n    const name = uniqueName(\"Acme Freight\");\n\n    // Act\n    const response = await member.post(\"/api/vendors\", {\n      data: {\n        name,\n        category: \"logistics\",\n        contact_email: \"ops@acmefreight.example\",\n      },\n    });\n\n    // Assert: response status and vendor status\n    expect(response.status()).toBe(201);\n    const vendor = await response.json();\n    expect(vendor.name).toBe(name);\n    expect(vendor.category).toBe(\"logistics\");\n    expect(vendor.contact_email).toBe(\"ops@acmefreight.example\");\n    expect(vendor.status).toBe(\"draft\");\n\n    // Assert: audit event recorded for the new vendor\n    const auditResponse = await member.get(`/api/vendors/${vendor.id}/audit`);\n    expect(auditResponse.status()).toBe(200);\n    const trail = (await auditResponse.json()) as { items: { action: string }[] };\n    expect(trail.items.map((event) => event.action)).toContain(\"vendor.created\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12571,
+    "output_tokens": 663,
+    "cost_usd": 0.001589,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 4.276562917046249,
+  "error": null,
+  "log": null
+}

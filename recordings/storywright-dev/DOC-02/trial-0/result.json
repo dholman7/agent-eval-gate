@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-02.spec.ts": "import { readFileSync } from 'node:fs';\nimport { expect, sample, test, uniqueName } from '../../fixtures';\n\ntest('extraction completes in the background', { tag: '@DOC-02' }, async ({ apiAs }) => {\n  const member = await apiAs('member');\n\n  const vendorRes = await member.post('/api/vendors', {\n    data: { name: uniqueName('DOC-02 Vendor'), category: 'services', contact_email: 'ops@doc02.example.com' },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = await vendorRes.json();\n  expect(vendor.status, JSON.stringify(vendor)).toBe('draft');\n\n  const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: 'insurance_certificate',\n      file: {\n        name: 'insurance_certificate.txt',\n        mimeType: 'text/plain',\n        buffer: readFileSync(sample('insurance_certificate.txt')),\n      },\n    },\n  });\n  expect(upload.status(), await upload.text()).toBe(201);\n  const doc = await upload.json();\n  expect(doc.kind, JSON.stringify(doc)).toBe('insurance_certificate');\n\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/documents/${doc.id}`);\n        const body = await res.json();\n        return body.status;\n      },\n      { timeout: 60_000, message: 'document should leave processing' },\n    )\n    .toBe('extracted');\n\n  const exRes = await member.get(`/api/documents/${doc.id}/extraction`);\n  expect(exRes.status(), await exRes.text()).toBe(200);\n  const extraction = await exRes.json();\n  const body = JSON.stringify(extraction);\n\n  for (const field of ['insurer', 'policy_number', 'coverage_amount', 'expiry_date']) {\n    expect(Object.keys(extraction.fields), body).toContain(field);\n  }\n\n  for (const [name, field] of Object.entries(extraction.fields as Record<string, { confidence: unknown }>)) {\n    expect(typeof field.confidence, `${name} in ${body}`).toBe('number');\n    expect(field.confidence as number, `${name} in ${body}`).toBeGreaterThanOrEqual(0);\n    expect(field.confidence as number, `${name} in ${body}`).toBeLessThanOrEqual(1);\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 27424,
+    "output_tokens": 3533,
+    "cost_usd": 0.002184,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 19.811843458097428,
+  "error": null,
+  "log": "DOC-02: passing: every test passes against the real app\n"
+}

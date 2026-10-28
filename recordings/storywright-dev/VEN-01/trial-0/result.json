@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Create a vendor\", { tag: \"@VEN-01\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const name = uniqueName(\"Acme Freight\");\n\n  // Act\n  const res = await member.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(201);\n  const vendor = await res.json();\n  expect(vendor.status, JSON.stringify(vendor)).toBe(\"draft\");\n  expect(vendor.name).toBe(name);\n  expect(vendor.category).toBe(\"logistics\");\n\n  await expect.poll(async () => {\n    const audit = await member.get(`/api/vendors/${vendor.id}/audit`);\n    if (audit.status() !== 200) return [];\n    const body = (await audit.json()) as { items: { action: string }[] };\n    return body.items.map((e) => e.action);\n  }, { message: \"audit event vendor.created recorded\" }).toContain(\"vendor.created\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13068,
+    "output_tokens": 554,
+    "cost_usd": 0.000429,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.214493124978617,
+  "error": null,
+  "log": "VEN-01: passing: every test passes against the real app\n"
+}

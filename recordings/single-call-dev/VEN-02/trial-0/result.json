@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst examples = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n] as const;\n\ntest.describe(\"Manage vendors\", () => {\n  test.describe(\"Reject invalid vendor fields\", () => {\n    for (const { field, value } of examples) {\n      test(`rejects ${field} set to ${JSON.stringify(value)}`, { tag: \"@VEN-02\" }, async ({ apiAs }) => {\n        // Arrange\n        const member = await apiAs(\"member\");\n        const payload: Record<string, unknown> = {\n          name: uniqueName(\"Vendor\"),\n          category: \"software\",\n          contact_email: \"billing@vendor.test\",\n        };\n        payload[field] = value;\n\n        // Act\n        const response = await member.post(\"/api/vendors\", { data: payload });\n\n        // Assert\n        expect(response.status()).toBe(422);\n        const body = await response.json();\n        expect(body.error.code).toBe(\"validation_error\");\n        expect(JSON.stringify(body)).toContain(field);\n      });\n    }\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12608,
+    "output_tokens": 871,
+    "cost_usd": 0.001696,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.735107708023861,
+  "error": null,
+  "log": null
+}

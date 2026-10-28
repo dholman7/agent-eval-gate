@@ -1,0 +1,14 @@
+{
+  "files": {
+    "REV-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"submitting with missing documents lists what is missing\", { tag: \"@REV-02\" }, async ({ apiAs }) => {\n  // Arrange: a draft vendor with only an extracted w9 document\n  const member = await apiAs(\"member\");\n\n  const created = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"REV02 Vendor\"),\n      category: \"software\",\n      contact_email: `rev02.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com`,\n    },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = await created.json();\n\n  const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: {\n        name: \"w9.pdf\",\n        mimeType: \"application/pdf\",\n        buffer: Buffer.from(\"%PDF-1.4\\n% w9 test document\\n%%EOF\\n\"),\n      },\n    },\n  });\n  expect(upload.status(), await upload.text()).toBe(201);\n  const document = await upload.json();\n\n  // Extraction runs in the background; wait until it finishes.\n  await expect\n    .poll(async () => {\n      const res = await member.get(`/api/documents/${document.id}`);\n      expect(res.status(), await res.text()).toBe(200);\n      return (await res.json()).status;\n    })\n    .toBe(\"extracted\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n  // Assert\n  const body = await response.text();\n  expect(response.status(), body).toBe(409);\n  const parsed = JSON.parse(body);\n  expect(parsed.error?.code ?? parsed.detail?.error?.code, body).toBe(\"documents_incomplete\");\n  const serialized = JSON.stringify(parsed);\n  expect(serialized, body).toContain(\"contract\");\n  expect(serialized, body).toContain(\"insurance_certificate\");\n});\n"
+  },
+  "usage": {
+    "input_tokens": 41376,
+    "output_tokens": 3466,
+    "cost_usd": 0.002376,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 22.361961791059002,
+  "error": null,
+  "log": "REV-02: passing: every test passes against the real app\n"
+}

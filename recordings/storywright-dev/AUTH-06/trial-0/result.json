@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n  // Arrange: sign in so the session cookie is stored in this request context\n  const login = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n  expect(login.status(), await login.text()).toBe(200);\n\n  // Act\n  const response = await request.post(\"/api/auth/logout\");\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(204);\n  const setCookies = response\n    .headersArray()\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n    .map((h) => h.value);\n  const sessionCookie = setCookies.find((v) => v.toLowerCase().startsWith(\"session=\"));\n  expect(sessionCookie, `Set-Cookie headers: ${setCookies.join(\" | \")}`).toBeDefined();\n  const lower = sessionCookie!.toLowerCase();\n  const cleared =\n    lower.includes(\"max-age=0\") ||\n    lower.includes(\"expires=thu, 01 jan 1970\") ||\n    lower.startsWith(\"session=;\") ||\n    lower.startsWith(\"session=\\\"\\\";\");\n  expect(cleared, `session cookie not cleared: ${sessionCookie}`).toBe(true);\n});"
+  },
+  "usage": {
+    "input_tokens": 13035,
+    "output_tokens": 1083,
+    "cost_usd": 0.002166,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 9.189207083079964,
+  "error": null,
+  "log": "AUTH-06: passing: every test passes against the real app\n"
+}

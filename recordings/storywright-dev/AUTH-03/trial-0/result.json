@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"unknown email is rejected the same way as a wrong password\", { tag: \"@AUTH-03\" }, async ({ request }) => {\n    // Act\n    const unknown = await request.post(\"/api/auth/login\", {\n      data: { email: \"nobody@northwind.test\", password: PASSWORD },\n    });\n    const unknownBody = await unknown.text();\n\n    // Assert\n    expect(unknown.status(), unknownBody).toBe(401);\n    expect(JSON.parse(unknownBody).error.code, unknownBody).toBe(\"invalid_credentials\");\n\n    // Same rejection as a wrong password for a real user\n    const wrong = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: \"wrong-password\" },\n    });\n    const wrongBody = await wrong.text();\n    expect(wrong.status(), wrongBody).toBe(401);\n    expect(JSON.parse(wrongBody).error.code, wrongBody).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13045,
+    "output_tokens": 534,
+    "cost_usd": 0.000417,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.644973541144282,
+  "error": null,
+  "log": "AUTH-03: passing: every test passes against the real app\n"
+}

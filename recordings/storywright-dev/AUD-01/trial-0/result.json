@@ -1,0 +1,14 @@
+{
+  "files": {
+    "AUD-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"audit events are listed oldest first with actor and action\", { tag: \"@AUD-01\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const createRes = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"Audit Vendor\"),\n      category: \"services\",\n      contact_email: `ap.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}@example.com`,\n    },\n  });\n  expect(createRes.status(), await createRes.text()).toBe(201);\n  const vendor = await createRes.json();\n\n  const uploadRes = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: {\n        name: \"w9.pdf\",\n        mimeType: \"application/pdf\",\n        buffer: Buffer.from(\"%PDF-1.4\\n% audit test w9\\n%%EOF\\n\"),\n      },\n    },\n  });\n  expect(uploadRes.status(), await uploadRes.text()).toBe(201);\n\n  // Background extraction: wait until the extraction event lands in the trail.\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/vendors/${vendor.id}/audit`);\n        if (res.status() !== 200) return `status ${res.status()}`;\n        const body = (await res.json()) as { items: { action: string }[] };\n        return body.items.map((e) => e.action).includes(\"document.extracted\");\n      },\n      { timeout: 60_000 },\n    )\n    .toBe(true);\n\n  // Act\n  const response = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(200);\n  const { items } = (await response.json()) as {\n    items: { action: string; at: string; actor: { id: string; name: string; email: string } }[];\n  };\n\n  expect(items.map((e) => e.action)).toEqual([\n    \"vendor.created\",\n    \"document.uploaded\",\n    \"document.extracted\",\n  ]);\n\n  for (const event of items) {\n    expect(event.actor.id, \"actor id\").toBeTruthy();\n    expect(event.actor.name, \"actor name\").toBeTruthy();\n    expect(event.actor.email, \"actor email\").toBe(\"member@northwind.test\");\n    expect(Number.isNaN(Date.parse(event.at)), `timestamp ${event.at}`).toBe(false);\n  }\n\n  const times = items.map((e) => Date.parse(e.at));\n  for (let i = 1; i < times.length; i++) {\n    expect(times[i], \"events must be oldest first\").toBeGreaterThanOrEqual(times[i - 1]);\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 27423,
+    "output_tokens": 2976,
+    "cost_usd": 0.001906,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 18.343796707922593,
+  "error": null,
+  "log": "AUD-01: passing: every test passes against the real app\n"
+}

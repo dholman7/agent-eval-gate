@@ -1,0 +1,12 @@
+{
+  "files": {},
+  "usage": {
+    "input_tokens": 57113,
+    "output_tokens": 9198,
+    "cost_usd": 0.005646,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 45.615264625055715,
+  "error": "REV-05: gave_up: still failing after 3 repairs\n",
+  "log": "REV-05: gave_up: still failing after 3 repairs\n"
+}

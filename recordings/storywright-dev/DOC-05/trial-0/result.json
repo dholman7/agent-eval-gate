@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\"a file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n    const member = await apiAs(\"member\");\n\n    const vendorRes = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Doc Vendor\"),\n        category: \"software\",\n        contact_email: \"ops@doc-vendor.example.com\",\n      },\n    });\n    expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n    const vendor = await vendorRes.json();\n    expect(vendor.status).toBe(\"draft\");\n\n    const tenMiB = 10 * 1024 * 1024;\n    const buffer = Buffer.alloc(tenMiB, \"a\");\n\n    const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"contract\",\n        file: { name: \"contract.txt\", mimeType: \"text/plain\", buffer },\n      },\n    });\n    expect(res.status(), await res.text()).toBe(201);\n    const doc = await res.json();\n    expect(doc.size_bytes, await res.text()).toBe(tenMiB);\n    expect(doc.kind).toBe(\"contract\");\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 26907,
+    "output_tokens": 2233,
+    "cost_usd": 0.001483,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.162603457923979,
+  "error": null,
+  "log": "DOC-05: passing: every test passes against the real app\n"
+}

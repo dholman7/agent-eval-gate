@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor list\", () => {\n  test(\"list vendors with search, status filter, and pagination\", { tag: \"@VEN-05\" }, async ({ apiAs }) => {\n    const member = await apiAs(\"member\");\n    const token = uniqueName(\"Freight Batch\");\n\n    for (let i = 0; i < 25; i++) {\n      const res = await member.post(\"/api/vendors\", {\n        data: { name: `${token} ${String(i).padStart(2, \"0\")}`, category: \"logistics\", contact_email: `ops${i}.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com` },\n      });\n      expect(res.status(), await res.text()).toBe(201);\n    }\n\n    // Status filter: vendors in this batch are all draft, so approved filter should return only approved items.\n    const approved = await member.get(\"/api/vendors\", { params: { status: \"approved\", limit: 100 } });\n    expect(approved.status(), await approved.text()).toBe(200);\n    const approvedPage = await approved.json();\n    for (const v of approvedPage.items) {\n      expect(v.status, JSON.stringify(v)).toBe(\"approved\");\n    }\n    expect(approvedPage.total).toBe(approvedPage.items.length);\n\n    // Pagination: scope to our batch so the total is exactly 25.\n    const page = await member.get(\"/api/vendors\", { params: { q: token, limit: 10, offset: 20 } });\n    expect(page.status(), await page.text()).toBe(200);\n    const pageBody = await page.json();\n    expect(pageBody.items).toHaveLength(5);\n    expect(pageBody.total).toBe(25);\n\n    // Search: every returned name contains the term, ignoring case.\n    const search = await member.get(\"/api/vendors\", { params: { q: \"freight\", limit: 100 } });\n    expect(search.status(), await search.text()).toBe(200);\n    const searchBody = await search.json();\n    expect(searchBody.items.length).toBeGreaterThan(0);\n    for (const v of searchBody.items) {\n      expect(v.name.toLowerCase(), JSON.stringify(v)).toContain(\"freight\");\n    }\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 27316,
+    "output_tokens": 2969,
+    "cost_usd": 0.003387,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 20.242606499930844,
+  "error": null,
+  "log": "VEN-05: passing: every test passes against the real app\n"
+}

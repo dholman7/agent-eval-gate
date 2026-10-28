@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\n    \"A file of exactly 10 MiB is accepted\",\n    { tag: \"@DOC-05\" },\n    async ({ apiAs }) => {\n      // Background: signed in as member, vendor in status \"draft\"\n      const member = await apiAs(\"member\");\n      const uniqueSuffix = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;\n      const vendorResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"DOC05 Vendor\"),\n          category: \"software\",\n          contact_email: `doc05-${uniqueSuffix}@vendor.test`,\n        },\n      });\n      expect(vendorResponse.status()).toBe(201);\n      const vendor = await vendorResponse.json();\n      expect(vendor.status).toBe(\"draft\");\n\n      // When I upload a text file of exactly 10 MiB as kind \"contract\"\n      const buffer = Buffer.alloc(TEN_MIB, \"a\");\n      const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"contract\",\n          file: {\n            name: `contract-${uniqueSuffix}.txt`,\n            mimeType: \"text/plain\",\n            buffer,\n          },\n        },\n      });\n\n      // Then the response status is 201\n      expect(response.status()).toBe(201);\n    },\n  );\n});\n"
+  },
+  "usage": {
+    "input_tokens": 12561,
+    "output_tokens": 1062,
+    "cost_usd": 0.001787,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.231101791141555,
+  "error": null,
+  "log": null
+}

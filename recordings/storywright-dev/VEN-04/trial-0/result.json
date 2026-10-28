@@ -1,0 +1,14 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { USERS, PASSWORD, expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"the same vendor name is allowed in a different tenant\", { tag: \"@VEN-04\" }, async ({ apiAs, playwright }) => {\n    // Arrange: a vendor with the same name already exists in another tenant\n    const name = uniqueName(\"Acme Freight\");\n    const other = await apiAs(\"otherTenant\");\n    const seeded = await other.post(\"/api/vendors\", {\n      data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n    expect(seeded.status(), await seeded.text()).toBe(201);\n\n    // Act: the signed-in Northwind member creates a vendor with that name\n    const member = await apiAs(\"member\");\n    const response = await member.post(\"/api/vendors\", {\n      data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(201);\n    const created = await response.json();\n    expect(created.name).toBe(name);\n    expect(created.id).not.toBe((await seeded.json()).id);\n  });\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13079,
+    "output_tokens": 1020,
+    "cost_usd": 0.000663,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.019610334187746,
+  "error": null,
+  "log": "VEN-04: passing: every test passes against the real app\n"
+}

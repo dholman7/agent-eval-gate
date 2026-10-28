@@ -1,0 +1,14 @@
+{
+  "files": {
+    "DOC-04.spec.ts": "import { expect, test, uniqueName, sample } from \"../../fixtures\";\n\ntest.describe(\"upload vendor documents\", () => {\n  const cases = [\n    { label: \"an empty file\", kind: \"w9\", status: 422, code: \"empty_file\", file: { name: \"empty.pdf\", mimeType: \"application/pdf\", buffer: Buffer.alloc(0) } },\n    { label: \"a file of exactly 10 MiB + 1\", kind: \"w9\", status: 413, code: \"file_too_large\", file: { name: \"big.pdf\", mimeType: \"application/pdf\", buffer: Buffer.alloc(10 * 1024 * 1024 + 1, 0x41) } },\n    { label: \"a .exe file\", kind: \"w9\", status: 415, code: \"unsupported_type\", file: { name: \"setup.exe\", mimeType: \"application/octet-stream\", buffer: Buffer.from(\"MZ\\u0000\\u0000 not really an exe\") } },\n    { label: \"a valid text file\", kind: \"passport\", status: 422, code: \"validation_error\", file: { name: \"notes.txt\", mimeType: \"text/plain\", buffer: Buffer.from(\"hello vendor\\n\") } },\n  ];\n\n  for (const c of cases) {\n    test(`rejects ${c.label} with ${c.code}`, { tag: \"@DOC-04\" }, async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const created = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"Doc Vendor\"),\n          category: \"services\",\n          contact_email: `ops+${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com`,\n        },\n      });\n      expect(created.status(), await created.text()).toBe(201);\n      const vendor = await created.json();\n\n      // Act\n      const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: { kind: c.kind, file: c.file },\n      });\n\n      // Assert\n      const body = await res.text();\n      expect(res.status(), body).toBe(c.status);\n      expect(JSON.parse(body).error?.code, body).toBe(c.code);\n    });\n  }\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13196,
+    "output_tokens": 1473,
+    "cost_usd": 0.000902,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 9.967103000031784,
+  "error": null,
+  "log": "DOC-04: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,646 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v1",
+    "target_ref": "9f0a5c448661ffea1de23457f54ffb151ff4c207",
+    "agent": "storywright-dev",
+    "mode": "live",
+    "split": "heldout",
+    "trials": 1,
+    "harness_version": "0.1.0",
+    "started_at": "2026-10-28T15:07:44+00:00",
+    "model": "claude-haiku-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "AUTH-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "AUTH-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "session-cookie-not-httponly": true
+      },
+      "bugs": [
+        "session-cookie-not-httponly"
+      ],
+      "usage": {
+        "input_tokens": 13049,
+        "output_tokens": 462,
+        "cost_usd": 0.001857,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.405560749815777
+    },
+    {
+      "task_id": "AUTH-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "AUTH-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true
+      },
+      "bugs": [
+        "bad-credentials-403"
+      ],
+      "usage": {
+        "input_tokens": 13045,
+        "output_tokens": 347,
+        "cost_usd": 0.000323,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.636106499936432
+    },
+    {
+      "task_id": "AUTH-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "AUTH-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true,
+        "unknown-email-distinct-error": true
+      },
+      "bugs": [
+        "bad-credentials-403",
+        "unknown-email-distinct-error"
+      ],
+      "usage": {
+        "input_tokens": 13045,
+        "output_tokens": 534,
+        "cost_usd": 0.000417,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.644973541144282
+    },
+    {
+      "task_id": "AUTH-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "AUTH-04: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "profile-tenant-name-wrong": true
+      },
+      "bugs": [
+        "profile-tenant-name-wrong"
+      ],
+      "usage": {
+        "input_tokens": 13047,
+        "output_tokens": 345,
+        "cost_usd": 0.000323,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.486182249849662
+    },
+    {
+      "task_id": "AUTH-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "AUTH-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unauthenticated-code-wrong": true
+      },
+      "bugs": [
+        "unauthenticated-code-wrong"
+      ],
+      "usage": {
+        "input_tokens": 13021,
+        "output_tokens": 274,
+        "cost_usd": 0.000285,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.369367167120799
+    },
+    {
+      "task_id": "VEN-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "VEN-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true
+      },
+      "bugs": [
+        "create-vendor-returns-200"
+      ],
+      "usage": {
+        "input_tokens": 13068,
+        "output_tokens": 554,
+        "cost_usd": 0.000429,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.214493124978617
+    },
+    {
+      "task_id": "VEN-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "VEN-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 3,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "contact-email-unvalidated": true
+      },
+      "bugs": [
+        "contact-email-unvalidated"
+      ],
+      "usage": {
+        "input_tokens": 13105,
+        "output_tokens": 1052,
+        "cost_usd": 0.000682,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 9.046054749982432
+    },
+    {
+      "task_id": "VEN-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "VEN-04: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true,
+        "vendor-name-unique-across-tenants": true
+      },
+      "bugs": [
+        "create-vendor-returns-200",
+        "vendor-name-unique-across-tenants"
+      ],
+      "usage": {
+        "input_tokens": 13079,
+        "output_tokens": 1020,
+        "cost_usd": 0.000663,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.019610334187746
+    },
+    {
+      "task_id": "VEN-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "VEN-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "limit-cap-raised": true
+      },
+      "bugs": [
+        "limit-cap-raised"
+      ],
+      "usage": {
+        "input_tokens": 13014,
+        "output_tokens": 257,
+        "cost_usd": 0.000275,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.274938166840002
+    },
+    {
+      "task_id": "VEN-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "VEN-08: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "update-not-audited": true
+      },
+      "bugs": [
+        "update-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 26859,
+        "output_tokens": 1481,
+        "cost_usd": 0.002597,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 12.211274957982823
+    },
+    {
+      "task_id": "DOC-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "DOC-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-not-audited": true
+      },
+      "bugs": [
+        "upload-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 27159,
+        "output_tokens": 2860,
+        "cost_usd": 0.001821,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 18.04723354196176
+    },
+    {
+      "task_id": "DOC-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "DOC-04: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 4,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "empty-file-accepted": true,
+        "upload-limit-plus-one": true
+      },
+      "bugs": [
+        "empty-file-accepted",
+        "upload-limit-plus-one"
+      ],
+      "usage": {
+        "input_tokens": 13196,
+        "output_tokens": 1473,
+        "cost_usd": 0.000902,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 9.967103000031784
+    },
+    {
+      "task_id": "DOC-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "DOC-05: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-limit-rejects-exact": true
+      },
+      "bugs": [
+        "upload-limit-rejects-exact"
+      ],
+      "usage": {
+        "input_tokens": 26907,
+        "output_tokens": 2233,
+        "cost_usd": 0.001483,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 15.162603457923979
+    },
+    {
+      "task_id": "DOC-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "DOC-07: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "document-tenant-leak": true
+      },
+      "bugs": [
+        "document-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 26965,
+        "output_tokens": 2495,
+        "cost_usd": 0.00162,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 16.714574875077233
+    },
+    {
+      "task_id": "REV-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "REV-02: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "missing-kinds-truncated": true
+      },
+      "bugs": [
+        "missing-kinds-truncated"
+      ],
+      "usage": {
+        "input_tokens": 41376,
+        "output_tokens": 3466,
+        "cost_usd": 0.002376,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 22.361961791059002
+    },
+    {
+      "task_id": "REV-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "REV-03: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "queue-order-reversed": false
+      },
+      "bugs": [
+        "queue-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 42501,
+        "output_tokens": 7199,
+        "cost_usd": 0.004355,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 41.187590666813776
+    },
+    {
+      "task_id": "REV-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "REV-04: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "member-can-review": true
+      },
+      "bugs": [
+        "member-can-review"
+      ],
+      "usage": {
+        "input_tokens": 13020,
+        "output_tokens": 308,
+        "cost_usd": 0.000301,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.7007349578198045
+    },
+    {
+      "task_id": "REV-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "REV-06: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "reject-note-optional": true
+      },
+      "bugs": [
+        "reject-note-optional"
+      ],
+      "usage": {
+        "input_tokens": 27638,
+        "output_tokens": 3988,
+        "cost_usd": 0.002433,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 21.295153666986153
+    },
+    {
+      "task_id": "REV-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "REV-08: app_defect: The scenario states that an insurance certificate expiring in 0 or 30 days makes GET /api/vendors/{id} flag the vendor with insurance_expiring_soon. In both failing runs the test set up valid data: an insurance_certificate upload with an ISO expiry date that is 0 or 30 days ahead, accepted with 201. The document reached status 'extracted', so the background work finished. The vendor still returned flags: [] with status draft. The 31-day case passes only because it expects no flag, so it does not show that flagging works. The extraction body was truncated in the results, so the extracted expiry value could not be checked. If it turns out the extractor read a null or wrong expiry from this document, the cause would be test data, but the evidence available points to the app not raising the flag.\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 2,
+      "load_errors": [],
+      "clean_failures": [
+        "insurance expiring in 0 days is flagged insurance_expiring_soon: Error: vendor={\"id\":\"f8636b32cd844e8891da648306f6895e\",\"name\":\"Rev08 Vendor mvs9069gicwo\",\"category\":\"services\",\"contact_email\":\"ops+mvs9069g5143@example.com\",\"status\":\"draft\",\"flags\":[],\"submitted_at\":null,\"created_at\":\"2026-10-28T15:07:20.124265\",\"updated_at\":\"2026-10-28T15:07:20.124266\"} extracti",
+        "insurance expiring in 30 days is flagged insurance_expiring_soon: Error: vendor={\"id\":\"2ba2c704377b40728643c491cc74e7e9\",\"name\":\"Rev08 Vendor mvs9069h9fad\",\"category\":\"services\",\"contact_email\":\"ops+mvs9069hr24u@example.com\",\"status\":\"draft\",\"flags\":[],\"submitted_at\":null,\"created_at\":\"2026-10-28T15:07:20.124433\",\"updated_at\":\"2026-10-28T15:07:20.124434\"} extracti"
+      ],
+      "tagged": true,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "expiring-window-excludes-day-30"
+      ],
+      "usage": {
+        "input_tokens": 57707,
+        "output_tokens": 8741,
+        "cost_usd": 0.005477,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 47.12152258306742
+    },
+    {
+      "task_id": "AUD-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "AUD-01: passing: every test passes against the real app\n",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "upload-not-audited": true,
+        "audit-order-reversed": true
+      },
+      "bugs": [
+        "upload-not-audited",
+        "audit-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 27423,
+        "output_tokens": 2976,
+        "cost_usd": 0.001906,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 18.343796707922593
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 0.95,
+      "low": 0.763868806553258,
+      "high": 0.9911185511992047,
+      "n": 20,
+      "successes": 19
+    },
+    "pass_all_k": {
+      "value": 0.95,
+      "low": 0.763868806553258,
+      "high": 0.9911185511992047,
+      "n": 20,
+      "successes": 19
+    },
+    "bug_detection": {
+      "value": 0.9166666666666666,
+      "low": 0.741511978067893,
+      "high": 0.9768411847029567,
+      "n": 24,
+      "successes": 22
+    },
+    "false_failure": {
+      "value": 0.05,
+      "low": 0.008881448800795402,
+      "high": 0.23613119344674205,
+      "n": 20,
+      "successes": 1
+    },
+    "cost_usd": {
+      "value": 0.00152625,
+      "low": 0.00094285,
+      "high": 0.0022221999999999997,
+      "n": 20,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 14.460541839525103,
+      "low": 9.95712089369772,
+      "high": 19.973914572852664,
+      "n": 20,
+      "successes": null
+    },
+    "by_category": {
+      "audit": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "authorization": {
+        "value": 1.0,
+        "low": 0.5101091635454027,
+        "high": 1.0,
+        "n": 4,
+        "successes": 4
+      },
+      "contract": {
+        "value": 1.0,
+        "low": 0.34238022750665303,
+        "high": 1.0,
+        "n": 2,
+        "successes": 2
+      },
+      "dates": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.7934506856227626,
+        "n": 1,
+        "successes": 0
+      },
+      "ordering": {
+        "value": 0.5,
+        "low": 0.09453120573423074,
+        "high": 0.9054687942657693,
+        "n": 2,
+        "successes": 1
+      },
+      "security": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "status_codes": {
+        "value": 1.0,
+        "low": 0.5101091635454027,
+        "high": 1.0,
+        "n": 4,
+        "successes": 4
+      },
+      "validation": {
+        "value": 1.0,
+        "low": 0.6456695649333126,
+        "high": 1.0,
+        "n": 7,
+        "successes": 7
+      }
+    }
+  }
+}

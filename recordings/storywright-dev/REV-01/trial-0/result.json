@@ -1,0 +1,14 @@
+{
+  "files": {
+    "REV-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"submitting a vendor with all three documents extracted moves it to in_review\", { tag: \"@REV-01\" }, async ({ apiAs }) => {\n  const member = await apiAs(\"member\");\n\n  const created = await member.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"REV01 Vendor\"), category: \"software\", contact_email: \"billing@example.com\" },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = await created.json();\n\n  for (const kind of [\"w9\", \"insurance_certificate\", \"contract\"]) {\n    const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind,\n        file: { name: `${kind}.pdf`, mimeType: \"application/pdf\", buffer: Buffer.from(\"%PDF-1.4 test document\") },\n      },\n    });\n    expect(upload.status(), await upload.text()).toBe(201);\n  }\n\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/vendors/${vendor.id}/documents`);\n        const docs = (await res.json()) as { kind: string; status: string }[];\n        return docs.length === 3 && docs.every((d) => d.status === \"extracted\");\n      },\n      { timeout: 60_000 },\n    )\n    .toBe(true);\n\n  const submitted = await member.post(`/api/vendors/${vendor.id}/submit`);\n  expect(submitted.status(), await submitted.text()).toBe(200);\n  expect((await submitted.json()).status, await submitted.text()).toBe(\"in_review\");\n\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/vendors/${vendor.id}/audit`);\n        const trail = (await res.json()) as { items: { action: string }[] };\n        return trail.items.some((e) => e.action === \"vendor.submitted\");\n      },\n      { timeout: 30_000 },\n    )\n    .toBe(true);\n});\n"
+  },
+  "usage": {
+    "input_tokens": 13081,
+    "output_tokens": 2010,
+    "cost_usd": 0.001159,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.873720749979839,
+  "error": null,
+  "log": "REV-01: passing: every test passes against the real app\n"
+}
