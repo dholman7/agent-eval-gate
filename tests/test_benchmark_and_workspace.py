@@ -131,20 +131,32 @@ def test_test_files_cannot_escape_their_directory(tmp_path: Path) -> None:
     assert not (tmp_path / "x.ts").exists()
 
 
-def test_agent_copies_link_heavy_dirs_with_targets_that_resolve(
+def test_agent_copies_link_shared_dirs_with_targets_that_resolve(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # Regression: a relative workspace path produced broken .venv symlinks in agent copies.
-    (tmp_path / "base" / "backend" / ".venv").mkdir(parents=True)
-    (tmp_path / "base" / "backend" / "app.py").write_text("")
+    # Regression: a relative workspace path produced broken symlinks in agent copies.
+    (tmp_path / "base" / "e2e" / "node_modules").mkdir(parents=True)
+    (tmp_path / "base" / "e2e" / "app.ts").write_text("")
     monkeypatch.chdir(tmp_path)
 
     copy = Workspace(Path("base")).copy_for_agent(tmp_path / "scratch" / "repo")
 
-    link = copy / "backend" / ".venv"
+    link = copy / "e2e" / "node_modules"
     assert link.is_symlink()
-    assert link.resolve() == (tmp_path / "base" / "backend" / ".venv").resolve()
+    assert link.resolve() == (tmp_path / "base" / "e2e" / "node_modules").resolve()
     assert link.exists()
+
+
+def test_agent_copies_never_share_the_base_virtualenv(tmp_path: Path) -> None:
+    # A shared venv let `uv run` in a copy re-point the base's editable install at the copy.
+    (tmp_path / "base" / "backend" / ".venv" / "lib").mkdir(parents=True)
+    (tmp_path / "base" / "backend" / "app.py").write_text("")
+
+    copy = Workspace(tmp_path / "base").copy_for_agent(tmp_path / "scratch" / "repo")
+
+    assert (copy / "backend" / "app.py").exists()
+    assert not (copy / "backend" / ".venv").exists()
+    assert not (copy / "backend" / ".venv").is_symlink()
 
 
 def test_command_agent_follows_the_contract(tmp_path: Path) -> None:

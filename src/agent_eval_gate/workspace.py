@@ -12,7 +12,11 @@ from agent_eval_gate.benchmark import Bug, Target
 logger = logging.getLogger(__name__)
 
 # Large, regenerable directories are symlinked into agent copies instead of copied.
-_HEAVY = ("node_modules", ".venv")
+_SHARED = ("node_modules",)
+# Never shared: `uv run` in a copy would re-point the base venv's editable install at the copy,
+# so parallel trials would run each other's code and the base would end up pointing at a deleted
+# directory. Left out, each copy gets its own venv from uv's cache on first use.
+_PER_COPY = (".venv",)
 
 
 def _sh(command: str, cwd: Path) -> None:
@@ -48,9 +52,11 @@ class Workspace:
             self.path,
             destination,
             symlinks=True,
-            ignore=shutil.ignore_patterns(*_HEAVY, ".git", ".aeg-ready", "test-results"),
+            ignore=shutil.ignore_patterns(
+                *_SHARED, *_PER_COPY, ".git", ".aeg-ready", "test-results"
+            ),
         )
-        for name in _HEAVY:
+        for name in _SHARED:
             for heavy in [*self.path.glob(name), *self.path.glob(f"*/{name}")]:
                 link = destination / heavy.relative_to(self.path)
                 if link.parent.exists() and not link.is_symlink() and not link.exists():
