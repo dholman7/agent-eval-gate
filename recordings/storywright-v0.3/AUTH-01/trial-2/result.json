@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: PASSWORD },\n    });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(200);\n    const body = (await response.json()) as { access_token?: unknown };\n    expect(typeof body.access_token, await response.text()).toBe(\"string\");\n    expect(body.access_token as string).not.toBe(\"\");\n\n    const cookie = response\n      .headersArray()\n      .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n    expect(cookie, \"a session Set-Cookie header\").toBeDefined();\n    expect(cookie?.value.toLowerCase()).toContain(\"httponly\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 43209,
+    "output_tokens": 1083,
+    "cost_usd": 0.001113,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.009922875091434,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the API with the fixture's password, then assert a 200 with a non-empty access token and a session Set-Cookie marked HttpOnly, following the existing auth spec and fixture conventions. AGENTS.md was not found in the repo, so I followed the existing spec style and fixtures.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nAUTH-01: passing: every test passes against the real app\n"
+}

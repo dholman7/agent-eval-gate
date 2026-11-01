@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"current user is returned for a valid session\", { tag: \"@AUTH-04\" }, async ({ apiAs }) => {\n    // Arrange: a signed-in member session\n    const member = await apiAs(\"member\");\n\n    // Act\n    const res = await member.get(\"/api/me\");\n\n    // Assert\n    expect(res.status(), await res.text()).toBe(200);\n    const profile = await res.json();\n    expect(profile.email, JSON.stringify(profile)).toBe(\"member@northwind.test\");\n    expect(profile.role, JSON.stringify(profile)).toBe(\"member\");\n    expect(profile.tenant.name, JSON.stringify(profile)).toBe(\"Northwind Supply\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14193,
+    "output_tokens": 714,
+    "cost_usd": 0.000526,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.733916750177741,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the apiAs fixture to get a member session, call GET /api/me, and check the 200 status (with the response body in the failure message) and that the profile shows role member and tenant Northwind Supply.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-04: passing: every test passes against the real app\n"
+}

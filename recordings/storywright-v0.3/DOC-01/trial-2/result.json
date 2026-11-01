@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-01.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\"upload a document\", { tag: \"@DOC-01\" }, async ({ apiAs }) => {\n    // Arrange: a vendor in status draft\n    const member = await apiAs(\"member\");\n    const created = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Doc Vendor\"),\n        category: \"services\",\n        contact_email: \"ops@northwind-supply.com\",\n      },\n    });\n    expect(created.status(), await created.text()).toBe(201);\n    const vendor = await created.json();\n    expect(vendor.status).toBe(\"draft\");\n\n    // Act\n    const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: {\n          name: \"insurance_certificate.txt\",\n          mimeType: \"text/plain\",\n          buffer: readFileSync(sample(\"insurance_certificate.txt\")),\n        },\n      },\n    });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(201);\n    const document = await response.json();\n    expect(document.status).toBe(\"processing\");\n    expect(document.kind).toBe(\"insurance_certificate\");\n\n    await expect\n      .poll(\n        async () => {\n          const audit = await member.get(`/api/vendors/${vendor.id}/audit`);\n          expect(audit.status(), await audit.text()).toBe(200);\n          const body = (await audit.json()) as { items: { action: string }[] };\n          return body.items.map((event) => event.action);\n        },\n        { message: \"document.uploaded audit event recorded\" },\n      )\n      .toContain(\"document.uploaded\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 75285,
+    "output_tokens": 3233,
+    "cost_usd": 0.002887,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 24.93801358388737,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor through the API as the member persona, upload the insurance certificate sample as multipart, then check the 201 response, the processing status, and the document.uploaded audit event, polling the audit trail since it may be written after the response.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The vendor create call returned 422 before the upload step ran. The validator rejected contact_email \"ops@northwind.test\" because the .test top-level domain is a reserved special-use name. The app is correctly refusing the test's setup data, so the fix is to use a routable domain. The upload assertions are unchanged, and the @DOC-01 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nDOC-01: passing: every test passes against the real app\n"
+}

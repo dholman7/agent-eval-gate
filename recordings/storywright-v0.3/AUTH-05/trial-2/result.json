@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"requests without a session are rejected with not_authenticated\", { tag: \"@AUTH-05\" }, async ({ request }) => {\n  // Act: no session cookie and no Authorization header\n  const response = await request.get(\"/api/me\");\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(401);\n  expect((await response.json()).error.code).toBe(\"not_authenticated\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14167,
+    "output_tokens": 663,
+    "cost_usd": 0.000498,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.277889957651496,
+  "error": null,
+  "log": "  kind: api\n  plan: Send GET /api/me with no session cookie or bearer token and assert a 401 with the not_authenticated error code, mirroring the existing auth spec's error-shape check. The status assertion includes the response body so a failure explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-05: passing: every test passes against the real app\n"
+}

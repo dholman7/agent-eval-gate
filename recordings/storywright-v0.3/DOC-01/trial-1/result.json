@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-01.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"uploading a document returns 201 as processing and is audited\", { tag: \"@DOC-01\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"Doc Vendor\"),\n      category: \"services\",\n      contact_email: `doc-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@vendors-mail.com`,\n    },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = await vendorRes.json();\n  expect(vendor.status).toBe(\"draft\");\n\n  // Act\n  const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"insurance_certificate\",\n      file: {\n        name: \"insurance_certificate.txt\",\n        mimeType: \"text/plain\",\n        buffer: readFileSync(sample(\"insurance_certificate.txt\")),\n      },\n    },\n  });\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(201);\n  const document = await res.json();\n  expect(document.status).toBe(\"processing\");\n  expect(document.kind).toBe(\"insurance_certificate\");\n\n  const auditRes = await member.get(`/api/vendors/${vendor.id}/audit`);\n  expect(auditRes.status(), await auditRes.text()).toBe(200);\n  const actions = ((await auditRes.json()).items as { action: string }[]).map((e) => e.action);\n  expect(actions).toContain(\"document.uploaded\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 61965,
+    "output_tokens": 3705,
+    "cost_usd": 0.003041,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 27.402266417164356,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor through the API as a member, upload the insurance certificate sample as multipart form data, then assert the 201 response, the processing status, and the document.uploaded audit event. The code is built on the existing apiAs and sample fixtures because no data factory exists in the e2e folder.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The app returned 422 on vendor creation (setup step, not the upload under test). The validator rejected contact_email because the domain \"vendor.test\" uses the reserved .test special-use TLD, so the test's setup data is invalid. The scenario does not depend on the email domain, so the fix is to use a normal domain. The upload assertions (201, status processing, kind, and the document.uploaded audit event) are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nDOC-01: passing: every test passes against the real app\n"
+}

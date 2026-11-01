@@ -1,0 +1,15 @@
+{
+  "files": {
+    "UI-08.spec.ts": "import { expect, expectStatus, test, type Document } from \"../../fixtures\";\n\ntest(\"a vendor with only an extracted W-9 can't be submitted yet\", { tag: \"@UI-08\" }, async ({ pages, signIn, factory, apiAs }) => {\n  // Arrange\n  const vendor = await factory.vendor();\n  await factory.upload(vendor.id, \"w9\");\n  const member = await apiAs(\"member\");\n  await expect\n    .poll(\n      async () => {\n        const documents = await expectStatus<Document[]>(await member.get(`/api/vendors/${vendor.id}/documents`), 200);\n        return documents.map((d) => d.status);\n      },\n      { message: \"the W-9 finishes extraction\", timeout: 30_000 },\n    )\n    .toEqual([\"extracted\"]);\n  await signIn(\"member\");\n\n  // Act\n  await pages.vendor.goto(vendor.id);\n\n  // Assert\n  await expect(pages.vendor.submitButton).toBeDisabled();\n  await expect(pages.vendor.stillNeeded([\"insurance_certificate\", \"contract\"])).toBeVisible();\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22897,
+    "output_tokens": 1938,
+    "cost_usd": 0.001229,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 22.260308207944036,
+  "error": null,
+  "log": "  kind: ui\n  plan: Arrange a draft vendor with only a W-9 uploaded through the factory, wait until that document is extracted, then sign in and open the vendor page. Assert that Submit is disabled and the page lists the two missing documents.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-08: passing: every test passes against the real app\n"
+}

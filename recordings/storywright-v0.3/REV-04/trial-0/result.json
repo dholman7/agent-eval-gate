@@ -1,0 +1,15 @@
+{
+  "files": {
+    "REV-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"review queue access\", () => {\n  test(\"members cannot see the review queue\", { tag: \"@REV-04\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/review-queue\");\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(403);\n    expect((JSON.parse(body) as { error: { code: string } }).error.code, body).toBe(\"forbidden\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 73202,
+    "output_tokens": 1549,
+    "cost_usd": 0.001837,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 19.618796334136277,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as a member through the apiAs fixture and call GET /api/review-queue, then assert a 403 with the error code forbidden, reporting the response body in each assertion message. No data setup is needed because the scenario only checks the role gate.\n  verify: 0 passed, 0 failed, type errors, run errors\n  repair 1: test_bug: The compile and run errors come from a wrong import path, not from the app. The test lives at e2e/api/generated/REV-04.spec.ts, so '../fixtures' resolves to e2e/api/fixtures, which does not exist. The shared fixtures module is e2e/fixtures/index.ts, which is two levels up, so the import must be '../../fixtures'. Because the import failed, apiAs was typed as implicit any and no tests were discovered. The test logic itself matches the scenario: a member calling GET /api/review-queue should get 403 with error code 'forbidden'. The status and error-code assertions are unchanged, and the tag @REV-04 is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nREV-04: passing: every test passes against the real app\n"
+}

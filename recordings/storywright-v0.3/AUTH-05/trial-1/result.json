@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"requests without a session are rejected with not_authenticated\", { tag: \"@AUTH-05\" }, async ({ request }) => {\n    // Act: no token and no session cookie\n    const response = await request.get(\"/api/me\");\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(401);\n    const body = await response.json();\n    expect(body.error?.code, JSON.stringify(body)).toBe(\"not_authenticated\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14167,
+    "output_tokens": 725,
+    "cost_usd": 0.000529,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.715286582708359,
+  "error": null,
+  "log": "  kind: api\n  plan: Send an unauthenticated request to /api/me using the plain request fixture, which carries no token or session cookie, and assert a 401 with the not_authenticated error code. The status assertion includes the response body in its message so a failure shows why the app refused.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-05: passing: every test passes against the real app\n"
+}

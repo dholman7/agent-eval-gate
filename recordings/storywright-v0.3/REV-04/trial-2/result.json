@@ -1,0 +1,15 @@
+{
+  "files": {
+    "REV-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"members cannot see the review queue\", { tag: \"@REV-04\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(\"/api/review-queue\");\n\n  // Assert\n  const body = await response.text();\n  expect(response.status(), body).toBe(403);\n  expect(JSON.parse(body).error.code, body).toBe(\"forbidden\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 47096,
+    "output_tokens": 850,
+    "cost_usd": 0.001385,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.654534250032157,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the member persona through the apiAs fixture, call GET /api/review-queue, and assert a 403 with the error code forbidden. Status assertions include the response body so a refusal explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nREV-04: passing: every test passes against the real app\n"
+}

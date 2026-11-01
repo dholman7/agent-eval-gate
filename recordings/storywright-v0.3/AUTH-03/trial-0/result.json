@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"unknown email is rejected the same way as a wrong password\", { tag: \"@AUTH-03\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: \"nobody@northwind.test\", password: PASSWORD },\n    });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(401);\n    const body = await response.json();\n    expect(body.error?.code, JSON.stringify(body)).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14191,
+    "output_tokens": 857,
+    "cost_usd": 0.000598,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.953649458941072,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in with an email that has no account and the correct password, then assert the 401 status and the invalid_credentials error code, using the status helper pattern so a failure shows the response body. The test uses the raw request fixture like the existing auth spec, since it needs no seeded tenant data.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-03: passing: every test passes against the real app\n"
+}

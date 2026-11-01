@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"current user is returned for a valid session\", { tag: \"@AUTH-04\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/me\");\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(200);\n    const profile = await response.json();\n    expect(profile.role).toBe(\"member\");\n    expect(profile.tenant.name).toBe(\"Northwind Supply\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 43403,
+    "output_tokens": 949,
+    "cost_usd": 0.001065,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.359327041078359,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the apiAs fixture to get an API client signed in as the seeded member, call GET /api/me, and assert the 200 status (with the response body in the failure message) plus the role and tenant name from the profile.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nAUTH-04: passing: every test passes against the real app\n"
+}

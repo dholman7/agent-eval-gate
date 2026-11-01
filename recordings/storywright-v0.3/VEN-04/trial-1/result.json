@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"the same vendor name is allowed in a different tenant\", { tag: \"@VEN-04\" }, async ({ apiAs }) => {\n  // Arrange: a vendor with the same name already exists in another tenant.\n  const name = uniqueName(\"Acme Freight\");\n  const globex = await apiAs(\"otherTenant\");\n  const existing = await globex.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n  expect(existing.status(), await existing.text()).toBe(201);\n\n  // Act: the Northwind member creates a vendor with that same name.\n  const member = await apiAs(\"member\");\n  const response = await member.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(201);\n  const vendor = await response.json();\n  expect(vendor.name).toBe(name);\n  expect(vendor.category).toBe(\"logistics\");\n  expect(vendor.contact_email).toBe(\"ops@acmefreight.example\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 44542,
+    "output_tokens": 1383,
+    "cost_usd": 0.001396,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.87841875012964,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a same-named vendor in the Globex tenant through its own member API client, then create the Northwind vendor with the same unique name and assert 201 with the submitted fields. Status checks include the response body so a refusal explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nVEN-04: passing: every test passes against the real app\n"
+}

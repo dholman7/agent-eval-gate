@@ -1,0 +1,15 @@
+{
+  "files": {
+    "REV-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"submitting with missing documents lists what is missing\", { tag: \"@REV-02\" }, async ({ apiAs }) => {\n  // Arrange: a draft vendor whose only document is an extracted W-9\n  const member = await apiAs(\"member\");\n  const created = await member.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Harborline\"), category: \"services\", contact_email: \"ops@harborline.example\" },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = (await created.json()) as { id: string };\n\n  const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: {\n        name: \"w9.txt\",\n        mimeType: \"text/plain\",\n        buffer: Buffer.from(\"Legal Name: Acme\\nTax ID: 123456789\\n\"),\n      },\n    },\n  });\n  expect(upload.status(), await upload.text()).toBe(201);\n  const document = (await upload.json()) as { id: string };\n\n  // Extraction runs in the background; wait until the W-9 has been extracted.\n  await expect\n    .poll(async () => {\n      const res = await member.get(`/api/documents/${document.id}`);\n      return ((await res.json()) as { status: string }).status;\n    }, { timeout: 15_000 })\n    .toBe(\"extracted\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(409);\n  const error = ((await response.json()) as { error: { code: string; missing_kinds: string[] } }).error;\n  expect(error.code).toBe(\"documents_incomplete\");\n  expect(error.missing_kinds).toEqual([\"contract\", \"insurance_certificate\"]);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 87221,
+    "output_tokens": 2297,
+    "cost_usd": 0.003621,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 18.841561499983072,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a draft vendor through the API as a signed-in member, upload only a W-9 and wait until its extraction completes, then submit and assert the 409 documents_incomplete error lists exactly the missing contract and insurance_certificate kinds. No data factory exists in e2e, so setup uses the apiAs fixture and the uniqueName helper.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 8\nREV-02: passing: every test passes against the real app\n"
+}

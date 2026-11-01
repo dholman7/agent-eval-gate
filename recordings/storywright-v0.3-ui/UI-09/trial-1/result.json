@@ -1,0 +1,15 @@
+{
+  "files": {
+    "UI-09.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"the vendor with an unreadable insurance expiry is listed above the other\", { tag: \"@UI-09\" }, async ({ pages, signIn, factory }) => {\n  // Arrange\n  const unreadable = await factory.vendorInReview({\n    files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n  });\n  const readable = await factory.vendorInReview();\n  await signIn(\"reviewer\");\n\n  // Act\n  await pages.reviewQueue.goto();\n  await expect(pages.reviewQueue.heading).toBeVisible();\n  await expect(pages.reviewQueue.card(unreadable.vendor.name)).toBeVisible();\n  await expect(pages.reviewQueue.card(readable.vendor.name)).toBeVisible();\n\n  // Assert\n  const upper = await pages.reviewQueue.card(unreadable.vendor.name).boundingBox();\n  const lower = await pages.reviewQueue.card(readable.vendor.name).boundingBox();\n  expect(upper, \"unreadable vendor card has a layout box\").not.toBeNull();\n  expect(lower, \"readable vendor card has a layout box\").not.toBeNull();\n  expect(upper!.y, \"unreadable-date vendor is listed above the other\").toBeLessThan(lower!.y);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22890,
+    "output_tokens": 2189,
+    "cost_usd": 0.001354,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.28005583304912,
+  "error": null,
+  "log": "  kind: ui\n  plan: Arrange two vendors in review through the factory, one whose insurance expiry is unreadable, then open the review queue as a reviewer and assert the unreadable one's card sits above the other using the existing ReviewQueuePage locators. No page-object changes are needed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-09: passing: every test passes against the real app\n"
+}

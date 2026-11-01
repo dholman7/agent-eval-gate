@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-06.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"vendor pagination limits\", () => {\n  test(\"Pagination limits are enforced\", { tag: \"@VEN-06\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/vendors\", { params: { limit: 101 } });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(422);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 45709,
+    "output_tokens": 829,
+    "cost_usd": 0.001236,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.753504334017634,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the apiAs fixture, request GET /api/vendors with limit=101, and assert a 422 with the response body included in the failure message. The test is tagged @VEN-06 and written to e2e/api/generated/VEN-06.spec.ts.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nVEN-06: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntest(\"A file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const name = uniqueName(\"DOC-05 Vendor\");\n  const created = await member.post(\"/api/vendors\", {\n    data: {\n      name,\n      category: \"services\",\n      contact_email: `doc05.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com`,\n    },\n  });\n  expect(created.status(), await created.text()).toBe(201);\n  const vendor = (await created.json()) as { id: string };\n  const content = Buffer.alloc(TEN_MIB, \"a\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"contract\",\n      file: {\n        name: \"contract-10mib.txt\",\n        mimeType: \"text/plain\",\n        buffer: content,\n      },\n    },\n  });\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(201);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 59060,
+    "output_tokens": 2701,
+    "cost_usd": 0.002248,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 23.171175374649465,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as a member, create a draft vendor through the API (no data factory exists in this repo), then upload a text file of exactly 10 MiB as kind contract and assert a 201 response, showing the response body on failure.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The app rejected the vendor-creation setup step, not the scenario's behavior. The 422 names contact_email: the domain 'vendor.test' ends in '.test', a special-use name that the app's email validator refuses. The test chose that address, so the test is wrong. The document upload itself was never reached. Changing the setup email to a valid domain (example.com) fixes it and leaves the assertion (201 for a 10 MiB file) unchanged. The tag @DOC-05 is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nDOC-05: passing: every test passes against the real app\n"
+}

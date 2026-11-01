@@ -12,6 +12,7 @@ The shipped benchmark asks an agent to write Playwright API tests for one Gherki
 |---|---|---|---|---|---|
 | `reference` (hand-written oracle) | 100% (20/20)* | 100% | 100% (24/24)* | 0% | – |
 | [Storywright](https://github.com/dholman7/storywright) v0.2 (read, write, run, repair) | 97% (58/60), CI 89–99% | 95% (19/20) | 97% (70/72), CI 90–99% | 3% (2/60) | $0.0028 |
+| Storywright v0.3 (also writes UI tests) | 97% (58/60), CI 89–99% | 95% (19/20) | 97% (70/72), CI 90–99% | 3% (2/60) | $0.0025 |
 | `single-call-dev` (one call, no tools) | 60% (36/60), CI 47–71% | 55% (11/20) | 60% (43/72), CI 48–70% | 39% (23/59) | $0.0018 |
 | `existing-tests` (the repo's current API tests) | 0% (0/20)* | 0% | 17% (4/24)* | 0% | – |
 
@@ -19,7 +20,7 @@ The shipped benchmark asks an agent to write Playwright API tests for one Gherki
 
 Storywright v0.2 on Claude Opus 5.5 (1 trial per task): 100% (20/20, CI 84–100%) of tasks, 100% (24/24) of bugs caught, no suites failing on correct code, $0.091 per trial.
 
-Storywright's interval sits entirely above the single call's, so the difference isn't noise. Its prompts were tuned on dev, and its repo tools were added after an earlier version's held-out score was seen, so its numbers come from fresh trials but aren't a blind result. The held-out tasks are easier on average than the dev tasks (the single call scores 60% here against 17% on dev), which is why agents are only compared within a split.
+Storywright's interval sits entirely above the single call's, so the difference isn't noise. v0.3's first run here scored 55/60: rewriting the prompt for UI tests had dropped the rule that status assertions show the response body, and on a 422 the model blamed the app three times. With the rule restored, v0.3 matches v0.2 exactly; both remaining failures are REV-03, below. Its prompts were tuned on dev, and its repo tools were added after an earlier version's held-out score was seen, so its numbers come from fresh trials but aren't a blind result. The held-out tasks are easier on average than the dev tasks (the single call scores 60% here against 17% on dev), which is why agents are only compared within a split.
 
 **Known benchmark issue (REV-03).** The scenario states exact confidences ("lowest confidence 0.40") that the app never produces: it scores an unparseable field 0.30. The reference test checks order only, but an agent that holds the scenario's numbers, as Storywright did in two trials, reports a defect. Both of Storywright's held-out failures are this case. **Fixed in v2** ([`benchmarks/vendor-intake/v2`](benchmarks/vendor-intake/v2)): the target's scenario now states the queue order instead of exact confidences. Tasks, split, bugs, and references are unchanged, and CI validates both versions. v1 stays frozen so the numbers above remain reproducible.
 
@@ -82,6 +83,14 @@ Rates use Wilson score intervals, which behave sensibly at 0%, 100%, and small n
 - **Scoring starts the Next.js app next to the API** for each task, on its own port.
 - **Agent copies get copy-on-write clones of `node_modules`**, because Next.js's Turbopack rejects a symlinked one.
 - **`aeg validate` proves the benchmark is sound:** all 10 references pass on clean code, and each catches its bug, with 0 problems. CI runs it with the other benchmarks.
+
+**Held-out split** (6 tasks), Claude Haiku 5.5, 3 trials per task:
+
+| Agent | Trials succeeded | All 3 trials succeed | Seeded bugs caught | Failing on correct code | Cost per trial |
+|---|---|---|---|---|---|
+| Storywright v0.3 | 100% (18/18), CI 82–100% | 100% (6/6) | 100% (18/18), CI 82–100% | 0% (0/18) | $0.0045 |
+
+Each run starts the Next.js app and the API, writes the test through page objects (adding any entry it needs), and verifies it against the real screens before handing it over. The whole run cost $0.08. Six tasks give wide intervals: 18/18 is consistent with a true rate as low as 82%.
 
 ## Use it
 

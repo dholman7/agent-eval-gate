@@ -1,0 +1,564 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake-ui@v1",
+    "target_ref": "1668ad77212b273c1247357479e9ce9a2aa49d80",
+    "agent": "storywright-v0.3-ui",
+    "mode": "live",
+    "split": "heldout",
+    "trials": 3,
+    "harness_version": "0.1.0",
+    "started_at": "2026-11-01T22:00:09+00:00",
+    "model": "claude-haiku-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "UI-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Sign in as the member, create 11 vendors through the factory so more than 10 exist, then page forward with Next and back with Previous, asserting the pager text and the enabled state of the buttons. The pager and buttons get role/text locators in VendorListPage, the only page-object change.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The app is not at fault. Playwright's strict-mode error shows that getByRole('button', { name: 'Next' }) matches two elements: the pager's Next button, and the Next.js Dev Tools button (aria-label 'Open Next.js Dev Tools'), which contains 'Next' as a substring. The test's locator is ambiguous, so the click never reaches the pager. The fix is to add a separate exact-match locator for the pager's Next button in the page object and use it in the test. The existing nextButton entry is left unchanged, as the instructions require.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nUI-03: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "next-page-stays-on-same-page": true
+      },
+      "bugs": [
+        "next-page-stays-on-same-page"
+      ],
+      "usage": {
+        "input_tokens": 100139,
+        "output_tokens": 12428,
+        "cost_usd": 0.013299,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 72.1150915408507
+    },
+    {
+      "task_id": "UI-03",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Create 11 vendors through the factory as a signed-in member, open the vendor list, and check the pager shows 11 onward after Next, then 1–10 again after Previous. The assertions use patterns rather than exact totals because the database is shared. I added a pager locator set to VendorListPage.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nUI-03: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "next-page-stays-on-same-page": true
+      },
+      "bugs": [
+        "next-page-stays-on-same-page"
+      ],
+      "usage": {
+        "input_tokens": 73602,
+        "output_tokens": 6163,
+        "cost_usd": 0.004353,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 35.964769625104964
+    },
+    {
+      "task_id": "UI-03",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Creates eleven vendors through the factory, opens the vendor list, and clicks Next to check the pager reads \"Showing 11–…\", then Previous to check it returns to page one. I added pager, Previous, and Next locators to VendorListPage; the spec is for e2e/ui/generated/UI-03.spec.ts.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nUI-03: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "next-page-stays-on-same-page": true
+      },
+      "bugs": [
+        "next-page-stays-on-same-page"
+      ],
+      "usage": {
+        "input_tokens": 95095,
+        "output_tokens": 5965,
+        "cost_usd": 0.004374,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 36.638921374920756
+    },
+    {
+      "task_id": "UI-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange a vendor in review through the factory and sign in as the reviewer, then open the queue, start a W-9 change request, and send it back with no note. Assert the validation message and that the vendor card stays in the queue. I added small locator methods to ReviewQueuePage because the existing requestChanges helper always fills a note.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-04: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "missing-note-shows-raw-error": true
+      },
+      "bugs": [
+        "missing-note-shows-raw-error"
+      ],
+      "usage": {
+        "input_tokens": 22887,
+        "output_tokens": 5484,
+        "cost_usd": 0.003001,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 31.636089582927525
+    },
+    {
+      "task_id": "UI-04",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange a vendor in review through the factory, sign in as the reviewer, and send a W-9 request for changes with an empty note. Assert the note-required message appears and the vendor stays in the queue. I added a noteRequired locator to ReviewQueuePage so the spec needs no inline locator.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-04: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "missing-note-shows-raw-error": true
+      },
+      "bugs": [
+        "missing-note-shows-raw-error"
+      ],
+      "usage": {
+        "input_tokens": 22887,
+        "output_tokens": 6120,
+        "cost_usd": 0.003319,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 34.92742416728288
+    },
+    {
+      "task_id": "UI-04",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange a vendor in review through the factory, sign in as the reviewer, and send a W-9 change request with no note. Assert the note-required message appears and the vendor stays in the queue. I added two review-queue page-object entries for the no-note send and the message.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-04: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "missing-note-shows-raw-error": true
+      },
+      "bugs": [
+        "missing-note-shows-raw-error"
+      ],
+      "usage": {
+        "input_tokens": 22887,
+        "output_tokens": 5420,
+        "cost_usd": 0.002969,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 31.72079191589728
+    },
+    {
+      "task_id": "UI-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange a vendor whose insurance certificate expired on 2020-01-31, then search for it in the vendor list and assert its row shows the \"Insurance expired\" flag. The factory has no way to upload text with a chosen expiry date, so the test uploads that one document inline through the member's API client and checks the status; this breaks PW-2 and needs a factory method. I added a row locator to VendorListPage in pages.ts.\n  verify: 1 passed, 0 failed, 1 lint errors\n  repair 1: test_bug: The app supports this flag. frontend/lib/format.ts maps insurance_expired to the label \"Insurance expired\", and backend/src/vendor_intake/services/vendors.py:87 returns the insurance_expired flag. The only reported failure is lint PW-3 on the assert line, which calls getByText inline in the spec. The row locator already lives in VendorListPage.row(), so the fix is to assert on that row with toContainText and keep the locator out of the spec. No page-object change is needed. The setup upload is inline because the factory only uploads sample files, and the 2020 expiry is the scenario's own data. The @UI-05 tag and the import path (../../fixtures from ui/generated/) are correct.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 9\nUI-05: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-list-hides-flags": true
+      },
+      "bugs": [
+        "vendor-list-hides-flags"
+      ],
+      "usage": {
+        "input_tokens": 155656,
+        "output_tokens": 10429,
+        "cost_usd": 0.01119,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 63.75158337503672
+    },
+    {
+      "task_id": "UI-05",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: The factory can only upload sample files, and none has an expired certificate, so the test uploads an expired insurance certificate inline through the member's API client, checks the status, and waits for extraction before opening the vendor list. It then searches for the vendor by its unique name and asserts that its row shows \"Insurance expired\". I added a row(name) locator to VendorListPage so the spec has no inline locators.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nUI-05: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-list-hides-flags": true
+      },
+      "bugs": [
+        "vendor-list-hides-flags"
+      ],
+      "usage": {
+        "input_tokens": 195480,
+        "output_tokens": 8290,
+        "cost_usd": 0.009486,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 49.2584447497502
+    },
+    {
+      "task_id": "UI-05",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange a vendor whose insurance certificate expired in 2020 by uploading it through the API and waiting for extraction, then search for it in the vendor list and check its row shows the flag. Adds a row(name) locator to VendorListPage since the list has no entry for a vendor's row.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 9\nUI-05: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-list-hides-flags": true
+      },
+      "bugs": [
+        "vendor-list-hides-flags"
+      ],
+      "usage": {
+        "input_tokens": 129923,
+        "output_tokens": 7554,
+        "cost_usd": 0.006621,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 42.54956550011411
+    },
+    {
+      "task_id": "UI-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Create a vendor through the factory, upload an insurance certificate whose expiry is 10 days out via the API (the sample files have a fixed 2027 date), wait for extraction, then assert the flag on the vendor page through a new page-object method.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nUI-06: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-page-hides-flags": true
+      },
+      "bugs": [
+        "vendor-page-hides-flags"
+      ],
+      "usage": {
+        "input_tokens": 72273,
+        "output_tokens": 6451,
+        "cost_usd": 0.004364,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 38.34324675006792
+    },
+    {
+      "task_id": "UI-06",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Create a vendor through the factory, upload an insurance certificate whose Expiry Date is 10 days out via the API (the factory only takes fixed sample files), wait for extraction, then assert the flag on the vendor page through a new page-object method.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 7\nUI-06: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-page-hides-flags": true
+      },
+      "bugs": [
+        "vendor-page-hides-flags"
+      ],
+      "usage": {
+        "input_tokens": 123772,
+        "output_tokens": 6892,
+        "cost_usd": 0.005675,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 40.80076979100704
+    },
+    {
+      "task_id": "UI-06",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Create a vendor through the factory, upload an insurance certificate whose expiry date is 10 days from today (written to a unique sample file and removed after upload), then assert the vendor page shows the 30-day expiry flag. I added a named locator for the flag to the VendorPage page object.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nUI-06: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-page-hides-flags": true
+      },
+      "bugs": [
+        "vendor-page-hides-flags"
+      ],
+      "usage": {
+        "input_tokens": 71004,
+        "output_tokens": 7283,
+        "cost_usd": 0.004653,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 41.54693391593173
+    },
+    {
+      "task_id": "UI-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange a draft vendor with only a W-9 uploaded through the factory, wait until that document is extracted, then sign in and open the vendor page. Assert that Submit is disabled and the page lists the two missing documents.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-08: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-enabled-with-missing-documents": true
+      },
+      "bugs": [
+        "submit-enabled-with-missing-documents"
+      ],
+      "usage": {
+        "input_tokens": 22897,
+        "output_tokens": 1938,
+        "cost_usd": 0.001229,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 22.260308207944036
+    },
+    {
+      "task_id": "UI-08",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange a draft vendor with one uploaded W-9 through the API, polling until that extraction finishes. Then open the vendor page and assert through the existing page objects that Submit is disabled and the still-needed summary lists the two missing kinds. No page-object additions are needed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-08: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-enabled-with-missing-documents": true
+      },
+      "bugs": [
+        "submit-enabled-with-missing-documents"
+      ],
+      "usage": {
+        "input_tokens": 22897,
+        "output_tokens": 2045,
+        "cost_usd": 0.001283,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 22.397734582889825
+    },
+    {
+      "task_id": "UI-08",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange a draft vendor with one uploaded W-9 through the API and wait until that document is extracted, then open the vendor page as the member. Assert the submit button is disabled and the page lists the two documents still needed, using existing page-object entries without changes.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-08: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-enabled-with-missing-documents": true
+      },
+      "bugs": [
+        "submit-enabled-with-missing-documents"
+      ],
+      "usage": {
+        "input_tokens": 22897,
+        "output_tokens": 1830,
+        "cost_usd": 0.001175,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 21.09360804129392
+    },
+    {
+      "task_id": "UI-09",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange two vendors in review through the factory, one whose insurance certificate has an unreadable expiry, then sign in as the reviewer and compare the two cards' vertical positions in the queue. Relative order is asserted rather than absolute position, since other tests share the queue. No page-object changes are needed because the existing card() locator covers it.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-09: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "review-queue-reversed": true
+      },
+      "bugs": [
+        "review-queue-reversed"
+      ],
+      "usage": {
+        "input_tokens": 22890,
+        "output_tokens": 3193,
+        "cost_usd": 0.001856,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 29.16743899974972
+    },
+    {
+      "task_id": "UI-09",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange two vendors in review through the factory, one whose insurance expiry is unreadable, then open the review queue as a reviewer and assert the unreadable one's card sits above the other using the existing ReviewQueuePage locators. No page-object changes are needed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-09: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "review-queue-reversed": true
+      },
+      "bugs": [
+        "review-queue-reversed"
+      ],
+      "usage": {
+        "input_tokens": 22890,
+        "output_tokens": 2189,
+        "cost_usd": 0.001354,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 25.28005583304912
+    },
+    {
+      "task_id": "UI-09",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Arrange two vendors in review through the factory, one whose insurance certificate has an unreadable expiry date, then sign in as the reviewer and compare the two cards' vertical positions in the queue. No page-object changes are needed because the existing card locator covers both cards.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-09: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "review-queue-reversed": true
+      },
+      "bugs": [
+        "review-queue-reversed"
+      ],
+      "usage": {
+        "input_tokens": 22890,
+        "output_tokens": 2704,
+        "cost_usd": 0.001611,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 25.529209416825324
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 1.0,
+      "low": 0.8241207763533425,
+      "high": 1.0,
+      "n": 18,
+      "successes": 18
+    },
+    "pass_all_k": {
+      "value": 1.0,
+      "low": 0.6096657120978346,
+      "high": 1.0,
+      "n": 6,
+      "successes": 6
+    },
+    "bug_detection": {
+      "value": 1.0,
+      "low": 0.8241207763533425,
+      "high": 1.0,
+      "n": 18,
+      "successes": 18
+    },
+    "false_failure": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.17587922364665765,
+      "n": 18,
+      "successes": 0
+    },
+    "cost_usd": {
+      "value": 0.004545111111111111,
+      "low": 0.0031142222222222222,
+      "high": 0.006380444444444445,
+      "n": 18,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 36.94344374281354,
+      "low": 31.380558578452717,
+      "high": 44.01163732839955,
+      "n": 18,
+      "successes": null
+    },
+    "by_category": {
+      "flags": {
+        "value": 1.0,
+        "low": 0.6096657120978346,
+        "high": 1.0,
+        "n": 6,
+        "successes": 6
+      },
+      "gating": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "ordering": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "pagination": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "validation_messages": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      }
+    }
+  }
+}

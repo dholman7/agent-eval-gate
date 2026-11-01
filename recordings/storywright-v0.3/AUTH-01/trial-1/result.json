@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n  const body = await response.text();\n\n  // Assert\n  expect(response.status(), body).toBe(200);\n  const json = JSON.parse(body) as { access_token?: string };\n  expect(json.access_token, body).toBeTruthy();\n\n  const cookie = response\n    .headersArray()\n    .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, `session cookie missing; headers: ${JSON.stringify(response.headersArray())}`).toBeDefined();\n  expect(cookie?.value.toLowerCase(), body).toContain(\"httponly\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14195,
+    "output_tokens": 1204,
+    "cost_usd": 0.000772,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.534701417200267,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the login endpoint with the scenario's password, then assert a 200 status, an access token in the body, and a session cookie marked HttpOnly. Each assertion includes the response body so a failure explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-01: passing: every test passes against the real app\n"
+}

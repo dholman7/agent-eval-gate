@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUD-01.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"audit events are listed oldest first with actor and action\", { tag: \"@AUD-01\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const createRes = await member.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Audit Vendor\"), category: \"services\", contact_email: \"ops@auditvendor.example\" },\n  });\n  expect(createRes.status(), await createRes.text()).toBe(201);\n  const vendor = (await createRes.json()) as { id: string };\n\n  const uploadRes = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n  expect(uploadRes.status(), await uploadRes.text()).toBe(201);\n  const document = (await uploadRes.json()) as { id: string };\n\n  // Extraction runs in the background; wait until it has finished.\n  await expect\n    .poll(\n      async () => {\n        const res = await member.get(`/api/documents/${document.id}`);\n        expect(res.status(), await res.text()).toBe(200);\n        return ((await res.json()) as { status: string }).status;\n      },\n      { timeout: 15_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Act\n  const auditRes = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n  // Assert\n  expect(auditRes.status(), await auditRes.text()).toBe(200);\n  const { items } = (await auditRes.json()) as {\n    items: { action: string; at: string; actor: { id: string; name: string; email: string } }[];\n  };\n  expect(items.map((e) => e.action)).toEqual([\"vendor.created\", \"document.uploaded\", \"document.extracted\"]);\n\n  for (const event of items) {\n    expect(event.actor.id, \"actor id\").toBeTruthy();\n    expect(event.actor.email, \"actor email\").toBeTruthy();\n    expect(Number.isNaN(Date.parse(event.at)), `timestamp ${event.at}`).toBe(false);\n  }\n\n  const times = items.map((e) => Date.parse(e.at));\n  expect(times).toEqual([...times].sort((a, b) => a - b));\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 61425,
+    "output_tokens": 2090,
+    "cost_usd": 0.002188,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 17.7545386669226,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a vendor and upload a W-9 through the API as a member, poll until the document is extracted, then assert the audit trail lists the three actions oldest first, each with an actor and timestamp.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nAUD-01: passing: every test passes against the real app\n"
+}

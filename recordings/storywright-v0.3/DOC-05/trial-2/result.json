@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"a file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n  // Arrange: a draft vendor owned by the signed-in member's tenant\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"DOC05 Vendor\"),\n      category: \"services\",\n      contact_email: `ops.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com`,\n    },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = (await vendorRes.json()) as { id: string };\n\n  // Act: upload exactly 10 MiB of text\n  const file = Buffer.alloc(10 * 1024 * 1024, \"a\");\n  const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"contract\",\n      file: { name: \"contract-10mib.txt\", mimeType: \"text/plain\", buffer: file },\n    },\n  });\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(201);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 59094,
+    "output_tokens": 2646,
+    "cost_usd": 0.002224,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 23.42360300011933,
+  "error": null,
+  "log": "  kind: api\n  plan: No data factory exists in the repo, so the test creates a draft vendor through the API as a member using uniqueName, then uploads a generated 10 MiB text file as kind contract and asserts a 201 with the body shown on failure.\n  verify: 0 passed, 1 failed, type errors\n  repair 1: test_bug: The 422 came from the test's own vendor-setup request, not the upload. contact_email used the domain suffix '.test', which the app's email validator rejects as a special-use/reserved domain, so the draft vendor was never created and the upload was never reached. The test also imported 'apiAs' from the fixtures module, but apiAs is a Playwright fixture, not a named export, which causes the TS2305 type error. The fix is to use a non-reserved domain (example.com) for the vendor contact email and to drop the bad import. The @DOC-05 tag and the assertion (201 for a 10 MiB upload) are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-05: passing: every test passes against the real app\n"
+}

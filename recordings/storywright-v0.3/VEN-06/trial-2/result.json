@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-06.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"pagination limits are enforced\", { tag: \"@VEN-06\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/vendors?limit=101\");\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(422);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 57846,
+    "output_tokens": 857,
+    "cost_usd": 0.001214,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.69521470926702,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the Northwind member through the existing apiAs fixture, request the vendor list with limit=101, and assert a 422 status, printing the response body on failure. No vendor data is needed because the limit is rejected before any lookup.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nVEN-06: passing: every test passes against the real app\n"
+}

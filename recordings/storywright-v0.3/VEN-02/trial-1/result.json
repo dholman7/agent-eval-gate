@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst examples = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n] as const;\n\ntest.describe(\"Reject invalid vendor fields\", () => {\n  for (const { field, value } of examples) {\n    test(`rejects ${field} set to ${JSON.stringify(value)}`, { tag: \"@VEN-02\" }, async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const payload: Record<string, unknown> = {\n        name: uniqueName(\"Vendor\"),\n        category: \"software\",\n        contact_email: \"billing@vendor.test\",\n      };\n      payload[field] = value;\n\n      // Act\n      const response = await member.post(\"/api/vendors\", { data: payload });\n      const text = await response.text();\n\n      // Assert\n      expect(response.status(), text).toBe(422);\n      const body = JSON.parse(text);\n      expect(body.error?.code, text).toBe(\"validation_error\");\n      expect(text, \"error should name the field\").toContain(field);\n    });\n  }\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14251,
+    "output_tokens": 1262,
+    "cost_usd": 0.000806,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.714903375133872,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as a member through the apiAs fixture and POST a vendor with a valid baseline payload, overriding one field per example with an invalid value. Each case asserts a 422 with the validation_error code and that the response names the offending field.\n  verify: 3 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-02: passing: every test passes against the real app\n"
+}
