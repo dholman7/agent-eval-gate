@@ -10,19 +10,41 @@ from pydantic import BaseModel, Field
 Split = Literal["dev", "heldout"]
 
 
+Kind = Literal["api", "ui"]
+
+
 class AppSpec(BaseModel):
+    """A process scoring needs. `{port}` (the API), `{web_port}`, and `{data_dir}` are filled in."""
+
     cwd: str
     command: str
     env: dict[str, str] = Field(default_factory=dict)
     health: str
+    timeout_s: float = 60
+
+
+class KindSpec(BaseModel):
+    generated_dir: str
+    run: str
 
 
 class SuiteSpec(BaseModel):
     cwd: str
+    # API tests: the original, and still the default kind.
     generated_dir: str
     typecheck: str
     run: str
     env: dict[str, str] = Field(default_factory=dict)
+    ui: KindSpec | None = None
+    # Shared files an agent may extend (additions only) for its tests, such as page objects.
+    support_files: list[str] = Field(default_factory=list)
+
+    def kind(self, kind: Kind) -> KindSpec:
+        if kind == "api":
+            return KindSpec(generated_dir=self.generated_dir, run=self.run)
+        if self.ui is None:
+            raise ValueError("this benchmark has no UI tests configured")
+        return self.ui
 
 
 class Target(BaseModel):
@@ -30,6 +52,8 @@ class Target(BaseModel):
     ref: str
     setup: list[str] = Field(default_factory=list)
     app: AppSpec
+    # The web app, started next to the API for UI tasks.
+    web: AppSpec | None = None
     tests: SuiteSpec
 
 
@@ -38,6 +62,7 @@ class Task(BaseModel):
     split: Split
     feature: str
     scenario: str
+    kind: Kind = "api"
 
 
 class Bug(BaseModel):
@@ -95,6 +120,8 @@ class Benchmark(BaseModel):
                 f"bug {bug.id} names unknown task {t}" for t in bug.tasks if t not in task_ids
             ]
         for task in self.tasks:
+            if task.kind == "ui" and (self.target.web is None or self.target.tests.ui is None):
+                problems.append(f"task {task.id} is a UI task but no web app or UI suite is set")
             if not self.reference_file(task).is_file():
                 problems.append(f"task {task.id} has no reference test")
             if not self.bugs_for(task):

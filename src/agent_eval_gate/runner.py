@@ -25,7 +25,8 @@ def task_input(bench: Benchmark, workspace: Workspace, task_id: str) -> TaskInpu
         task_id=task.id,
         story=scenario_text(feature, task.scenario),
         required_tag=bench.tag(task),
-        test_dir=bench.target.tests.generated_dir,
+        test_dir=bench.target.tests.kind(task.kind).generated_dir,
+        kind=task.kind,
     )
 
 
@@ -78,12 +79,20 @@ def run(
                     if recorder is not None and mode == "live":
                         recorder.save(task.id, trial, result)
                     with tracer.start_as_current_span("aeg.score"):
-                        scored = scoring.score(bench, workspace, task, result.files)
+                        scored = scoring.score(
+                            bench, workspace, task, result.files, support=result.support
+                        )
                     record = TrialRecord(
                         task_id=task.id,
                         trial=trial,
                         agent_error=result.error,
-                        agent_log=result.log,
+                        agent_log="\n".join(
+                            [
+                                result.log or "",
+                                *(f"support rejected: {r}" for r in scored.support_rejected),
+                            ]
+                        ).strip()
+                        or None,
                         typechecks=scored.typechecks,
                         clean_passed=scored.clean.passed,
                         clean_failed=scored.clean.failed,

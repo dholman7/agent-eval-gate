@@ -55,6 +55,7 @@ jobs:
       - run: uv sync
       - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v1
       - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v2
+      - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake-ui/v1
 
   gate:
     name: Gate (reference agent holds its baseline)

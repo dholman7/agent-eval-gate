@@ -1,0 +1,13 @@
+# One task per scenario in features/ui.feature. Split drawn once with random.Random(20261101)
+# and frozen: prompts may be tuned on `dev`; `heldout` is run only for reported numbers.
+tasks:
+  - {id: UI-01, kind: ui, split: dev, feature: features/ui.feature, scenario: "Filter the vendor list by status"}
+  - {id: UI-02, kind: ui, split: dev, feature: features/ui.feature, scenario: "A search that matches nothing says so"}
+  - {id: UI-03, kind: ui, split: heldout, feature: features/ui.feature, scenario: "Page through the vendor list"}
+  - {id: UI-04, kind: ui, split: heldout, feature: features/ui.feature, scenario: "Requesting changes needs a note"}
+  - {id: UI-05, kind: ui, split: heldout, feature: features/ui.feature, scenario: "An expired insurance certificate is flagged in the vendor list"}
+  - {id: UI-06, kind: ui, split: heldout, feature: features/ui.feature, scenario: "Insurance expiring within 30 days is flagged on the vendor page"}
+  - {id: UI-07, kind: ui, split: dev, feature: features/ui.feature, scenario: "The activity log lists what happened in order"}
+  - {id: UI-08, kind: ui, split: heldout, feature: features/ui.feature, scenario: "A vendor can't be submitted until every document is extracted"}
+  - {id: UI-09, kind: ui, split: heldout, feature: features/ui.feature, scenario: "The review queue shows the lowest-confidence vendor first"}
+  - {id: UI-10, kind: ui, split: dev, feature: features/ui.feature, scenario: "An uploaded document can be replaced"}

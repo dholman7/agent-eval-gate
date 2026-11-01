@@ -74,6 +74,15 @@ Rates use Wilson score intervals, which behave sensibly at 0%, 100%, and small n
 
 `aeg gate` fails only when intervals don't overlap in the bad direction: the current upper bound is below the baseline's lower bound (for false alarms, the reverse). Overlap passes. With tens of trials, a few points of movement is noise, and a gate that fails on noise gets turned off.
 
+## UI benchmark
+
+[`benchmarks/vendor-intake-ui/v1`](benchmarks/vendor-intake-ui/v1) scores Playwright **UI** tests: 10 tasks from vendor-intake-app's [`features/ui.feature`](https://github.com/dholman7/vendor-intake-app/blob/main/features/ui.feature), with 4 dev and 6 held-out under a frozen split. None of the scenarios has a UI test in the app already, so an agent can't copy one.
+
+- **Seeded bugs are in the web app, not the API:** a status filter that's ignored, a pager that doesn't advance, insurance flags that never render, a review queue shown in reverse, and six more. Only a test that drives the screens can catch them.
+- **Scoring starts the Next.js app next to the API** for each task, on its own port.
+- **Agent copies get copy-on-write clones of `node_modules`**, because Next.js's Turbopack rejects a symlinked one.
+- **`aeg validate` proves the benchmark is sound:** all 10 references pass on clean code, and each catches its bug, with 0 problems. CI runs it with the other benchmarks.
+
 ## Use it
 
 ```bash
@@ -89,7 +98,7 @@ Plug in any agent as a shell command:
 uv run aeg run --agent my-agent --command "python my_agent.py" --split dev --trials 5
 ```
 
-The command receives `AEG_TASK` (task JSON: scenario text, required tag, test directory), `AEG_WORKSPACE` (a private repo copy), and `AEG_OUTPUT` (where to write `*.ts` files). It may write `AEG_OUTPUT/usage.json` with token counts, cost, and model. Live runs are recorded under `recordings/`; `--replay` scores them again without calling the agent, which is how CI stays free and deterministic.
+The command receives `AEG_TASK` (task JSON: scenario text, required tag, test directory, and kind, `api` or `ui`), `AEG_WORKSPACE` (a private repo copy), and `AEG_OUTPUT` (where to write `*.ts` files). A UI test that needs a page-object entry the repo lacks can write the whole extended file to `AEG_OUTPUT/support/<path>`. It's applied while scoring only if the benchmark lists it in `support_files` and the change only adds lines, then restored. It may write `AEG_OUTPUT/usage.json` with token counts, cost, and model. Live runs are recorded under `recordings/`; `--replay` scores them again without calling the agent, which is how CI stays free and deterministic.
 
 ### The one-call Claude baseline
 

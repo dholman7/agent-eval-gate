@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from agent_eval_gate.app import running_app
-from agent_eval_gate.benchmark import Benchmark, Task
+from agent_eval_gate.app import running_services
+from agent_eval_gate.benchmark import Benchmark, Kind, Task
 from agent_eval_gate.workspace import Workspace
 
 
@@ -49,6 +49,8 @@ class TrialScore:
     tagged: bool
     # Bug id -> caught. Empty when the suite didn't pass on clean code.
     kills: dict[str, bool]
+    # Support files the agent sent that weren't applied, with why.
+    support_rejected: list[str] = field(default_factory=list)
 
     @property
     def clean_pass(self) -> bool:
@@ -84,20 +86,21 @@ def parse_report(report: dict[str, Any]) -> SuiteRun:
     return run
 
 
-def _suite_env(bench: Benchmark, port: int) -> dict[str, str]:
-    values = {"port": str(port)}
+def _suite_env(bench: Benchmark, values: dict[str, str]) -> dict[str, str]:
     return {**os.environ, **{k: v.format(**values) for k, v in bench.target.tests.env.items()}}
 
 
-def run_suite(bench: Benchmark, repo: Path, port: int, test_dir: Path) -> SuiteRun:
+def run_suite(
+    bench: Benchmark, repo: Path, values: dict[str, str], test_dir: Path, kind: Kind = "api"
+) -> SuiteRun:
     spec = bench.target.tests
     cwd = repo / spec.cwd
     paths = os.path.relpath(test_dir, cwd)
     result = subprocess.run(
-        spec.run.format(paths=paths),
+        spec.kind(kind).run.format(paths=paths),
         shell=True,
         cwd=cwd,
-        env=_suite_env(bench, port),
+        env=_suite_env(bench, values),
         capture_output=True,
         text=True,
     )
@@ -120,20 +123,36 @@ def score(
     task: Task,
     files: dict[str, str],
     test_dir: str | None = None,
+    support: dict[str, str] | None = None,
 ) -> TrialScore:
-    """Runs `files` on clean code, then under each of the task's bugs if the clean run passed."""
-    relative = test_dir or bench.target.tests.generated_dir
-    with workspace.with_tests(relative, files) as directory:
+    """Runs `files` on clean code, then under each of the task's bugs if the clean run passed.
+
+    `support` holds shared files the agent extended (page objects); the allowed ones are applied
+    for the duration of scoring, additions only, and anything else is reported and ignored.
+    """
+    relative = test_dir or bench.target.tests.kind(task.kind).generated_dir
+    web = bench.target.web if task.kind == "ui" else None
+    with (
+        workspace.with_tests(relative, files) as directory,
+        workspace.with_support(support or {}, bench.target.tests.support_files) as rejected,
+    ):
         checks = typechecks(bench, workspace.path)
-        with running_app(workspace.path, bench.target.app) as port:
-            clean = run_suite(bench, workspace.path, port, directory)
+        with running_services(workspace.path, bench.target.app, web) as values:
+            clean = run_suite(bench, workspace.path, values, directory, task.kind)
         result = TrialScore(
-            typechecks=checks, clean=clean, tagged=bench.tag(task) in clean.passed_tags, kills={}
+            typechecks=checks,
+            clean=clean,
+            tagged=bench.tag(task) in clean.passed_tags,
+            kills={},
+            support_rejected=rejected,
         )
         if not result.clean_pass:
             return result
         for bug in bench.bugs_for(task):
-            with workspace.mutated(bug), running_app(workspace.path, bench.target.app) as port:
-                buggy = run_suite(bench, workspace.path, port, directory)
+            with (
+                workspace.mutated(bug),
+                running_services(workspace.path, bench.target.app, web) as values,
+            ):
+                buggy = run_suite(bench, workspace.path, values, directory, task.kind)
             result.kills[bug.id] = buggy.failed > 0 or bool(buggy.errors)
         return result

@@ -44,7 +44,9 @@ def validate(bench: Benchmark, workspace: Workspace, task_ids: list[str] | None 
         reference = bench.reference_file(task)
         if not reference.is_file():
             continue
-        reference_dir = str(Path(bench.target.tests.generated_dir).parent / "reference")
+        reference_dir = str(
+            Path(bench.target.tests.kind(task.kind).generated_dir).parent / "reference"
+        )
         result = scoring.score(
             bench, workspace, task, bench.reference_files(task), test_dir=reference_dir
         )

@@ -1,0 +1,50 @@
+# Benchmark: write a Playwright UI test for one Gherkin scenario of vendor-intake-app's web app.
+# Frozen once agents are scored against it; changes require a new version directory.
+# Bugs are seeded in the web app, so only a test that drives the screens can catch them.
+name: vendor-intake-ui
+version: "1"
+
+target:
+  repo: https://github.com/dholman7/vendor-intake-app
+  ref: 1668ad77212b273c1247357479e9ce9a2aa49d80
+  # Run once per prepared workspace.
+  setup:
+    - uv sync --project backend --quiet
+    - npm ci --prefix e2e --silent
+    - npm ci --prefix frontend --silent
+    # UI tests need a browser; --with-deps also installs its system libraries on Linux.
+    - npx --prefix e2e playwright install --with-deps chromium
+  app:
+    cwd: backend
+    command: uv run python -m vendor_intake.seed && exec uv run uvicorn vendor_intake.main:create_app --factory --port {port}
+    env:
+      VI_DATABASE_URL: sqlite:///{data_dir}/vendor_intake.db
+      VI_STORAGE_DIR: "{data_dir}/uploads"
+      VI_EXTRACTION_DELAY_SECONDS: "0"
+    health: http://127.0.0.1:{port}/api/health
+  web:
+    cwd: frontend
+    command: exec npx next dev --port {web_port} --hostname 127.0.0.1
+    env:
+      API_ORIGIN: http://127.0.0.1:{port}
+    # The first page compile in dev mode can take a while.
+    health: http://127.0.0.1:{web_port}/login
+    timeout_s: 180
+  tests:
+    cwd: e2e
+    generated_dir: e2e/api/generated
+    typecheck: npx tsc --noEmit
+    run: npx playwright test --project=api {paths} --reporter=json
+    ui:
+      generated_dir: e2e/ui/generated
+      run: npx playwright test --project=ui {paths} --reporter=json
+    # A UI test may add page-object entries it needs; additions only.
+    support_files:
+      - e2e/fixtures/pages.ts
+    env:
+      API_URL: http://127.0.0.1:{port}
+      WEB_URL: http://127.0.0.1:{web_port}
+      E2E_EXTERNAL_SERVERS: "1"
+
+# Every test an agent writes for a task must carry this tag, e.g. { tag: "@UI-01" }.
+tag_format: "@{task_id}"

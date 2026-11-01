@@ -1,8 +1,10 @@
 """A checkout of the target repo at the benchmark's pinned ref, with dependencies installed."""
 
+import difflib
 import logging
 import shutil
 import subprocess
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -11,7 +13,9 @@ from agent_eval_gate.benchmark import Bug, Target
 
 logger = logging.getLogger(__name__)
 
-# Large, regenerable directories are symlinked into agent copies instead of copied.
+# Large, regenerable directories are cloned into agent copies (copy-on-write, so instant and
+# without duplicating disk), or symlinked where the filesystem can't clone. Next.js's Turbopack
+# refuses a symlinked node_modules outside the project, so UI agents need the clone.
 _SHARED = ("node_modules",)
 # Never shared: `uv run` in a copy would re-point the base venv's editable install at the copy,
 # so parallel trials would run each other's code and the base would end up pointing at a deleted
@@ -53,13 +57,14 @@ class Workspace:
             destination,
             symlinks=True,
             ignore=shutil.ignore_patterns(
-                *_SHARED, *_PER_COPY, ".git", ".aeg-ready", "test-results"
+                *_SHARED, *_PER_COPY, ".git", ".aeg-ready", "test-results", ".next"
             ),
         )
         for name in _SHARED:
             for heavy in [*self.path.glob(name), *self.path.glob(f"*/{name}")]:
                 link = destination / heavy.relative_to(self.path)
-                if link.parent.exists() and not link.is_symlink() and not link.exists():
+                missing = link.parent.exists() and not link.is_symlink() and not link.exists()
+                if missing and not _clone(heavy.resolve(), link):
                     link.symlink_to(heavy.resolve(), target_is_directory=True)
         return destination
 
@@ -78,6 +83,32 @@ class Workspace:
             file.write_text(original)
 
     @contextmanager
+    def with_support(self, files: dict[str, str], allowed: list[str]) -> Iterator[list[str]]:
+        """Applies an agent's extensions to shared test files for the duration of the block.
+
+        Only files in `allowed` are applied, and only when every existing line is kept: other
+        tests depend on them. Yields why each other file was rejected; restores exactly.
+        """
+        rejected: list[str] = []
+        originals: dict[Path, str] = {}
+        for relative, content in files.items():
+            target = self.path / relative
+            if relative not in allowed:
+                rejected.append(f"{relative}: not a file agents may extend")
+            elif not target.is_file():
+                rejected.append(f"{relative}: doesn't exist in the target")
+            elif problem := _removed_lines(target.read_text(), content):
+                rejected.append(f"{relative}: {problem}")
+            else:
+                originals[target] = target.read_text()
+                target.write_text(content)
+        try:
+            yield rejected
+        finally:
+            for target, original in originals.items():
+                target.write_text(original)
+
+    @contextmanager
     def with_tests(self, relative_dir: str, files: dict[str, str]) -> Iterator[Path]:
         """Writes test files into the repo for the duration of the block."""
         directory = self.path / relative_dir
@@ -93,3 +124,21 @@ class Workspace:
             yield directory
         finally:
             shutil.rmtree(directory, ignore_errors=True)
+
+
+def _clone(source: Path, destination: Path) -> bool:
+    """Copy-on-write clone (APFS clonefile, or a reflink on Linux); False if unsupported."""
+    flags = ["-cR"] if sys.platform == "darwin" else ["-a", "--reflink=always"]
+    result = subprocess.run(["cp", *flags, str(source), str(destination)], capture_output=True)
+    if result.returncode != 0:
+        shutil.rmtree(destination, ignore_errors=True)
+        return False
+    return True
+
+
+def _removed_lines(before: str, after: str) -> str | None:
+    old, new = before.splitlines(), after.splitlines()
+    for tag, i1, i2, _, _ in difflib.SequenceMatcher(a=old, b=new, autojunk=False).get_opcodes():
+        if tag in ("delete", "replace"):
+            return f"changes or removes existing lines {i1 + 1}-{i2}; only additions are allowed"
+    return None

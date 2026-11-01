@@ -5,6 +5,9 @@ Any agent can be plugged in as a shell command (`CommandAgent`). It receives:
   AEG_WORKSPACE  a private copy of the target repo it may read and modify
   AEG_OUTPUT     directory to write test files into; only *.ts files there are scored
 and may write AEG_OUTPUT/usage.json: {"input_tokens", "output_tokens", "cost_usd", "model"}.
+An agent that extended a shared test file the benchmark allows (page objects, say) writes the
+whole new file to AEG_OUTPUT/support/<path in the repo>; it is applied while scoring, additions
+only. The task's `kind` (api or ui) says which kind of test to write.
 """
 
 import json
@@ -26,6 +29,7 @@ class TaskInput(BaseModel):
     required_tag: str
     # Where tests are expected to live, relative to the repo root.
     test_dir: str
+    kind: str = "api"
 
 
 class Usage(BaseModel):
@@ -37,6 +41,8 @@ class Usage(BaseModel):
 
 class AgentResult(BaseModel):
     files: dict[str, str] = Field(default_factory=dict)
+    # Shared files the agent extended, by repo-relative path (see the module docstring).
+    support: dict[str, str] = Field(default_factory=dict)
     usage: Usage = Field(default_factory=Usage)
     duration_s: float = 0.0
     error: str | None = None
@@ -86,8 +92,14 @@ class CommandAgent:
         except subprocess.TimeoutExpired:
             error = f"timed out after {self.timeout_s}s"
         usage_file = output / "usage.json"
+        support_dir = output / "support"
         return AgentResult(
             files={p.name: p.read_text() for p in sorted(output.glob("*.ts"))},
+            support={
+                p.relative_to(support_dir).as_posix(): p.read_text()
+                for p in sorted(support_dir.rglob("*"))
+                if p.is_file()
+            },
             usage=Usage.model_validate_json(usage_file.read_text())
             if usage_file.exists()
             else Usage(),

@@ -1,0 +1,88 @@
+# Hand-written seeded bugs in the web app, one per task. Each is an exact text replacement in the
+# target repo, applied only while scoring; `old` must occur exactly once in `file`. `aeg validate`
+# proves that each is caught by its task's reference test and that nothing breaks on clean code.
+bugs:
+- id: vendor-list-ignores-status-filter
+  category: filtering
+  tasks:
+  - UI-01
+  expected_failure: the status filter changes the address but not the list
+  file: frontend/app/(app)/vendors/page.tsx
+  old: '  if (status) query.set("status", status);
+
+    '
+  new: '  // The status filter is dropped from the request.
+
+    '
+- id: empty-search-shows-no-vendors-yet
+  category: empty_states
+  tasks:
+  - UI-02
+  expected_failure: a search with no matches says there are no vendors at all
+  file: frontend/app/(app)/vendors/page.tsx
+  old: '              {q || status ? ('
+  new: '              {false ? ('
+- id: next-page-stays-on-same-page
+  category: pagination
+  tasks:
+  - UI-03
+  expected_failure: Next reloads the same page
+  file: frontend/app/(app)/vendors/page.tsx
+  old: '              onClick={() => navigate({ page: String(page + 1) })}'
+  new: '              onClick={() => navigate({ page: String(page) })}'
+- id: missing-note-shows-raw-error
+  category: validation_messages
+  tasks:
+  - UI-04
+  expected_failure: a missing note shows the raw API error instead of asking for a note
+  file: frontend/app/(app)/review/page.tsx
+  old: 'setProblem(error.fieldMessage("note") ? "Add a note so the member knows what to fix." : error.message);'
+  new: setProblem(error.message);
+- id: vendor-list-hides-flags
+  category: flags
+  tasks:
+  - UI-05
+  expected_failure: the vendor list never shows insurance flags
+  file: frontend/app/(app)/vendors/page.tsx
+  old: <Flags flags={vendor.flags} />
+  new: '{null}'
+- id: vendor-page-hides-flags
+  category: flags
+  tasks:
+  - UI-06
+  expected_failure: the vendor page never shows insurance flags
+  file: frontend/app/(app)/vendors/[id]/page.tsx
+  old: <Flags flags={vendor.flags} />
+  new: '{null}'
+- id: activity-log-reversed
+  category: ordering
+  tasks:
+  - UI-07
+  expected_failure: the activity log lists newest first
+  file: frontend/app/(app)/vendors/[id]/page.tsx
+  old: '{audit.map((event) => ('
+  new: '{[...audit].reverse().map((event) => ('
+- id: submit-enabled-with-missing-documents
+  category: gating
+  tasks:
+  - UI-08
+  expected_failure: Submit for review is enabled before every document is extracted
+  file: frontend/app/(app)/vendors/[id]/page.tsx
+  old: disabled={submitting || missing.length > 0}
+  new: disabled={submitting}
+- id: review-queue-reversed
+  category: ordering
+  tasks:
+  - UI-09
+  expected_failure: the review queue shows the highest-confidence vendor first
+  file: frontend/app/(app)/review/page.tsx
+  old: '{queue.data?.map((item) => ('
+  new: '{queue.data?.slice().reverse().map((item) => ('
+- id: upload-label-never-says-replace
+  category: labels
+  tasks:
+  - UI-10
+  expected_failure: an uploaded document's control still says Upload
+  file: frontend/app/(app)/vendors/[id]/page.tsx
+  old: '{uploading ? "Uploading…" : document ? `Replace ${label}` : `Upload ${label}`}'
+  new: '{uploading ? "Uploading…" : `Upload ${label}`}'
