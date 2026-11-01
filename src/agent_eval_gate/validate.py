@@ -52,7 +52,12 @@ def validate(bench: Benchmark, workspace: Workspace, task_ids: list[str] | None 
         )
         report.checked_tasks += 1
         if not result.clean_pass:
-            detail = result.clean.errors[:1] or [f"{result.clean.failed} failed"]
+            # The first error or failure message, so a red CI run says why without a rerun.
+            detail = (
+                result.clean.errors[:1]
+                or result.clean.failures[:1]
+                or [f"{result.clean.failed} failed"]
+            )
             report.problems.append(f"task {task.id}: reference fails on clean code ({detail[0]})")
             continue
         if not result.tagged:
