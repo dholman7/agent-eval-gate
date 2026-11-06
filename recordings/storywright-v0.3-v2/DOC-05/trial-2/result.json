@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\"A file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n    // Arrange: a draft vendor owned by the member's tenant\n    const member = await apiAs(\"member\");\n    const name = uniqueName(\"DOC-05 Vendor\");\n    const vendorRes = await member.post(\"/api/vendors\", {\n      data: { name, category: \"services\", contact_email: `doc05.${Date.now().toString(36)}@example.com` },\n    });\n    expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n    const vendor = (await vendorRes.json()) as { id: string; status: string };\n    expect(vendor.status).toBe(\"draft\");\n\n    // Act: upload a text file of exactly 10 MiB as kind \"contract\"\n    const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"contract\",\n        file: {\n          name: \"contract-10mib.txt\",\n          mimeType: \"text/plain\",\n          buffer: Buffer.alloc(TEN_MIB, \"a\"),\n        },\n      },\n    });\n\n    // Assert\n    expect(res.status(), await res.text()).toBe(201);\n    const doc = (await res.json()) as { size_bytes: number; kind: string };\n    expect(doc.kind).toBe(\"contract\");\n    expect(doc.size_bytes).toBe(TEN_MIB);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 81471,
+    "output_tokens": 2992,
+    "cost_usd": 0.003344,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 24.07904762495309,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the member through the apiAs fixture, create a uniquely named draft vendor, then upload a 10 MiB text file as kind contract and assert a 201, with the response body in the failure message. The backend rejects only files larger than 10 MiB, so exactly 10 MiB should pass.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The 422 is from the vendor-creation setup step, not the upload under test. The contact_email domain \"example.test\" uses the reserved .test special-use TLD, which the API's email validator rejects (\"The part after the @-sign is a special-use or reserved name\"). The app is correct to refuse it, so the test's setup data is wrong. The fix is to use a valid, non-reserved domain such as example.com. The assertions and the 10 MiB upload are unchanged, and the @DOC-05 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nDOC-05: passing: every test passes against the real app\n"
+}

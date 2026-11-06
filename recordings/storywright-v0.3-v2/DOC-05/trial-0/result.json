@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntest(\"a file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Doc Size\"), category: \"services\", contact_email: \"docs@doc-size.example\" },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const { id } = (await vendorRes.json()) as { id: string };\n  const buffer = Buffer.alloc(TEN_MIB, \"x\");\n  expect(buffer.length).toBe(TEN_MIB);\n\n  // Act\n  const response = await member.post(`/api/vendors/${id}/documents`, {\n    multipart: {\n      kind: \"contract\",\n      file: { name: \"contract-10mib.txt\", mimeType: \"text/plain\", buffer },\n    },\n  });\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(201);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 97509,
+    "output_tokens": 1856,
+    "cost_usd": 0.004389,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 17.980959749780595,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor as the member through the API, then upload a text file of exactly 10 MiB as kind contract and assert the 201 status, printing the response body on failure. The file is built in memory and sent as multipart, and the vendor name is unique per run.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 7\nDOC-05: passing: every test passes against the real app\n"
+}

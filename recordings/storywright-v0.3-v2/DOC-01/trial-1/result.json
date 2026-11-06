@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-01.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"upload a document\", { tag: \"@DOC-01\" }, async ({ apiAs }) => {\n  // Arrange: a vendor in draft status, created through the API\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: {\n      name: uniqueName(\"Doc Vendor\"),\n      category: \"services\",\n      contact_email: `doc-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@example.com`,\n    },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = await vendorRes.json();\n  expect(vendor.status).toBe(\"draft\");\n\n  // Act: upload the insurance certificate\n  const uploadRes = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"insurance_certificate\",\n      file: {\n        name: \"insurance_certificate.txt\",\n        mimeType: \"text/plain\",\n        buffer: Buffer.from(readFileSync(sample(\"insurance_certificate.txt\"))),\n      },\n    },\n  });\n\n  // Assert: response status, document status, and audit event\n  expect(uploadRes.status(), await uploadRes.text()).toBe(201);\n  const document = await uploadRes.json();\n  expect(document.status).toBe(\"processing\");\n  expect(document.kind).toBe(\"insurance_certificate\");\n  expect(document.vendor_id).toBe(vendor.id);\n\n  const auditRes = await member.get(`/api/vendors/${vendor.id}/audit`);\n  expect(auditRes.status(), await auditRes.text()).toBe(200);\n  const audit = await auditRes.json();\n  expect(audit.items.map((e: { action: string }) => e.action)).toContain(\"document.uploaded\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 75504,
+    "output_tokens": 3265,
+    "cost_usd": 0.002875,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.369924041908234,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor as the member through the API fixture, upload the insurance certificate sample as multipart, then check the 201 response, the processing status, and the document.uploaded audit event. Nothing is polled, since the scenario asks for the status in the upload response itself.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The 422 comes from the test's own setup data, not the app. The vendor's contact_email uses the domain 'example.test', and the app's email validator rejects the reserved '.test' special-use TLD ('The part after the @-sign is a special-use or reserved name'). The vendor is never created, so the upload never runs. The fix is to use a valid domain such as 'example.com'. The file also calls require('node:fs') inside an ESM TypeScript test, which lint will flag, so it is replaced with a normal import.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nDOC-01: passing: every test passes against the real app\n"
+}

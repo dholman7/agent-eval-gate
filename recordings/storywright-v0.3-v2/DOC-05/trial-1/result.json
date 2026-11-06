@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-05.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\"A file of exactly 10 MiB is accepted\", { tag: \"@DOC-05\" }, async ({ apiAs }) => {\n    // Arrange: a draft vendor owned by the signed-in member\n    const member = await apiAs(\"member\");\n    const vendorRes = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Doc Vendor\"),\n        category: \"services\",\n        contact_email: \"ops@example.com\",\n      },\n    });\n    expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n    const vendor = (await vendorRes.json()) as { id: string; status: string };\n    expect(vendor.status).toBe(\"draft\");\n\n    // Act: upload a text file of exactly 10 MiB as kind contract\n    const tenMiB = Buffer.alloc(10 * 1024 * 1024, \"x\");\n    const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"contract\",\n        file: { name: \"contract-10mib.txt\", mimeType: \"text/plain\", buffer: tenMiB },\n      },\n    });\n\n    // Assert\n    expect(res.status(), await res.text()).toBe(201);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 78669,
+    "output_tokens": 3205,
+    "cost_usd": 0.003171,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.32780750002712,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor through the API as a member, then upload a 10 MiB text file as kind contract with a multipart request and assert the 201 status, showing the response body on failure. The data is arranged through the API client and the test body covers only the upload.\n  verify: 0 passed, 0 failed, type errors, run errors\n  repair 1: test_bug: The failure is a broken import path, not an app problem. The error says Cannot find module '../fixtures' from e2e/api/generated/DOC-05.spec.ts. Because the file sits in api/generated/, '../fixtures' resolves to e2e/api/fixtures, which does not exist. The shared fixtures are at e2e/fixtures/index.ts, so the import must be '../../fixtures'. The TS7031 implicit-any error on apiAs is a knock-on effect of the unresolved import. The test never reached the app, so this run says nothing about whether the app accepts a 10 MiB upload. The tag @DOC-05 is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nDOC-05: passing: every test passes against the real app\n"
+}

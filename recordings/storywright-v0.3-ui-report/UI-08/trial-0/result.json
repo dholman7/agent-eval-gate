@@ -1,0 +1,15 @@
+{
+  "files": {
+    "UI-08.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"a vendor can't be submitted until every document is extracted\", { tag: \"@UI-08\" }, async ({ pages, signIn, factory, apiAs }) => {\n  // Arrange: a draft vendor with only an extracted W-9\n  const vendor = await factory.vendor({ name: uniqueName(\"Partial Docs Co\") });\n  const w9 = await factory.upload(vendor.id, \"w9\");\n  const api = await apiAs(\"member\");\n  await expect\n    .poll(\n      async () => (await expectStatus<{ status: string }>(await api.get(`/api/documents/${w9.id}`), 200)).status,\n      { message: \"W-9 extraction finishes\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n  await signIn(\"member\");\n\n  // Act\n  await pages.vendor.goto(vendor.id);\n\n  // Assert\n  await expect(pages.vendor.heading(vendor.name)).toBeVisible();\n  await expect(pages.vendor.submitButton).toBeDisabled();\n  await expect(pages.vendor.stillNeeded([\"insurance_certificate\", \"contract\"])).toBeVisible();\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22988,
+    "output_tokens": 881,
+    "cost_usd": 0.023532,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 21.14355037501082,
+  "error": null,
+  "log": "  kind: ui\n  plan: Use the factory to create a draft vendor and upload only a W-9, then poll the document API until the W-9 is extracted. Sign in as the member, open the vendor page through its page object, and check that \"Submit for review\" is disabled and that the page says which documents are still needed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-08: passing: every test passes against the real app\n"
+}

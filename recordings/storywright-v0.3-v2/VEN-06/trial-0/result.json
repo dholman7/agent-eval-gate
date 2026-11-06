@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-06.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"manage vendors: pagination limits\", () => {\n  test(\"listing vendors with limit 101 is rejected with 422\", { tag: \"@VEN-06\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/vendors\", { params: { limit: 101 } });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(422);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 44198,
+    "output_tokens": 793,
+    "cost_usd": 0.001042,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.426389666739851,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the member through the apiAs fixture and request the vendor list with limit=101; the API should reject it with 422. The status assertion includes the response body so a failure shows the app's reason.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nVEN-06: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-01.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"upload a document\", { tag: \"@DOC-01\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendorRes = await member.post(\"/api/vendors\", {\n    data: { name: uniqueName(\"Doc Upload Co\"), category: \"services\", contact_email: \"docs@docupload.example\" },\n  });\n  expect(vendorRes.status(), await vendorRes.text()).toBe(201);\n  const vendor = await vendorRes.json();\n  expect(vendor.status).toBe(\"draft\");\n\n  // Act\n  const res = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"insurance_certificate\",\n      file: {\n        name: \"insurance_certificate.txt\",\n        mimeType: \"text/plain\",\n        buffer: readFileSync(sample(\"insurance_certificate.txt\")),\n      },\n    },\n  });\n\n  // Assert\n  expect(res.status(), await res.text()).toBe(201);\n  const doc = await res.json();\n  expect(doc.status, JSON.stringify(doc)).toBe(\"processing\");\n\n  const auditRes = await member.get(`/api/vendors/${vendor.id}/audit`);\n  expect(auditRes.status(), await auditRes.text()).toBe(200);\n  const { items } = (await auditRes.json()) as { items: { action: string }[] };\n  expect(items.map((e) => e.action), JSON.stringify(items)).toContain(\"document.uploaded\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 136695,
+    "output_tokens": 2469,
+    "cost_usd": 0.00484,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 21.974260249640793,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor through the API as a member, upload the sample insurance certificate as multipart form data, then check the 201 body's status is \"processing\" and that the audit trail records \"document.uploaded\". Setup uses the existing apiAs fixture and uniqueName, since no data factory exists in the repo.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nDOC-01: passing: every test passes against the real app\n"
+}

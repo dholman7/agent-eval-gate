@@ -1,0 +1,15 @@
+{
+  "files": {
+    "REV-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"review queue access\", () => {\n  test(\"members cannot see the review queue\", { tag: \"@REV-04\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/review-queue\");\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(403);\n    expect(JSON.parse(body).error.code, body).toBe(\"forbidden\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14257,
+    "output_tokens": 714,
+    "cost_usd": 0.000525,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.663242832757533,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the apiAs fixture and request GET /api/review-queue. Assert the 403 status and the forbidden error code, printing the response body on failure so a wrong status explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-04: passing: every test passes against the real app\n"
+}

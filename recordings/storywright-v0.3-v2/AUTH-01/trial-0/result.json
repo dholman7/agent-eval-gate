@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n  const body = await response.text();\n\n  // Assert\n  expect(response.status(), body).toBe(200);\n  const payload = JSON.parse(body) as { access_token?: string };\n  expect(payload.access_token, body).toBeTruthy();\n  const cookie = response\n    .headersArray()\n    .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, `session cookie in headers: ${JSON.stringify(response.headersArray())}`).toBeDefined();\n  expect(cookie?.value.toLowerCase(), body).toContain(\"httponly\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14286,
+    "output_tokens": 1230,
+    "cost_usd": 0.002393,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 18.18267579236999,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the login endpoint, then check the 200 status, that the body carries an access token, and that a session cookie is set as HttpOnly. Failure messages include the response body, and the cookie lookup targets the session cookie specifically.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-01: passing: every test passes against the real app\n"
+}

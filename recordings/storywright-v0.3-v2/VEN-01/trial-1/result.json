@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"create a vendor\", { tag: \"@VEN-01\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const name = uniqueName(\"Acme Freight\");\n\n    // Act\n    const res = await member.post(\"/api/vendors\", {\n      data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n\n    // Assert\n    expect(res.status(), await res.text()).toBe(201);\n    const vendor = await res.json();\n    expect(vendor.name).toBe(name);\n    expect(vendor.category).toBe(\"logistics\");\n    expect(vendor.contact_email).toBe(\"ops@acmefreight.example\");\n    expect(vendor.status).toBe(\"draft\");\n\n    await expect\n      .poll(\n        async () => {\n          const audit = await member.get(`/api/vendors/${vendor.id}/audit`);\n          expect(audit.status(), await audit.text()).toBe(200);\n          const body = (await audit.json()) as { items: { action: string }[] };\n          return body.items.map((item) => item.action);\n        },\n        { message: \"vendor.created audit event recorded\" },\n      )\n      .toContain(\"vendor.created\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 59503,
+    "output_tokens": 1599,
+    "cost_usd": 0.001718,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.44697408284992,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the apiAs fixture, create the vendor via POST /api/vendors, then check the 201 response, the draft status, and that a vendor.created audit event exists for the vendor, polling the audit trail since it may be written after the response. No data factory exists in the repo, so the test creates the vendor itself, which is the behavior under test, and uses a unique name.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nVEN-01: passing: every test passes against the real app\n"
+}

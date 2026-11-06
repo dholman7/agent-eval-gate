@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"requests without a session are rejected\", { tag: \"@AUTH-05\" }, async ({ request }) => {\n  // Act: no bearer token and no session cookie\n  const response = await request.get(\"/api/me\");\n\n  // Assert\n  const body = await response.text();\n  expect(response.status(), body).toBe(401);\n  expect((JSON.parse(body) as { error: { code: string } }).error.code, body).toBe(\"not_authenticated\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 43509,
+    "output_tokens": 798,
+    "cost_usd": 0.000976,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.720004082657397,
+  "error": null,
+  "log": "  kind: api\n  plan: Call GET /api/me with no session and no bearer token through the plain request fixture, then assert the 401 status and the not_authenticated error code, attaching the response body to the status assertion so a failure explains itself. The test is tagged @AUTH-05 and imports from the shared fixtures module, following the existing auth spec.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nAUTH-05: passing: every test passes against the real app\n"
+}

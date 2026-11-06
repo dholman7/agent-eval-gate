@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-05.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"requests without a session are rejected with not_authenticated\", { tag: \"@AUTH-05\" }, async ({ request }) => {\n    // Act\n    const response = await request.get(\"/api/me\");\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(401);\n    expect((JSON.parse(body) as { error: { code: string } }).error.code, body).toBe(\"not_authenticated\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 43519,
+    "output_tokens": 758,
+    "cost_usd": 0.000957,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.418114958330989,
+  "error": null,
+  "log": "  kind: api\n  plan: Call GET /api/me with the unauthenticated request fixture and assert a 401 with error code not_authenticated, putting the response body in the assertion messages so a failure explains itself. The AGENTS.md guide was not found in the repo, so this follows the conventions of the existing API specs.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nAUTH-05: passing: every test passes against the real app\n"
+}

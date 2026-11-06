@@ -1,0 +1,252 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake-ui@v1",
+    "target_ref": "1668ad77212b273c1247357479e9ce9a2aa49d80",
+    "agent": "storywright-v0.3-ui-report",
+    "mode": "live",
+    "split": "heldout",
+    "trials": 1,
+    "harness_version": "0.1.0",
+    "started_at": "2026-11-06T04:28:49+00:00",
+    "model": "claude-opus-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "UI-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Create 11 vendors through the factory, all sharing one unique name prefix. Search the vendor list for that prefix so the total stays fixed even though tests share a database. Click Next and check the summary reads \"Showing 11–11 of 11\" with one vendor row. Then click Previous and check the list is back to \"Showing 1–10 of 11\" with ten rows.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nUI-03: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "next-page-stays-on-same-page": true
+      },
+      "bugs": [
+        "next-page-stays-on-same-page"
+      ],
+      "usage": {
+        "input_tokens": 123721,
+        "output_tokens": 5376,
+        "cost_usd": 0.280888,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 61.70671020913869
+    },
+    {
+      "task_id": "UI-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Use the factory to create a vendor in review and sign in as the reviewer. In the review queue, open Request changes on the W-9 and send it back with the note left blank. Check that the W-9 section shows the note-required alert, then reload the queue and check the vendor's card is still there. The new review-queue page-object entries are additions only.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nUI-04: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "missing-note-shows-raw-error": true
+      },
+      "bugs": [
+        "missing-note-shows-raw-error"
+      ],
+      "usage": {
+        "input_tokens": 71704,
+        "output_tokens": 4700,
+        "cost_usd": 0.122697,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 49.258545082993805
+    },
+    {
+      "task_id": "UI-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: There's no sample for an expired certificate, so the test writes one to its output folder with `Expiry Date: 2020-01-31` and passes it to `factory.vendorWithDocuments` as a path relative to the samples folder. The member then searches the vendor list for that vendor and checks that the vendor's row shows \"Insurance expired\". I added `row()` and `flag()` lookups to `VendorListPage` in the page objects.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 11\nUI-05: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-list-hides-flags": true
+      },
+      "bugs": [
+        "vendor-list-hides-flags"
+      ],
+      "usage": {
+        "input_tokens": 194838,
+        "output_tokens": 5861,
+        "cost_usd": 0.294295,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 64.34568866714835
+    },
+    {
+      "task_id": "UI-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: The test writes a one-off insurance certificate whose Expiry Date is 10 days from today (YYYY-MM-DD, the format the extractor reads). It uses factory.vendorWithDocuments to build a vendor with that certificate, signs in as member, opens the vendor page and checks that the flag text shows. I added a `flag(label)` locator to the VendorPage page object.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 9\nUI-06: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "vendor-page-hides-flags": true
+      },
+      "bugs": [
+        "vendor-page-hides-flags"
+      ],
+      "usage": {
+        "input_tokens": 159583,
+        "output_tokens": 5586,
+        "cost_usd": 0.233814,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 62.885691916104406
+    },
+    {
+      "task_id": "UI-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: Use the factory to create a draft vendor and upload only a W-9, then poll the document API until the W-9 is extracted. Sign in as the member, open the vendor page through its page object, and check that \"Submit for review\" is disabled and that the page says which documents are still needed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nUI-08: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "submit-enabled-with-missing-documents": true
+      },
+      "bugs": [
+        "submit-enabled-with-missing-documents"
+      ],
+      "usage": {
+        "input_tokens": 22988,
+        "output_tokens": 881,
+        "cost_usd": 0.023532,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 21.14355037501082
+    },
+    {
+      "task_id": "UI-09",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: ui\n  plan: I build two vendors in review with the factory. The clean vendor is submitted first and the one with the unparseable insurance certificate (expiry date can't be read) is submitted second, so oldest-first ordering would put them the wrong way round. Then I sign in as the reviewer, open the queue, and check that the unreadable-date vendor's card comes above the clean one, using a new page-object entry that lists the card titles in order.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nUI-09: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "review-queue-reversed": true
+      },
+      "bugs": [
+        "review-queue-reversed"
+      ],
+      "usage": {
+        "input_tokens": 178714,
+        "output_tokens": 5116,
+        "cost_usd": 0.214899,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 62.98807195806876
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 1.0,
+      "low": 0.6096657120978346,
+      "high": 1.0,
+      "n": 6,
+      "successes": 6
+    },
+    "pass_all_k": {
+      "value": 1.0,
+      "low": 0.6096657120978346,
+      "high": 1.0,
+      "n": 6,
+      "successes": 6
+    },
+    "bug_detection": {
+      "value": 1.0,
+      "low": 0.6096657120978346,
+      "high": 1.0,
+      "n": 6,
+      "successes": 6
+    },
+    "false_failure": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.3903342879021653,
+      "n": 6,
+      "successes": 0
+    },
+    "cost_usd": {
+      "value": 0.19502083333333334,
+      "low": 0.10816150000000001,
+      "high": 0.2651966666666667,
+      "n": 6,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 53.72137636807747,
+      "low": 39.76049334703324,
+      "high": 63.222696389304474,
+      "n": 6,
+      "successes": null
+    },
+    "by_category": {
+      "flags": {
+        "value": 1.0,
+        "low": 0.34238022750665303,
+        "high": 1.0,
+        "n": 2,
+        "successes": 2
+      },
+      "gating": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "ordering": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "pagination": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      },
+      "validation_messages": {
+        "value": 1.0,
+        "low": 0.20654931437723745,
+        "high": 1.0,
+        "n": 1,
+        "successes": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst examples = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n] as const;\n\ntest.describe(\"reject invalid vendor fields\", () => {\n  for (const { field, value } of examples) {\n    test(`rejects ${field} set to ${JSON.stringify(value)}`, { tag: \"@VEN-02\" }, async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const body: Record<string, unknown> = {\n        name: uniqueName(\"Vendor\"),\n        category: \"software\",\n        contact_email: \"billing@vendor.test\",\n      };\n      body[field] = value;\n\n      // Act\n      const response = await member.post(\"/api/vendors\", { data: body });\n\n      // Assert\n      const text = await response.text();\n      expect(response.status(), text).toBe(422);\n      const payload = JSON.parse(text) as {\n        error: { code: string; fields: { field: string; message: string }[] };\n      };\n      expect(payload.error.code, text).toBe(\"validation_error\");\n      expect(\n        payload.error.fields.map((f) => f.field),\n        text,\n      ).toContain(field);\n    });\n  }\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 76940,
+    "output_tokens": 1530,
+    "cost_usd": 0.002169,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 16.342597333714366,
+  "error": null,
+  "log": "  kind: api\n  plan: Table-driven API tests: each row posts a valid vendor body with one field overridden to an invalid value as an authenticated member, then asserts 422, the validation_error envelope, and that the named field appears in error.fields. Data is built locally with uniqueName since no data factory exists in the repo.\n  verify: 3 passed, 0 failed\n  stop: passing\n  tool calls: 5\nVEN-02: passing: every test passes against the real app\n"
+}

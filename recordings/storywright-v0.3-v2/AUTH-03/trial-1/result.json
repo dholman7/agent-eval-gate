@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"unknown email is rejected the same way as a wrong password\", { tag: \"@AUTH-03\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: \"nobody@northwind.test\", password: PASSWORD },\n    });\n    const body = await response.text();\n\n    // Assert\n    expect(response.status(), body).toBe(401);\n    expect(JSON.parse(body).error.code, body).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14282,
+    "output_tokens": 748,
+    "cost_usd": 0.000544,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.180994791910052,
+  "error": null,
+  "log": "  kind: api\n  plan: Send a login request with an email that does not exist and the seeded password, then assert a 401 and the invalid_credentials error code, showing the response body in failure messages. No setup data is needed because the email is deliberately unknown.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-03: passing: every test passes against the real app\n"
+}

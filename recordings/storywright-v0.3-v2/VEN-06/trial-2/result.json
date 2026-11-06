@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-06.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"listing vendors with a limit above 100 is rejected\", { tag: \"@VEN-06\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/vendors\", { params: { limit: 101 } });\n\n    // Assert\n    expect(response.status(), await response.text()).toBe(422);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14251,
+    "output_tokens": 719,
+    "cost_usd": 0.000527,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.993646041024476,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the member persona through the existing apiAs fixture, request the vendor list with limit=101, and assert a 422 response, with the response body included in the failure message as the other tests do.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-06: passing: every test passes against the real app\n"
+}

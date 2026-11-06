@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-04.spec.ts": "import { expect, test } from \"../../fixtures\";\n\ntest(\"current user is returned for a valid session\", { tag: \"@AUTH-04\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(\"/api/me\");\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(200);\n  const profile = await response.json();\n  expect(profile.role).toBe(\"member\");\n  expect(profile.tenant.name).toBe(\"Northwind Supply\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 43556,
+    "output_tokens": 773,
+    "cost_usd": 0.000968,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.359435874968767,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the apiAs fixture, call GET /api/me, and assert a 200 with role member and tenant Northwind Supply. Status assertions include the response body so a refusal explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nAUTH-04: passing: every test passes against the real app\n"
+}

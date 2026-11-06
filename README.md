@@ -22,7 +22,7 @@ Storywright v0.2 on Claude Opus 5.5 (1 trial per task): 100% (20/20, CI 84–100
 
 Storywright's interval sits entirely above the single call's, so the difference isn't noise. v0.3's first run here scored 55/60: rewriting the prompt for UI tests had dropped the rule that status assertions show the response body, and on a 422 the model blamed the app three times. With the rule restored, v0.3 matches v0.2 exactly; both remaining failures are REV-03, below. Its prompts were tuned on dev, and its repo tools were added after an earlier version's held-out score was seen, so its numbers come from fresh trials but aren't a blind result. The held-out tasks are easier on average than the dev tasks (the single call scores 60% here against 17% on dev), which is why agents are only compared within a split.
 
-**Known benchmark issue (REV-03).** The scenario states exact confidences ("lowest confidence 0.40") that the app never produces: it scores an unparseable field 0.30. The reference test checks order only, but an agent that holds the scenario's numbers, as Storywright did in two trials, reports a defect. Both of Storywright's held-out failures are this case. **Fixed in v2** ([`benchmarks/vendor-intake/v2`](benchmarks/vendor-intake/v2)): the target's scenario now states the queue order instead of exact confidences. Tasks, split, bugs, and references are unchanged, and CI validates both versions. v1 stays frozen so the numbers above remain reproducible.
+**Known benchmark issue (REV-03).** The scenario states exact confidences ("lowest confidence 0.40") that the app never produces: it scores an unparseable field 0.30. The reference test checks order only, but an agent that holds the scenario's numbers, as Storywright did in two trials, reports a defect. Both of Storywright's held-out failures are this case. **Fixed in v2** ([`benchmarks/vendor-intake/v2`](benchmarks/vendor-intake/v2)): the target's scenario now states the queue order instead of exact confidences. Tasks, split, bugs, and references are unchanged, and CI validates both versions. v1 stays frozen so the numbers above remain reproducible. **On v2, Storywright v0.3 succeeded on all 60 held-out trials (CI 94–100%) and caught all 72 seeded bugs**, with no test failing on correct code (Haiku, 3 trials per task, $0.17 in total).
 
 **Dev split** (12 tasks), 1 trial per task. Storywright's prompts were tuned here (83%, 10/12), so its dev number isn't a fair comparison and isn't listed.
 
@@ -89,6 +89,7 @@ Rates use Wilson score intervals, which behave sensibly at 0%, 100%, and small n
 | Agent | Trials succeeded | All 3 trials succeed | Seeded bugs caught | Failing on correct code | Cost per trial |
 |---|---|---|---|---|---|
 | Storywright v0.3 | 100% (18/18), CI 82–100% | 100% (6/6) | 100% (18/18), CI 82–100% | 0% (0/18) | $0.0045 |
+| Storywright v0.3, Claude Opus 5.5, 1 trial per task | 100% (6/6), CI 61–100% | – | 100% (6/6), CI 61–100% | 0% (0/6) | $0.195 |
 
 Each run starts the Next.js app and the API, writes the test through page objects (adding any entry it needs), and verifies it against the real screens before handing it over. The whole run cost $0.08. Six tasks give wide intervals: 18/18 is consistent with a true rate as low as 82%.
 

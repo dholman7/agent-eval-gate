@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: PASSWORD },\n  });\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(200);\n  const body = await response.json();\n  expect(typeof body.access_token, await response.text()).toBe(\"string\");\n  expect(body.access_token.length, await response.text()).toBeGreaterThan(0);\n\n  const cookie = response.headersArray().find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, \"a session cookie is set\").toBeDefined();\n  expect(cookie?.value.toLowerCase(), cookie?.value).toContain(\"httponly\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 43646,
+    "output_tokens": 1039,
+    "cost_usd": 0.00111,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.892283000051975,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the login endpoint with the fixture's credentials, then assert the 200 status, a non-empty access token, and a session cookie marked HttpOnly. Status assertions include the response body so a refusal explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nAUTH-01: passing: every test passes against the real app\n"
+}

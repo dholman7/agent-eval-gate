@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-02.spec.ts": "import { USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"wrong password is rejected with invalid_credentials\", { tag: \"@AUTH-02\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: \"wrong-password\" },\n    });\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(401);\n    expect(JSON.parse(body).error.code, body).toBe(\"invalid_credentials\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 43902,
+    "output_tokens": 993,
+    "cost_usd": 0.001113,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.183236749842763,
+  "error": null,
+  "log": "  kind: api\n  plan: Send a sign-in request with the seeded member's email and a wrong password, unauthenticated, and assert the 401 status and the invalid_credentials error code. Status assertions include the response body so a failure explains itself.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nAUTH-02: passing: every test passes against the real app\n"
+}

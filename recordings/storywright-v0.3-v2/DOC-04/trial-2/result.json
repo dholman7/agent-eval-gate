@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-04.spec.ts": "import { expect, sample, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\nconst cases = [\n  { label: \"an empty file\", kind: \"w9\", name: \"w9.txt\", mimeType: \"text/plain\", size: 0, status: 422, code: \"empty_file\" },\n  { label: \"a file of exactly 10 MiB + 1\", kind: \"w9\", name: \"w9.txt\", mimeType: \"text/plain\", size: TEN_MIB + 1, status: 413, code: \"file_too_large\" },\n  { label: \"a .exe file\", kind: \"w9\", name: \"tool.exe\", mimeType: \"application/octet-stream\", size: 2, status: 415, code: \"unsupported_type\" },\n  { label: \"a valid text file with an unknown kind\", kind: \"passport\", name: \"w9.txt\", mimeType: \"text/plain\", size: 4, status: 422, code: \"validation_error\" },\n] as const;\n\nfor (const c of cases) {\n  test(`rejects ${c.label} as kind \"${c.kind}\" with ${c.status} ${c.code}`, { tag: \"@DOC-04\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const created = await member.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Doc Vendor\"),\n        category: \"services\",\n        contact_email: `ops+${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}@example.com`,\n      },\n    });\n    expect(created.status(), await created.text()).toBe(201);\n    const vendor = (await created.json()) as { id: string };\n\n    // Act\n    const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: c.kind,\n        file: {\n          name: c.name,\n          mimeType: c.mimeType,\n          buffer: Buffer.alloc(c.size, \"a\"),\n        },\n      },\n    });\n\n    // Assert\n    const body = await response.text();\n    expect(response.status(), body).toBe(c.status);\n    expect(JSON.parse(body).error?.code, body).toBe(c.code);\n  });\n}\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 96777,
+    "output_tokens": 4211,
+    "cost_usd": 0.004226,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 31.266712207812816,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the apiAs fixture to create a draft vendor per test via the API, then POST multipart uploads to the documents endpoint for each rejected case in the scenario outline, asserting status and error.code with the response body in each failure message.\n  verify: 0 passed, 4 failed\n  repair 1: test_bug: All four failures happen at setup, in the POST /api/vendors call that creates the draft vendor, which returns 422 before any upload is attempted. The response names the cause: contact_email \"...@vendor.test\" is rejected because .test is a special-use domain that the email validator refuses. The app is correctly rejecting the test's setup data, so this is a test bug. The fix is to use an ordinary domain (example.com) for the generated contact email. The assertions and expected statuses/codes are unchanged.\n  verify: 4 passed, 0 failed\n  stop: passing\n  tool calls: 7\nDOC-04: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest(\"the same vendor name is allowed in a different tenant\", { tag: \"@VEN-04\" }, async ({ apiAs }) => {\n  // Arrange\n  const name = uniqueName(\"Acme Freight\");\n  const otherTenant = await apiAs(\"otherTenant\");\n  const existing = await otherTenant.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@globex.example\" },\n  });\n  expect(existing.status(), await existing.text()).toBe(201);\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Assert\n  expect(response.status(), await response.text()).toBe(201);\n  const created = await response.json();\n  expect(created.name).toBe(name);\n  expect(created.category).toBe(\"logistics\");\n  expect(created.contact_email).toBe(\"ops@acmefreight.example\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 61685,
+    "output_tokens": 1427,
+    "cost_usd": 0.00185,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.511474125087261,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a same-named vendor in the Globex tenant through the API as the other-tenant member, then have the Northwind member create a vendor with that name and assert a 201 with the expected fields. The name is made unique per run with uniqueName, so the two tenants share the name without colliding with other runs.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nVEN-04: passing: every test passes against the real app\n"
+}

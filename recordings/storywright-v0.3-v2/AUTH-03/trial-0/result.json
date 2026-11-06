@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../../fixtures\";\n\ntest(\"unknown email is rejected the same way as a wrong password\", { tag: \"@AUTH-03\" }, async ({ request }) => {\n  // Act\n  const unknown = await request.post(\"/api/auth/login\", {\n    data: { email: \"nobody@northwind.test\", password: PASSWORD },\n  });\n  const unknownBody = await unknown.text();\n\n  const wrongPassword = await request.post(\"/api/auth/login\", {\n    data: { email: USERS.member, password: \"wrong-password\" },\n  });\n  const wrongBody = await wrongPassword.text();\n\n  // Assert\n  expect(unknown.status(), unknownBody).toBe(401);\n  expect(JSON.parse(unknownBody).error.code, unknownBody).toBe(\"invalid_credentials\");\n  expect(wrongPassword.status(), wrongBody).toBe(401);\n  expect(JSON.parse(wrongBody).error.code, wrongBody).toBe(JSON.parse(unknownBody).error.code);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 14282,
+    "output_tokens": 1072,
+    "cost_usd": 0.000706,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.504443709272891,
+  "error": null,
+  "log": "  kind: api\n  plan: Send a login request with an unknown email and the known password, then assert a 401 with error code invalid_credentials. I also send a wrong password for the seeded member and check that the error code matches, since the scenario says the two are rejected the same way. Status assertions include the response body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-03: passing: every test passes against the real app\n"
+}
