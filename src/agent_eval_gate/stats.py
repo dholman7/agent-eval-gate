@@ -1,7 +1,8 @@
-"""Intervals for small-sample rates and means."""
+"""Intervals for small-sample rates and means, and an exact paired test."""
 
 import math
 import random
+from collections import Counter
 from collections.abc import Sequence
 
 from pydantic import BaseModel
@@ -29,6 +30,25 @@ def wilson(successes: int, n: int, z: float = Z_95) -> Estimate:
     low = 0.0 if successes == 0 else max(0.0, center - half)
     high = 1.0 if successes == n else min(1.0, center + half)
     return Estimate(value=p, low=low, high=high, n=n, successes=successes)
+
+
+def sign_flip_p(diffs: Sequence[int]) -> float:
+    """Exact one-sided p-value that paired differences sum this low by chance.
+
+    With no real change, each task's difference is as likely to be -d as +d, so all 2^n sign
+    patterns are equally likely. Counts the patterns whose sum is at or below the observed one,
+    by dynamic programming over integer sums, so it stays exact for any number of tasks. With one
+    0/1 outcome per task it is the exact McNemar test.
+    """
+    sums: Counter[int] = Counter({0: 1})
+    for d in diffs:
+        step: Counter[int] = Counter()
+        for total, count in sums.items():
+            step[total + d] += count
+            step[total - d] += count
+        sums = step
+    observed = sum(diffs)
+    return sum(count for total, count in sums.items() if total <= observed) / (1 << len(diffs))
 
 
 def bootstrap_mean(values: Sequence[float], resamples: int = 2000, seed: int = 0) -> Estimate:

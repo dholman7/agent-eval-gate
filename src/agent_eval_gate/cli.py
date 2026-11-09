@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Literal
 
-from agent_eval_gate import benchmark, gate, results, runner, telemetry, validate
+from agent_eval_gate import benchmark, gate, power, results, runner, telemetry, validate
 from agent_eval_gate.agents import (
     Agent,
     CommandAgent,
@@ -85,15 +85,24 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 
 def cmd_gate(args: argparse.Namespace) -> int:
+    for path in (args.baseline, args.current):
+        if not Path(path).is_file():
+            print(f"No result file at {path}; `aeg run --out {path}` writes one.", file=sys.stderr)
+            return 2
     base = results.RunResult.model_validate_json(Path(args.baseline).read_text())
     current = results.RunResult.model_validate_json(Path(args.current).read_text())
     try:
-        checks = gate.compare(base, current)
+        checks = gate.compare(base, current, args.method, args.alpha, args.min_effect)
     except gate.IncomparableRuns as exc:
         print(f"Can't compare these runs: {exc}", file=sys.stderr)
         return 2
-    _write_summary(gate.markdown(checks))
+    _write_summary(gate.markdown(checks, args.method, args.alpha, args.min_effect))
     return 1 if any(c.regressed for c in checks) else 0
+
+
+def cmd_power(args: argparse.Namespace) -> int:
+    print(power.table(args.tasks, args.trials, args.base_rate, args.drops, args.sims), end="")
+    return 0
 
 
 def cmd_report(args: argparse.Namespace) -> int:
@@ -143,7 +152,28 @@ def build_parser() -> argparse.ArgumentParser:
     g = sub.add_parser("gate", help="fail if a run regressed against a baseline")
     g.add_argument("--baseline", required=True)
     g.add_argument("--current", required=True)
+    g.add_argument(
+        "--method",
+        choices=["paired", "overlap"],
+        default="paired",
+        help="paired by task (default), or the older interval-overlap rule",
+    )
+    g.add_argument("--alpha", type=float, default=gate.ALPHA)
+    g.add_argument(
+        "--min-effect",
+        type=float,
+        default=gate.MIN_EFFECT,
+        help="smallest mean drop that counts, as a fraction (0.05 = 5 points)",
+    )
     g.set_defaults(func=cmd_gate)
+
+    w = sub.add_parser("power", help="simulate which drops the gate detects")
+    w.add_argument("--tasks", type=int, default=20)
+    w.add_argument("--trials", type=int, nargs="+", default=[1, 3, 5])
+    w.add_argument("--base-rate", type=float, default=0.9)
+    w.add_argument("--drops", type=float, nargs="+", default=[0, 0.05, 0.1, 0.15, 0.2, 0.3])
+    w.add_argument("--sims", type=int, default=1000)
+    w.set_defaults(func=cmd_power)
 
     p = sub.add_parser("report", help="print the Markdown summary of a result file")
     p.add_argument("result")

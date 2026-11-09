@@ -1,6 +1,6 @@
 # agent-eval-gate
 
-A benchmark runner and CI gate for agents that write tests. It runs an agent on a fixed set of tasks, scores what it produced against a real app with seeded bugs, reports every rate with a 95% confidence interval, and fails a pull request when a result's interval falls entirely below the baseline's.
+A benchmark runner and CI gate for agents that write tests. It runs an agent on a fixed set of tasks, scores what it produced against a real app with seeded bugs, reports every rate with a 95% confidence interval, and fails a pull request when a paired, task-by-task test shows a drop that is both significant and at least 5 points.
 
 The shipped benchmark asks an agent to write Playwright API tests for one Gherkin scenario at a time of [vendor-intake-app](https://github.com/dholman7/vendor-intake-app), pinned to a specific commit.
 
@@ -73,7 +73,33 @@ Rates use Wilson score intervals, which behave sensibly at 0%, 100%, and small n
 
 ### The gate
 
-`aeg gate` fails only when intervals don't overlap in the bad direction: the current upper bound is below the baseline's lower bound (for false alarms, the reverse). Overlap passes. With tens of trials, a few points of movement is noise, and a gate that fails on noise gets turned off.
+Both runs score the same tasks, so `aeg gate` compares them **task by task**. For each gated metric (task success, bugs caught, suites failing on correct code), it takes each task's rate in the current run minus its rate in the baseline. An exact sign-flip test then asks how likely changes this bad are if nothing really changed: every task's change is equally likely to have gone either way. With one trial per task, this is the exact McNemar test. A metric **regresses when p < 0.05 and the mean change is at least 5 points in the bad direction**. The first condition is "not noise", the second "big enough to matter"; `--alpha` and `--min-effect` set them. Two deterministic runs (`reference`, `existing-tests`) have no noise, so between those any task that got worse fails the gate. That is the rule CI's own gate job uses.
+
+The gate used to fail only when the two runs' intervals didn't overlap, and `--method overlap` still does. That rule ignores the pairing and is far less sensitive.
+
+**What it can and can't see.** `aeg power` simulates 20-task benchmarks, with per-task true rates averaging 90% and varying between tasks, and reports how often each rule fails a run whose true rate dropped by the given amount (1,000 simulations per cell):
+
+| True drop | k=1: paired / overlap | k=3: paired / overlap | k=5: paired / overlap |
+|---|---|---|---|
+| 0 (false alarms) | 0% / 0% | 1% / 0% | 2% / 0% |
+| 5 pts | 2% / 0% | 13% / 2% | 24% / 3% |
+| 10 pts | 10% / 1% | 38% / 7% | 64% / 20% |
+| 15 pts | 20% / 3% | 66% / 23% | 86% / 55% |
+| 20 pts | 32% / 6% | 87% / 47% | 97% / 83% |
+| 30 pts | 62% / 24% | 99% / 90% | 100% / 99% |
+
+At the published configuration (20 held-out tasks, 3 trials), the gate catches a 20-point drop 87% of the time, against 47% for the overlap rule, and almost never fails a run that didn't change. It **won't reliably catch a 5–10 point drop**. That takes 5+ trials or more tasks, so a gate that has to see small regressions needs a bigger budget, not a looser threshold.
+
+**Against real runs:**
+
+| Baseline → current | Paired | Overlap |
+|---|---|---|
+| Storywright v0.2 → v0.3, held-out (58/60 both) | passes (p = 1.0) | passes |
+| Storywright v0.3 → its first v0.3 run, reconstructed (55/60: 3 failures on 2 tasks) | passes (p = 0.25) | passes |
+| Storywright v0.2 → the single call, held-out (58/60 → 36/60) | **fails** (−37 pts, p = 0.004) | fails |
+| Storywright v0.3 → the single call, v2 held-out (60/60 → 32/60) | **fails** (−47 pts, p = 0.001) | fails |
+
+The first v0.3 run wasn't kept, so the second row reconstructs it from the commit that recorded it (3 extra failures on DOC-01 and DOC-05). Neither rule would have caught it, and the table above says why: 3 failures over 2 of 20 tasks is a 5-point drop. It was caught by reading the failed trials, which all carried the same wrong diagnosis. The gate catches large regressions automatically; small ones still need someone to read the traces.
 
 ## UI benchmark
 
@@ -100,6 +126,7 @@ uv sync
 uv run aeg validate                                   # prove the benchmark is sound (about 2.5 min)
 uv run aeg run --agent reference --split dev          # score an agent
 uv run aeg gate --baseline baselines/reference-dev.json --current results/latest.json
+uv run aeg power                                      # what size of drop the gate detects
 ```
 
 Plug in any agent as a shell command:
