@@ -100,6 +100,16 @@ def cmd_gate(args: argparse.Namespace) -> int:
     return 1 if any(c.regressed for c in checks) else 0
 
 
+def cmd_split(args: argparse.Namespace) -> int:
+    bench = benchmark.load(Path(args.benchmark))
+    problem = benchmark.split_problem(bench, args.seed, args.sampled)
+    if problem:
+        print(problem, file=sys.stderr)
+        return 1
+    print(f"{bench.key}: {args.sampled} split = random.Random({args.seed}).sample of the tasks")
+    return 0
+
+
 def cmd_power(args: argparse.Namespace) -> int:
     print(power.table(args.tasks, args.trials, args.base_rate, args.drops, args.sims), end="")
     return 0
@@ -166,6 +176,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="smallest mean drop that counts, as a fraction (0.05 = 5 points)",
     )
     g.set_defaults(func=cmd_gate)
+
+    s = sub.add_parser("split", help="check the frozen split is the seeded draw it claims")
+    s.add_argument("--benchmark", required=True)
+    s.add_argument("--seed", type=int, required=True)
+    s.add_argument(
+        "--sampled", choices=["dev", "heldout"], required=True, help="which split was drawn"
+    )
+    s.set_defaults(func=cmd_split)
 
     w = sub.add_parser("power", help="simulate which drops the gate detects")
     w.add_argument("--tasks", type=int, default=20)

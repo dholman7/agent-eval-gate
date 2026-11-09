@@ -54,7 +54,7 @@ Fixed before any agent was scored, so the benchmark can't be tuned to the agent.
 | | |
 |---|---|
 | Tasks | 32, one per Gherkin scenario in the target repo |
-| Split | 12 dev / 20 held-out, drawn once with a fixed seed and frozen in [`tasks.yaml`](benchmarks/vendor-intake/v1/tasks.yaml). Tune on dev; report held-out. |
+| Split | 12 dev / 20 held-out, drawn once with a fixed seed and frozen in [`tasks.yaml`](benchmarks/vendor-intake/v1/tasks.yaml). Tune on dev; report held-out. CI re-draws every split with `aeg split` (the 20 held-out are `random.Random(20261027).sample` of the tasks; the UI benchmark's 4 dev are `random.Random(20261101).sample`) and fails if a frozen split stops matching its draw. |
 | Bugs | 32 hand-written, in 11 categories (authorization, validation, dates, pagination, audit, ordering, state, security, status codes, contract, extraction). Each is an exact text replacement, applied only while scoring. They live in this repo, never in the target, so the agent under test can't read them. |
 | Validity | `aeg validate` proves each bug's text matches exactly once, every reference test passes on correct code, and every bug is caught by the reference test of each task it targets. CI runs it on every push. |
 | Contamination | The target app was written in October 2026, so its tasks can't be in any model's training data. |
@@ -135,7 +135,7 @@ Plug in any agent as a shell command:
 uv run aeg run --agent my-agent --command "python my_agent.py" --split dev --trials 5
 ```
 
-The command receives `AEG_TASK` (task JSON: scenario text, required tag, test directory, and kind, `api` or `ui`), `AEG_WORKSPACE` (a private repo copy), and `AEG_OUTPUT` (where to write `*.ts` files). A UI test that needs a page-object entry the repo lacks can write the whole extended file to `AEG_OUTPUT/support/<path>`. It's applied while scoring only if the benchmark lists it in `support_files` and the change only adds lines, then restored. It may write `AEG_OUTPUT/usage.json` with token counts, cost, and model. Live runs are recorded under `recordings/`; `--replay` scores them again without calling the agent, which is how CI stays free and deterministic.
+The command receives `AEG_TASK` (task JSON: scenario text, required tag, test directory, and kind, `api` or `ui`), `AEG_WORKSPACE` (a private repo copy), and `AEG_OUTPUT` (where to write `*.ts` files). A UI test that needs a page-object entry the repo lacks can write the whole extended file to `AEG_OUTPUT/support/<path>`. It's applied while scoring only if the benchmark lists it in `support_files` and the change only adds lines, then restored. It may write `AEG_OUTPUT/usage.json` with token counts (including how many input tokens were read from or written to the prompt cache), cost, and model. Live runs are recorded under `recordings/`; `--replay` scores them again without calling the agent, which is how CI stays free and deterministic.
 
 ### The one-call Claude baseline
 

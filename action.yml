@@ -36,7 +36,7 @@ runs:
   using: composite
   steps:
     # setup-uv publishes only full-version tags (no moving v10), so pin the latest release.
-    - uses: astral-sh/setup-uv@v10.3.2
+    - uses: astral-sh/setup-uv@v10.3.3
       with:
         working-directory: ${{ github.action_path }}
     - uses: actions/setup-node@v7

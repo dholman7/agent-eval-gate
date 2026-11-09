@@ -76,6 +76,16 @@ def run(
                         agent_span.set_attribute(
                             "gen_ai.usage.output_tokens", result.usage.output_tokens
                         )
+                        # Cache splits summed over a trial's calls get harness names: GenAI
+                        # semconv keeps its cache attributes off agent-level spans (#469).
+                        agent_span.set_attribute(
+                            "aeg.usage.cache_read_input_tokens",
+                            result.usage.cache_read_input_tokens,
+                        )
+                        agent_span.set_attribute(
+                            "aeg.usage.cache_write_input_tokens",
+                            result.usage.cache_write_input_tokens,
+                        )
                     if recorder is not None and mode == "live":
                         recorder.save(task.id, trial, result)
                     with tracer.start_as_current_span("aeg.score"):

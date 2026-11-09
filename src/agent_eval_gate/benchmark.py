@@ -1,5 +1,6 @@
 """Benchmark definition: target repo, tasks, and seeded bugs, loaded from a version directory."""
 
+import random
 from collections import Counter
 from pathlib import Path
 from typing import Literal
@@ -127,6 +128,20 @@ class Benchmark(BaseModel):
             if not self.bugs_for(task):
                 problems.append(f"task {task.id} has no seeded bug")
         return problems
+
+
+def split_problem(bench: Benchmark, seed: int, sampled: Split) -> str | None:
+    """Why the frozen split isn't `random.Random(seed).sample` of the tasks in file order, drawn
+    for the `sampled` split at its size, or None when it is: the draw is reproducible."""
+    ids = [t.id for t in bench.tasks]
+    frozen = {t.id for t in bench.tasks if t.split == sampled}
+    drawn = set(random.Random(seed).sample(ids, len(frozen)))  # noqa: S311 - reproducible draw
+    if drawn == frozen:
+        return None
+    return (
+        f"{bench.key}: the {sampled} split isn't random.Random({seed}).sample of its tasks: "
+        f"frozen only {sorted(frozen - drawn)}, drawn only {sorted(drawn - frozen)}"
+    )
 
 
 def load(root: Path) -> Benchmark:

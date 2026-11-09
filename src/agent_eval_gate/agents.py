@@ -4,7 +4,8 @@ Any agent can be plugged in as a shell command (`CommandAgent`). It receives:
   AEG_TASK       path to a JSON file (TaskInput)
   AEG_WORKSPACE  a private copy of the target repo it may read and modify
   AEG_OUTPUT     directory to write test files into; only *.ts files there are scored
-and may write AEG_OUTPUT/usage.json: {"input_tokens", "output_tokens", "cost_usd", "model"}.
+and may write AEG_OUTPUT/usage.json: {"input_tokens", "output_tokens", "cost_usd", "model"}, plus
+optionally "cache_read_input_tokens" and "cache_write_input_tokens" (parts of input_tokens).
 An agent that extended a shared test file the benchmark allows (page objects, say) writes the
 whole new file to AEG_OUTPUT/support/<path in the repo>; it is applied while scoring, additions
 only. The task's `kind` (api or ui) says which kind of test to write.
@@ -33,8 +34,11 @@ class TaskInput(BaseModel):
 
 
 class Usage(BaseModel):
+    # All input tokens, cached or not; the cache fields are the part read from or written to it.
     input_tokens: int = 0
     output_tokens: int = 0
+    cache_read_input_tokens: int = 0
+    cache_write_input_tokens: int = 0
     cost_usd: float = 0.0
     model: str | None = None
 
