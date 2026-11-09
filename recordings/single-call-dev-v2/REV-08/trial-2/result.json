@@ -1,0 +1,15 @@
+{
+  "files": {
+    "REV-08.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst EXAMPLES = [\n  { days: 0, include: true },\n  { days: 30, include: true },\n  { days: 31, include: false },\n] as const;\n\nconst FLAG = \"insurance_expiring_soon\";\n\nfunction isoDateInDays(days: number): string {\n  const d = new Date();\n  d.setUTCDate(d.getUTCDate() + days);\n  return d.toISOString().slice(0, 10);\n}\n\nfor (const { days, include } of EXAMPLES) {\n  test(\n    `insurance expiring in ${days} days ${include ? \"includes\" : \"does not include\"} the expiring-soon flag`,\n    { tag: \"@REV-08\" },\n    async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const vendorResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(\"REV08 Vendor\"),\n          category: \"services\",\n          contact_email: `rev08-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@vendor.test`,\n        },\n      });\n      expect(vendorResponse.status()).toBe(201);\n      const vendor = await vendorResponse.json();\n\n      const expiry = isoDateInDays(days);\n      const documentResponse = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"insurance_certificate\",\n          file: {\n            name: \"insurance.txt\",\n            mimeType: \"text/plain\",\n            buffer: Buffer.from(`Certificate of Insurance\\nExpires: ${expiry}\\n`),\n          },\n        },\n      });\n      expect(documentResponse.status()).toBe(201);\n      const document = await documentResponse.json();\n\n      // Wait for extraction to finish before reading flags.\n      let status = document.status as string;\n      for (let attempt = 0; attempt < 60 && status === \"processing\"; attempt++) {\n        await new Promise((resolve) => setTimeout(resolve, 500));\n        const poll = await member.get(`/api/documents/${document.id}`);\n        expect(poll.status()).toBe(200);\n        status = (await poll.json()).status;\n      }\n      expect(status).toBe(\"extracted\");\n\n      // Act\n      const response = await member.get(`/api/vendors/${vendor.id}`);\n\n      // Assert\n      expect(response.status()).toBe(200);\n      const body = await response.json();\n      if (include) {\n        expect(body.flags).toContain(FLAG);\n      } else {\n        expect(body.flags).not.toContain(FLAG);\n      }\n    },\n  );\n}\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12583,
+    "output_tokens": 1607,
+    "cost_usd": 0.002062,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.480140374973416,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-08.spec.ts": "import { apiAs as _unused } from \"../../fixtures\";\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12557,
+    "output_tokens": 200,
+    "cost_usd": 0.001356,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.2353423750028014,
+  "error": null,
+  "log": null
+}

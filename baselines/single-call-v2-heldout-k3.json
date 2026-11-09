@@ -1,0 +1,1710 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v2",
+    "target_ref": "fbda20325212e30d9e0458cac4d5a24ac77ae8f1",
+    "agent": "single-call-dev-v2",
+    "mode": "live",
+    "split": "heldout",
+    "trials": 3,
+    "harness_version": "0.1.0",
+    "started_at": "2026-11-09T22:08:35+00:00",
+    "model": "claude-haiku-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "AUTH-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "session-cookie-not-httponly": true
+      },
+      "bugs": [
+        "session-cookie-not-httponly"
+      ],
+      "usage": {
+        "input_tokens": 12553,
+        "output_tokens": 562,
+        "cost_usd": 0.001536,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.5825675833038986
+    },
+    {
+      "task_id": "AUTH-01",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "session-cookie-not-httponly": true
+      },
+      "bugs": [
+        "session-cookie-not-httponly"
+      ],
+      "usage": {
+        "input_tokens": 12553,
+        "output_tokens": 642,
+        "cost_usd": 0.001576,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.5345517499372363
+    },
+    {
+      "task_id": "AUTH-01",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "session-cookie-not-httponly": true
+      },
+      "bugs": [
+        "session-cookie-not-httponly"
+      ],
+      "usage": {
+        "input_tokens": 12553,
+        "output_tokens": 636,
+        "cost_usd": 0.001573,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.8045022496953607
+    },
+    {
+      "task_id": "AUTH-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true
+      },
+      "bugs": [
+        "bad-credentials-403"
+      ],
+      "usage": {
+        "input_tokens": 12549,
+        "output_tokens": 389,
+        "cost_usd": 0.001449,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.4760248344391584
+    },
+    {
+      "task_id": "AUTH-02",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true
+      },
+      "bugs": [
+        "bad-credentials-403"
+      ],
+      "usage": {
+        "input_tokens": 12549,
+        "output_tokens": 387,
+        "cost_usd": 0.001448,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.510985208209604
+    },
+    {
+      "task_id": "AUTH-02",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true
+      },
+      "bugs": [
+        "bad-credentials-403"
+      ],
+      "usage": {
+        "input_tokens": 12549,
+        "output_tokens": 397,
+        "cost_usd": 0.001453,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.8298732503317297
+    },
+    {
+      "task_id": "AUTH-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true,
+        "unknown-email-distinct-error": true
+      },
+      "bugs": [
+        "bad-credentials-403",
+        "unknown-email-distinct-error"
+      ],
+      "usage": {
+        "input_tokens": 12549,
+        "output_tokens": 555,
+        "cost_usd": 0.001532,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.5286230840720236
+    },
+    {
+      "task_id": "AUTH-03",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 2,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true,
+        "unknown-email-distinct-error": true
+      },
+      "bugs": [
+        "bad-credentials-403",
+        "unknown-email-distinct-error"
+      ],
+      "usage": {
+        "input_tokens": 12549,
+        "output_tokens": 873,
+        "cost_usd": 0.001691,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.31870208401233
+    },
+    {
+      "task_id": "AUTH-03",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "bad-credentials-403": true,
+        "unknown-email-distinct-error": true
+      },
+      "bugs": [
+        "bad-credentials-403",
+        "unknown-email-distinct-error"
+      ],
+      "usage": {
+        "input_tokens": 12549,
+        "output_tokens": 460,
+        "cost_usd": 0.001485,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.9846213329583406
+    },
+    {
+      "task_id": "AUTH-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "profile-tenant-name-wrong": true
+      },
+      "bugs": [
+        "profile-tenant-name-wrong"
+      ],
+      "usage": {
+        "input_tokens": 12551,
+        "output_tokens": 468,
+        "cost_usd": 0.001489,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.140095833223313
+    },
+    {
+      "task_id": "AUTH-04",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "profile-tenant-name-wrong": true
+      },
+      "bugs": [
+        "profile-tenant-name-wrong"
+      ],
+      "usage": {
+        "input_tokens": 12551,
+        "output_tokens": 461,
+        "cost_usd": 0.001486,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.438623582944274
+    },
+    {
+      "task_id": "AUTH-04",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "profile-tenant-name-wrong": true
+      },
+      "bugs": [
+        "profile-tenant-name-wrong"
+      ],
+      "usage": {
+        "input_tokens": 12551,
+        "output_tokens": 429,
+        "cost_usd": 0.00147,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.871067374944687
+    },
+    {
+      "task_id": "AUTH-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unauthenticated-code-wrong": true
+      },
+      "bugs": [
+        "unauthenticated-code-wrong"
+      ],
+      "usage": {
+        "input_tokens": 12525,
+        "output_tokens": 355,
+        "cost_usd": 0.00143,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.0704477499239147
+    },
+    {
+      "task_id": "AUTH-05",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unauthenticated-code-wrong": true
+      },
+      "bugs": [
+        "unauthenticated-code-wrong"
+      ],
+      "usage": {
+        "input_tokens": 12525,
+        "output_tokens": 397,
+        "cost_usd": 0.001451,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.3988709594123065
+    },
+    {
+      "task_id": "AUTH-05",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "unauthenticated-code-wrong": true
+      },
+      "bugs": [
+        "unauthenticated-code-wrong"
+      ],
+      "usage": {
+        "input_tokens": 12525,
+        "output_tokens": 341,
+        "cost_usd": 0.001423,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.618938165716827
+    },
+    {
+      "task_id": "VEN-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true
+      },
+      "bugs": [
+        "create-vendor-returns-200"
+      ],
+      "usage": {
+        "input_tokens": 12571,
+        "output_tokens": 684,
+        "cost_usd": 0.001599,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.5417371252551675
+    },
+    {
+      "task_id": "VEN-01",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true
+      },
+      "bugs": [
+        "create-vendor-returns-200"
+      ],
+      "usage": {
+        "input_tokens": 12571,
+        "output_tokens": 544,
+        "cost_usd": 0.001529,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.3049854999408126
+    },
+    {
+      "task_id": "VEN-01",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true
+      },
+      "bugs": [
+        "create-vendor-returns-200"
+      ],
+      "usage": {
+        "input_tokens": 12571,
+        "output_tokens": 624,
+        "cost_usd": 0.001569,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.3161386251449585
+    },
+    {
+      "task_id": "VEN-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 3,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "contact-email-unvalidated": true
+      },
+      "bugs": [
+        "contact-email-unvalidated"
+      ],
+      "usage": {
+        "input_tokens": 12608,
+        "output_tokens": 1275,
+        "cost_usd": 0.001898,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.840388459153473
+    },
+    {
+      "task_id": "VEN-02",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 3,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "contact-email-unvalidated": true
+      },
+      "bugs": [
+        "contact-email-unvalidated"
+      ],
+      "usage": {
+        "input_tokens": 12608,
+        "output_tokens": 1024,
+        "cost_usd": 0.001773,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.804509749636054
+    },
+    {
+      "task_id": "VEN-02",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 3,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "contact-email-unvalidated": true
+      },
+      "bugs": [
+        "contact-email-unvalidated"
+      ],
+      "usage": {
+        "input_tokens": 12608,
+        "output_tokens": 1061,
+        "cost_usd": 0.001791,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.025211084168404
+    },
+    {
+      "task_id": "VEN-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true,
+        "vendor-name-unique-across-tenants": true
+      },
+      "bugs": [
+        "create-vendor-returns-200",
+        "vendor-name-unique-across-tenants"
+      ],
+      "usage": {
+        "input_tokens": 12582,
+        "output_tokens": 914,
+        "cost_usd": 0.001715,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.955810042098165
+    },
+    {
+      "task_id": "VEN-04",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true,
+        "vendor-name-unique-across-tenants": true
+      },
+      "bugs": [
+        "create-vendor-returns-200",
+        "vendor-name-unique-across-tenants"
+      ],
+      "usage": {
+        "input_tokens": 12582,
+        "output_tokens": 933,
+        "cost_usd": 0.001725,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.17780595831573
+    },
+    {
+      "task_id": "VEN-04",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "create-vendor-returns-200": true,
+        "vendor-name-unique-across-tenants": true
+      },
+      "bugs": [
+        "create-vendor-returns-200",
+        "vendor-name-unique-across-tenants"
+      ],
+      "usage": {
+        "input_tokens": 12582,
+        "output_tokens": 906,
+        "cost_usd": 0.001711,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.424264082685113
+    },
+    {
+      "task_id": "VEN-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "limit-cap-raised": true
+      },
+      "bugs": [
+        "limit-cap-raised"
+      ],
+      "usage": {
+        "input_tokens": 12517,
+        "output_tokens": 162,
+        "cost_usd": 0.001333,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 1.6848827498033643
+    },
+    {
+      "task_id": "VEN-06",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "limit-cap-raised": true
+      },
+      "bugs": [
+        "limit-cap-raised"
+      ],
+      "usage": {
+        "input_tokens": 12517,
+        "output_tokens": 162,
+        "cost_usd": 0.001333,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 1.9512037499807775
+    },
+    {
+      "task_id": "VEN-06",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "limit-cap-raised": true
+      },
+      "bugs": [
+        "limit-cap-raised"
+      ],
+      "usage": {
+        "input_tokens": 12517,
+        "output_tokens": 169,
+        "cost_usd": 0.001336,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 1.858141957782209
+    },
+    {
+      "task_id": "VEN-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": false,
+      "clean_passed": 0,
+      "clean_failed": 0,
+      "load_errors": [
+        "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+      ],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "update-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 12557,
+        "output_tokens": 200,
+        "cost_usd": 0.001356,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.2353423750028014
+    },
+    {
+      "task_id": "VEN-08",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "update-not-audited": true
+      },
+      "bugs": [
+        "update-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 12557,
+        "output_tokens": 765,
+        "cost_usd": 0.001638,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.286124249920249
+    },
+    {
+      "task_id": "VEN-08",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "update-not-audited": true
+      },
+      "bugs": [
+        "update-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 12557,
+        "output_tokens": 877,
+        "cost_usd": 0.001694,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.347374917007983
+    },
+    {
+      "task_id": "DOC-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Upload a document: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 12584,
+        "output_tokens": 1146,
+        "cost_usd": 0.001831,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.474871667101979
+    },
+    {
+      "task_id": "DOC-01",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Upload a document: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 12584,
+        "output_tokens": 1214,
+        "cost_usd": 0.001865,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.654382042121142
+    },
+    {
+      "task_id": "DOC-01",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Upload a document: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-not-audited"
+      ],
+      "usage": {
+        "input_tokens": 12584,
+        "output_tokens": 1164,
+        "cost_usd": 0.00184,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.174765541218221
+    },
+    {
+      "task_id": "DOC-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 4,
+      "load_errors": [],
+      "clean_failures": [
+        "rejects an empty file with status 422 and code empty_file: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a file of exactly 10 MiB + 1 with status 413 and code file_too_large: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a .exe file with status 415 and code unsupported_type: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a valid text file with an unknown kind with status 422 and code validation_error: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "empty-file-accepted",
+        "upload-limit-plus-one"
+      ],
+      "usage": {
+        "input_tokens": 12699,
+        "output_tokens": 1541,
+        "cost_usd": 0.00204,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.843210958875716
+    },
+    {
+      "task_id": "DOC-04",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 4,
+      "load_errors": [],
+      "clean_failures": [
+        "rejects an empty file as kind \"w9\" with 422 empty_file: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a file of exactly 10 MiB + 1 as kind \"w9\" with 413 file_too_large: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a \".exe\" file as kind \"w9\" with 415 unsupported_type: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a valid text file as kind \"passport\" with 422 validation_error: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "empty-file-accepted",
+        "upload-limit-plus-one"
+      ],
+      "usage": {
+        "input_tokens": 12699,
+        "output_tokens": 1378,
+        "cost_usd": 0.001959,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.945670290850103
+    },
+    {
+      "task_id": "DOC-04",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 4,
+      "load_errors": [],
+      "clean_failures": [
+        "rejects an empty file as kind \"w9\" with 422 empty_file: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a file of exactly 10 MiB + 1 as kind \"w9\" with 413 file_too_large: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a \".exe\" file as kind \"w9\" with 415 unsupported_type: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "rejects a valid text file as kind \"passport\" with 422 validation_error: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "empty-file-accepted",
+        "upload-limit-plus-one"
+      ],
+      "usage": {
+        "input_tokens": 12699,
+        "output_tokens": 1618,
+        "cost_usd": 0.002079,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.2888879999518394
+    },
+    {
+      "task_id": "DOC-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "A file of exactly 10 MiB is accepted: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-limit-rejects-exact"
+      ],
+      "usage": {
+        "input_tokens": 12561,
+        "output_tokens": 978,
+        "cost_usd": 0.001745,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.047835791949183
+    },
+    {
+      "task_id": "DOC-05",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "A file of exactly 10 MiB is accepted: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-limit-rejects-exact"
+      ],
+      "usage": {
+        "input_tokens": 12561,
+        "output_tokens": 984,
+        "cost_usd": 0.001748,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.7551396656781435
+    },
+    {
+      "task_id": "DOC-05",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "A file of exactly 10 MiB is accepted: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-limit-rejects-exact"
+      ],
+      "usage": {
+        "input_tokens": 12561,
+        "output_tokens": 835,
+        "cost_usd": 0.001674,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.264570083003491
+    },
+    {
+      "task_id": "DOC-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Documents from another tenant are invisible: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "document-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 12575,
+        "output_tokens": 930,
+        "cost_usd": 0.001723,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 4.424770583864301
+    },
+    {
+      "task_id": "DOC-07",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Documents from another tenant are invisible: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "document-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 12575,
+        "output_tokens": 1252,
+        "cost_usd": 0.001883,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.538905750028789
+    },
+    {
+      "task_id": "DOC-07",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": false,
+      "clean_passed": 0,
+      "clean_failed": 0,
+      "load_errors": [
+        "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+      ],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "document-tenant-leak"
+      ],
+      "usage": {
+        "input_tokens": 12575,
+        "output_tokens": 526,
+        "cost_usd": 0.00152,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 3.4735020422376692
+    },
+    {
+      "task_id": "REV-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "submitting with missing documents lists what is missing: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "missing-kinds-truncated"
+      ],
+      "usage": {
+        "input_tokens": 12579,
+        "output_tokens": 1420,
+        "cost_usd": 0.001968,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.40697266580537
+    },
+    {
+      "task_id": "REV-02",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "submitting with only an extracted w9 returns 409 documents_incomplete listing missing kinds: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "missing-kinds-truncated"
+      ],
+      "usage": {
+        "input_tokens": 12579,
+        "output_tokens": 1479,
+        "cost_usd": 0.001997,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.278822917025536
+    },
+    {
+      "task_id": "REV-02",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "submitting with missing documents lists what is missing: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "missing-kinds-truncated"
+      ],
+      "usage": {
+        "input_tokens": 12579,
+        "output_tokens": 1369,
+        "cost_usd": 0.001942,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.400752750225365
+    },
+    {
+      "task_id": "REV-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "lists the vendor with an unparsed insurance expiry first, ordered by lowest confidence: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "queue-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 12580,
+        "output_tokens": 2939,
+        "cost_usd": 0.002727,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 12.555008416995406
+    },
+    {
+      "task_id": "REV-03",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "vendor with an unparsed insurance expiry date is listed first, queue sorted by lowest confidence: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "queue-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 12580,
+        "output_tokens": 2825,
+        "cost_usd": 0.002671,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 11.78162954095751
+    },
+    {
+      "task_id": "REV-03",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "vendor with an unparsed insurance expiry is listed first, queue sorted by lowest confidence: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "queue-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 12580,
+        "output_tokens": 2692,
+        "cost_usd": 0.002604,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 11.406469750218093
+    },
+    {
+      "task_id": "REV-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "member-can-review": true
+      },
+      "bugs": [
+        "member-can-review"
+      ],
+      "usage": {
+        "input_tokens": 12522,
+        "output_tokens": 278,
+        "cost_usd": 0.001391,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.3462741249240935
+    },
+    {
+      "task_id": "REV-04",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "member-can-review": true
+      },
+      "bugs": [
+        "member-can-review"
+      ],
+      "usage": {
+        "input_tokens": 12522,
+        "output_tokens": 269,
+        "cost_usd": 0.001387,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.08019437501207
+    },
+    {
+      "task_id": "REV-04",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "member-can-review": true
+      },
+      "bugs": [
+        "member-can-review"
+      ],
+      "usage": {
+        "input_tokens": 12522,
+        "output_tokens": 278,
+        "cost_usd": 0.001391,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.1926166247576475
+    },
+    {
+      "task_id": "REV-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "rejecting an extraction requires a note and returns the vendor to the member: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "reject-note-optional"
+      ],
+      "usage": {
+        "input_tokens": 12610,
+        "output_tokens": 2607,
+        "cost_usd": 0.002564,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 11.084264708682895
+    },
+    {
+      "task_id": "REV-06",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Rejecting an extraction requires a note and returns the vendor to the member: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "reject-note-optional"
+      ],
+      "usage": {
+        "input_tokens": 12610,
+        "output_tokens": 2705,
+        "cost_usd": 0.002613,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.795865874737501
+    },
+    {
+      "task_id": "REV-06",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "rejecting an extraction requires a note and returns the vendor to the member: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "reject-note-optional"
+      ],
+      "usage": {
+        "input_tokens": 12610,
+        "output_tokens": 2361,
+        "cost_usd": 0.002442,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 9.921341707929969
+    },
+    {
+      "task_id": "REV-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 3,
+      "load_errors": [],
+      "clean_failures": [
+        "insurance expiring in 0 days: vendor include insurance_expiring_soon: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "insurance expiring in 30 days: vendor include insurance_expiring_soon: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "insurance expiring in 31 days: vendor do not include insurance_expiring_soon: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "expiring-window-excludes-day-30"
+      ],
+      "usage": {
+        "input_tokens": 12583,
+        "output_tokens": 1988,
+        "cost_usd": 0.002252,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.971590499859303
+    },
+    {
+      "task_id": "REV-08",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 3,
+      "load_errors": [],
+      "clean_failures": [
+        "insurance expiring in 0 days: vendor flags include \"insurance_expiring_soon\": Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "insurance expiring in 30 days: vendor flags include \"insurance_expiring_soon\": Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "insurance expiring in 31 days: vendor flags do not include \"insurance_expiring_soon\": Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "expiring-window-excludes-day-30"
+      ],
+      "usage": {
+        "input_tokens": 12583,
+        "output_tokens": 2096,
+        "cost_usd": 0.002306,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.466665457934141
+    },
+    {
+      "task_id": "REV-08",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 3,
+      "load_errors": [],
+      "clean_failures": [
+        "insurance expiring in 0 days includes the expiring-soon flag: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "insurance expiring in 30 days includes the expiring-soon flag: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422",
+        "insurance expiring in 31 days does not include the expiring-soon flag: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "expiring-window-excludes-day-30"
+      ],
+      "usage": {
+        "input_tokens": 12583,
+        "output_tokens": 1607,
+        "cost_usd": 0.002062,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.480140374973416
+    },
+    {
+      "task_id": "AUD-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "audit events are listed oldest first with actor and action: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-not-audited",
+        "audit-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 12568,
+        "output_tokens": 1921,
+        "cost_usd": 0.002217,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.29686816688627
+    },
+    {
+      "task_id": "AUD-01",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "audit events are listed oldest first with actor and action: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-not-audited",
+        "audit-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 12568,
+        "output_tokens": 1845,
+        "cost_usd": 0.002179,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.241494208574295
+    },
+    {
+      "task_id": "AUD-01",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "Audit events are listed oldest first with actor and action: Error: expect(received).toBe(expected) // Object.is equality | Expected: 201 | Received: 422"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "upload-not-audited",
+        "audit-order-reversed"
+      ],
+      "usage": {
+        "input_tokens": 12568,
+        "output_tokens": 1597,
+        "cost_usd": 0.002055,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.020446292124689
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 0.5333333333333333,
+      "low": 0.4089342702715789,
+      "high": 0.6537209395856151,
+      "n": 60,
+      "successes": 32
+    },
+    "pass_all_k": {
+      "value": 0.5,
+      "low": 0.2992980081982123,
+      "high": 0.7007019918017877,
+      "n": 20,
+      "successes": 10
+    },
+    "bug_detection": {
+      "value": 0.5277777777777778,
+      "low": 0.4140067049007661,
+      "high": 0.6387348966216531,
+      "n": 72,
+      "successes": 38
+    },
+    "false_failure": {
+      "value": 0.4482758620689655,
+      "low": 0.3274985404778122,
+      "high": 0.5754791687415537,
+      "n": 58,
+      "successes": 26
+    },
+    "cost_usd": {
+      "value": 0.0017861166666666667,
+      "low": 0.00169625,
+      "high": 0.0018783666666666666,
+      "n": 60,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 5.324605775725407,
+      "low": 4.637752793822438,
+      "high": 6.011075209872797,
+      "n": 60,
+      "successes": null
+    },
+    "by_category": {
+      "audit": {
+        "value": 0.2222222222222222,
+        "low": 0.06322510711784671,
+        "high": 0.5474110308930111,
+        "n": 9,
+        "successes": 2
+      },
+      "authorization": {
+        "value": 0.75,
+        "low": 0.46769466506643426,
+        "high": 0.9110583316059453,
+        "n": 12,
+        "successes": 9
+      },
+      "contract": {
+        "value": 1.0,
+        "low": 0.6096657120978346,
+        "high": 1.0,
+        "n": 6,
+        "successes": 6
+      },
+      "dates": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.5614970317550454,
+        "n": 3,
+        "successes": 0
+      },
+      "ordering": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.3903342879021653,
+        "n": 6,
+        "successes": 0
+      },
+      "security": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "status_codes": {
+        "value": 1.0,
+        "low": 0.7575059933447592,
+        "high": 1.0,
+        "n": 12,
+        "successes": 12
+      },
+      "validation": {
+        "value": 0.2857142857142857,
+        "low": 0.1381386295212213,
+        "high": 0.49956380716085597,
+        "n": 21,
+        "successes": 6
+      }
+    }
+  }
+}

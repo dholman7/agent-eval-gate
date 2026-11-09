@@ -1,6 +1,6 @@
 # agent-eval-gate
 
-A benchmark runner and CI gate for agents that write tests. It runs an agent on a fixed set of tasks, scores what it produced against a real app with seeded bugs, reports every rate with a 95% confidence interval, and fails a pull request only when results drop by more than run-to-run noise.
+A benchmark runner and CI gate for agents that write tests. It runs an agent on a fixed set of tasks, scores what it produced against a real app with seeded bugs, reports every rate with a 95% confidence interval, and fails a pull request when a result's interval falls entirely below the baseline's.
 
 The shipped benchmark asks an agent to write Playwright API tests for one Gherkin scenario at a time of [vendor-intake-app](https://github.com/dholman7/vendor-intake-app), pinned to a specific commit.
 
@@ -20,9 +20,9 @@ The shipped benchmark asks an agent to write Playwright API tests for one Gherki
 
 Storywright v0.2 on Claude Opus 5.5 (1 trial per task): 100% (20/20, CI 84–100%) of tasks, 100% (24/24) of bugs caught, no suites failing on correct code, $0.091 per trial.
 
-Storywright's interval sits entirely above the single call's, so the difference isn't noise. v0.3's first run here scored 55/60: rewriting the prompt for UI tests had dropped the rule that status assertions show the response body, and on a 422 the model blamed the app three times. With the rule restored, v0.3 matches v0.2 exactly; both remaining failures are REV-03, below. Its prompts were tuned on dev, and its repo tools were added after an earlier version's held-out score was seen, so its numbers come from fresh trials but aren't a blind result. The held-out tasks are easier on average than the dev tasks (the single call scores 60% here against 17% on dev), which is why agents are only compared within a split.
+Storywright's interval sits entirely above the single call's, so the difference isn't noise. v0.3's first run here scored 55/60: v0.3 had moved the rule that status assertions show the response body into the target repo's `AGENTS.md`, which the benchmark's pinned commit predates, and on a 422 the model blamed the app three times. With the rule restored, v0.3 matches v0.2 exactly; both remaining failures are REV-03, below. Its prompts were tuned on dev, and its repo tools were added after an earlier version's held-out score was seen, so its numbers come from fresh trials but aren't a blind result. The held-out tasks are easier on average than the dev tasks (the single call scores 60% here against 17% on dev), which is why agents are only compared within a split.
 
-**Known benchmark issue (REV-03).** The scenario states exact confidences ("lowest confidence 0.40") that the app never produces: it scores an unparseable field 0.30. The reference test checks order only, but an agent that holds the scenario's numbers, as Storywright did in two trials, reports a defect. Both of Storywright's held-out failures are this case. **Fixed in v2** ([`benchmarks/vendor-intake/v2`](benchmarks/vendor-intake/v2)): the target's scenario now states the queue order instead of exact confidences. Tasks, split, bugs, and references are unchanged, and CI validates both versions. v1 stays frozen so the numbers above remain reproducible. **On v2, Storywright v0.3 succeeded on all 60 held-out trials (CI 94–100%) and caught all 72 seeded bugs**, with no test failing on correct code (Haiku, 3 trials per task, $0.17 in total).
+**Known benchmark issue (REV-03).** The scenario states exact confidences ("lowest confidence 0.40") that the app never produces: it scores an unparseable field 0.30. The reference test checks order only, but an agent that holds the scenario's numbers, as Storywright did in two trials, reports a defect. Both of Storywright's held-out failures are this case. **Fixed in v2** ([`benchmarks/vendor-intake/v2`](benchmarks/vendor-intake/v2)): the target's scenario now states the queue order instead of exact confidences. Tasks, split, bugs, and references are unchanged, and CI validates both versions. v1 stays frozen so the numbers above remain reproducible. **On v2, Storywright v0.3 succeeded on all 60 held-out trials (CI 94–100%) and caught all 72 seeded bugs**, with no test failing on correct code (Haiku, 3 trials per task, $0.17 in total). The single call on the same split and model: 53% (32/60, CI 41–65%) of trials, 53% (38/72) of bugs caught, 45% (26/58) of suites failing on correct code, $0.0018 per trial.
 
 **Dev split** (12 tasks), 1 trial per task. Storywright's prompts were tuned here (83%, 10/12), so its dev number isn't a fair comparison and isn't listed.
 
@@ -142,7 +142,6 @@ The run's Markdown summary goes to the job summary, and OpenTelemetry spans (Gen
 
 - **Model-graded acceptance-criteria scoring.** Planned with agreement against hand labels (Cohen's κ) published before it counts toward any claim. v1 scores coverage deterministically, by tag.
 - **Mutation-tool bugs** (mutmut). All 32 bugs are hand-written; adding generated mutants, kept only when a reference test catches them, removes the risk that the bug author unconsciously picks easy targets.
-- **Live model results.** The `single-call` baseline is built and unit-tested against a stub; it runs as soon as an API key is configured.
 
 ## Layout
 

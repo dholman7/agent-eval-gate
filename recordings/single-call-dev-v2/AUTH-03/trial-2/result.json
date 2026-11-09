@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-03.spec.ts": "import { PASSWORD, expect, test } from \"../../fixtures\";\n\ntest.describe(\"sign in with an unknown email\", () => {\n  test(\n    \"unknown email is rejected with 401 invalid_credentials\",\n    { tag: \"@AUTH-03\" },\n    async ({ request }) => {\n      // Act\n      const response = await request.post(\"/api/auth/login\", {\n        data: { email: \"nobody@northwind.test\", password: PASSWORD },\n      });\n\n      // Assert\n      expect(response.status()).toBe(401);\n      const body = await response.json();\n      expect(body.error.code).toBe(\"invalid_credentials\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12549,
+    "output_tokens": 460,
+    "cost_usd": 0.001485,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.9846213329583406,
+  "error": null,
+  "log": null
+}

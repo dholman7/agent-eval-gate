@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-01.spec.ts": "import fs from \"node:fs\";\n\nimport { expect, sample, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\"Upload a document\", { tag: \"@DOC-01\" }, async ({ apiAs }) => {\n    // Arrange: a vendor in status \"draft\" owned by the signed-in member's tenant\n    const member = await apiAs(\"member\");\n    const vendorName = uniqueName(\"DOC-01 Vendor\");\n    const createResponse = await member.post(\"/api/vendors\", {\n      data: {\n        name: vendorName,\n        category: \"services\",\n        contact_email: `doc01.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}@example.test`,\n      },\n    });\n    expect(createResponse.status()).toBe(201);\n    const vendor = await createResponse.json();\n    expect(vendor.status).toBe(\"draft\");\n\n    // Act: upload the insurance certificate as kind \"insurance_certificate\"\n    const fileName = \"insurance_certificate.txt\";\n    const uploadResponse = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: {\n          name: fileName,\n          mimeType: \"text/plain\",\n          buffer: fs.readFileSync(sample(fileName)),\n        },\n      },\n    });\n\n    // Assert: response status and document state\n    expect(uploadResponse.status()).toBe(201);\n    const document = await uploadResponse.json();\n    expect(document.kind).toBe(\"insurance_certificate\");\n    expect(document.vendor_id).toBe(vendor.id);\n    expect(document.status).toBe(\"processing\");\n\n    // Assert: audit event recorded for the vendor\n    const auditResponse = await member.get(`/api/vendors/${vendor.id}/audit`);\n    expect(auditResponse.status()).toBe(200);\n    const audit = await auditResponse.json();\n    const uploadedEvents = audit.items.filter(\n      (event: { action: string }) => event.action === \"document.uploaded\",\n    );\n    expect(uploadedEvents.length).toBeGreaterThanOrEqual(1);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12584,
+    "output_tokens": 1146,
+    "cost_usd": 0.001831,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.474871667101979,
+  "error": null,
+  "log": null
+}

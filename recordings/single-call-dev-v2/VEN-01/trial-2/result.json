@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\n    \"Create a vendor\",\n    { tag: \"@VEN-01\" },\n    async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const name = uniqueName(\"Acme Freight\");\n      const contact = `ops+${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@acmefreight.example`;\n\n      // Act\n      const createResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name,\n          category: \"logistics\",\n          contact_email: contact,\n        },\n      });\n\n      // Assert\n      expect(createResponse.status()).toBe(201);\n      const vendor = await createResponse.json();\n      expect(vendor.name).toBe(name);\n      expect(vendor.category).toBe(\"logistics\");\n      expect(vendor.status).toBe(\"draft\");\n\n      const auditResponse = await member.get(`/api/vendors/${vendor.id}/audit`);\n      expect(auditResponse.status()).toBe(200);\n      const trail = (await auditResponse.json()) as {\n        items: { action: string }[];\n      };\n      expect(trail.items.map((event) => event.action)).toContain(\"vendor.created\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12571,
+    "output_tokens": 624,
+    "cost_usd": 0.001569,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.3161386251449585,
+  "error": null,
+  "log": null
+}

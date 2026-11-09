@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-07.spec.ts": "import { expect, test, uniqueName, apiAs as _unused } from \"../../fixtures\";\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12575,
+    "output_tokens": 526,
+    "cost_usd": 0.00152,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.4735020422376692,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AUTH-01.spec.ts": "import { USERS, expect, test } from \"../../fixtures\";\n\ntest.describe(\"AUTH-01 sign in\", () => {\n  test(\"successful sign-in returns a session\", { tag: \"@AUTH-01\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: \"demo-password\" },\n    });\n\n    // Assert\n    expect(response.status()).toBe(200);\n\n    const body = (await response.json()) as { access_token?: unknown };\n    expect(typeof body.access_token).toBe(\"string\");\n    expect((body.access_token as string).length).toBeGreaterThan(0);\n\n    const setCookies = response\n      .headersArray()\n      .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n      .map((h) => h.value);\n    const session = setCookies.find((value) => value.startsWith(\"session=\"));\n    expect(session, \"a session cookie is set\").toBeDefined();\n    expect(session!.toLowerCase()).toContain(\"httponly\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12553,
+    "output_tokens": 636,
+    "cost_usd": 0.001573,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.8045022496953607,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\n    \"The same vendor name is allowed in a different tenant\",\n    { tag: \"@VEN-04\" },\n    async ({ apiAs }) => {\n      // Arrange: signed in as a Northwind member (Background)\n      const northwind = await apiAs(\"member\");\n      // Given a vendor named \"Acme Freight\" exists in tenant \"Globex Procurement\"\n      const globex = await apiAs(\"otherTenant\");\n      const vendorName = uniqueName(\"Acme Freight\");\n\n      const existing = await globex.post(\"/api/vendors\", {\n        data: {\n          name: vendorName,\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n      expect(existing.status()).toBe(201);\n\n      // When I create a vendor named \"Acme Freight\" in category \"logistics\"\n      // with contact \"ops@acmefreight.example\" in my own tenant\n      const response = await northwind.post(\"/api/vendors\", {\n        data: {\n          name: vendorName,\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n\n      // Then the response status is 201\n      expect(response.status()).toBe(201);\n      const created = await response.json();\n      expect(created.name).toBe(vendorName);\n      expect(created.id).not.toBe((await existing.json()).id);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12582,
+    "output_tokens": 914,
+    "cost_usd": 0.001715,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 4.955810042098165,
+  "error": null,
+  "log": null
+}

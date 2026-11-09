@@ -1,0 +1,15 @@
+{
+  "files": {
+    "DOC-04.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TEN_MIB = 10 * 1024 * 1024;\n\ntype Case = {\n  label: string;\n  kind: string;\n  status: number;\n  code: string;\n  file: { name: string; mimeType: string; buffer: Buffer };\n};\n\nconst cases: Case[] = [\n  {\n    label: \"an empty file\",\n    kind: \"w9\",\n    status: 422,\n    code: \"empty_file\",\n    file: { name: \"w9-empty.pdf\", mimeType: \"application/pdf\", buffer: Buffer.alloc(0) },\n  },\n  {\n    label: \"a file of exactly 10 MiB + 1\",\n    kind: \"w9\",\n    status: 413,\n    code: \"file_too_large\",\n    file: {\n      name: \"w9-oversized.pdf\",\n      mimeType: \"application/pdf\",\n      buffer: Buffer.alloc(TEN_MIB + 1, 0x41),\n    },\n  },\n  {\n    label: \"a .exe file\",\n    kind: \"w9\",\n    status: 415,\n    code: \"unsupported_type\",\n    file: {\n      name: \"installer.exe\",\n      mimeType: \"application/x-msdownload\",\n      buffer: Buffer.from(\"MZ\\x90\\x00 fake executable payload\"),\n    },\n  },\n  {\n    label: \"a valid text file with an unknown kind\",\n    kind: \"passport\",\n    status: 422,\n    code: \"validation_error\",\n    file: {\n      name: \"notes.txt\",\n      mimeType: \"text/plain\",\n      buffer: Buffer.from(\"Vendor passport notes, plain text.\"),\n    },\n  },\n];\n\ntest.describe(\"Upload vendor documents: reject invalid uploads\", () => {\n  for (const c of cases) {\n    test(\n      `rejects ${c.label} with status ${c.status} and code ${c.code}`,\n      { tag: \"@DOC-04\" },\n      async ({ apiAs }) => {\n        // Arrange: a vendor in draft status owned by the member's tenant\n        const member = await apiAs(\"member\");\n        const created = await member.post(\"/api/vendors\", {\n          data: {\n            name: uniqueName(\"DOC04 Vendor\"),\n            category: \"services\",\n            contact_email: `doc04-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@vendor.test`,\n          },\n        });\n        expect(created.status()).toBe(201);\n        const vendor = await created.json();\n        expect(vendor.status).toBe(\"draft\");\n\n        // Act: upload the invalid document\n        const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n          multipart: {\n            kind: c.kind,\n            file: c.file,\n          },\n        });\n\n        // Assert\n        expect(response.status()).toBe(c.status);\n        const body = await response.json();\n        expect(body.error.code).toBe(c.code);\n      },\n    );\n  }\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12699,
+    "output_tokens": 1541,
+    "cost_usd": 0.00204,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.843210958875716,
+  "error": null,
+  "log": null
+}

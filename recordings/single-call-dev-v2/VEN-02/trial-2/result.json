@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-02.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\nconst TAG = \"@VEN-02\";\n\nconst examples: Array<{ field: \"name\" | \"category\" | \"contact_email\"; value: string }> = [\n  { field: \"name\", value: \"A\" },\n  { field: \"category\", value: \"furniture\" },\n  { field: \"contact_email\", value: \"not-an-email\" },\n];\n\nfor (const { field, value } of examples) {\n  test(`rejects invalid vendor ${field} with validation_error`, { tag: TAG }, async ({ apiAs }) => {\n    // Arrange: a otherwise-valid payload, with only the outlined field overridden.\n    const member = await apiAs(\"member\");\n    const payload: Record<string, unknown> = {\n      name: uniqueName(\"Vendor VEN02\"),\n      category: \"software\",\n      contact_email: \"ops@example.test\",\n    };\n    payload[field] = value;\n\n    // Act\n    const response = await member.post(\"/api/vendors\", { data: payload });\n\n    // Assert\n    expect(response.status()).toBe(422);\n    const body = await response.json();\n    expect(body.error?.code).toBe(\"validation_error\");\n    expect(JSON.stringify(body)).toContain(field);\n  });\n}\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12608,
+    "output_tokens": 1061,
+    "cost_usd": 0.001791,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.025211084168404,
+  "error": null,
+  "log": null
+}

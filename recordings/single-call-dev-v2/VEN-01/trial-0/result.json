@@ -1,0 +1,15 @@
+{
+  "files": {
+    "VEN-01.spec.ts": "import { expect, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"Manage vendors\", () => {\n  test(\"Create a vendor\", { tag: \"@VEN-01\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const name = uniqueName(\"Acme Freight\");\n\n    // Act\n    const createResponse = await member.post(\"/api/vendors\", {\n      data: {\n        name,\n        category: \"logistics\",\n        contact_email: \"ops@acmefreight.example\",\n      },\n    });\n\n    // Assert\n    expect(createResponse.status()).toBe(201);\n    const vendor = await createResponse.json();\n    expect(vendor.name).toBe(name);\n    expect(vendor.status).toBe(\"draft\");\n\n    // Assert the audit trail records the creation\n    const auditResponse = await member.get(`/api/vendors/${vendor.id}/audit`);\n    expect(auditResponse.status()).toBe(200);\n    const audit = await auditResponse.json();\n    const actions = (audit.items as { action: string }[]).map((event) => event.action);\n    expect(actions).toContain(\"vendor.created\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 12571,
+    "output_tokens": 684,
+    "cost_usd": 0.001599,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.5417371252551675,
+  "error": null,
+  "log": null
+}
