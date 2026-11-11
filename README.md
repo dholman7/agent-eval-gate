@@ -119,6 +119,18 @@ The first v0.3 run wasn't kept, so the second row reconstructs it from the commi
 
 Each run starts the Next.js app and the API, writes the test through page objects (adding any entry it needs), and verifies it against the real screens before handing it over. The whole run cost $0.08. Six tasks give wide intervals: 18/18 is consistent with a true rate as low as 82%.
 
+## Blind benchmark (v3)
+
+Storywright was tuned while v1/v2's held-out scores were visible, so those numbers aren't blind. [`benchmarks/vendor-intake/v3`](benchmarks/vendor-intake/v3) fixes that:
+
+- **Held-out tasks no agent has seen.** The 15 held-out tasks are vendor-intake-app's [`features/lifecycle.feature`](https://github.com/dholman7/vendor-intake-app/blob/8bca46706f95b091bd869c974500097fcfbfdb8f/features/lifecycle.feature). These are re-uploads, send-backs, boundary dates, case-insensitive names and search, and pagination past the end. All of it was written and committed (the pinned ref) before any agent ran on it. Dev keeps v2's 12 tasks.
+- **Bugs chosen by code, not by hand.** [`aeg mutants`](src/agent_eval_gate/mutants.py) applies standard operators at every eligible token of 17 backend files: comparisons, `and`/`or`, booleans, a dropped `not`, and HTTP status codes. That gives 97 mutants, and each is run against all 27 reference tests.
+  - **35 survive every reference.** Some are equivalent to the original, and the rest are behavior no task covers. That's a 64% mutation score for the reference suite.
+  - **Discriminating mutants are drawn for each task.** A mutant counts as discriminating when 1 to 6 tasks (a quarter of 27) catch it. Up to 2 per task are drawn with a fixed seed, giving 23 in [`mutants.yaml`](benchmarks/vendor-intake/v3/mutants.yaml), next to v2's 11 hand-written dev bugs. The full kill matrix is committed.
+- **Validated like the others.** `aeg validate`: 27 references and 71 bug checks, 0 problems. CI runs it.
+
+Results: pending.
+
 ## Use it
 
 ```bash
@@ -168,12 +180,12 @@ The run's Markdown summary goes to the job summary, and OpenTelemetry spans (Gen
 ## Not in v1
 
 - **Model-graded acceptance-criteria scoring.** Planned with agreement against hand labels (Cohen's κ) published before it counts toward any claim. v1 scores coverage deterministically, by tag.
-- **Mutation-tool bugs** (mutmut). All 32 bugs are hand-written; adding generated mutants, kept only when a reference test catches them, removes the risk that the bug author unconsciously picks easy targets.
+- **Generated bugs.** v1 and v2's bugs are hand-written; v3 adds mutants selected by a kill matrix (above).
 
 ## Layout
 
 ```
-src/agent_eval_gate/     runner, scoring, stats, gate, telemetry, CLI
+src/agent_eval_gate/     runner, scoring, stats, gate, telemetry, mutants, CLI
   baselines/single_call  one-call Claude baseline
 benchmarks/vendor-intake/v1/
   benchmark.yaml         target repo, pinned ref, how to start the app and run tests

@@ -148,4 +148,7 @@ def load(root: Path) -> Benchmark:
     meta = yaml.safe_load((root / "benchmark.yaml").read_text())
     tasks = yaml.safe_load((root / "tasks.yaml").read_text())["tasks"]
     bugs = yaml.safe_load((root / "bugs.yaml").read_text())["bugs"]
+    # Mutation-generated bugs (aeg mutants), kept apart from the hand-written ones.
+    if (root / "mutants.yaml").is_file():
+        bugs += yaml.safe_load((root / "mutants.yaml").read_text())["bugs"]
     return Benchmark.model_validate({**meta, "root": root, "tasks": tasks, "bugs": bugs})

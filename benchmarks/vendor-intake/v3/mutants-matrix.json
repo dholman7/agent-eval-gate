@@ -1,0 +1,1324 @@
+{
+  "mut-backend_src_vendor_intake_deps-41-22": {
+    "file": "backend/src/vendor_intake/deps.py",
+    "line": 41,
+    "operator": "== -> !=",
+    "killed_by": [
+      "AUD-02",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_deps-41-34": {
+    "file": "backend/src/vendor_intake/deps.py",
+    "line": 41,
+    "operator": "and -> or",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_deps-53-23": {
+    "file": "backend/src/vendor_intake/deps.py",
+    "line": 53,
+    "operator": "status 401 -> 403",
+    "killed_by": [
+      "AUTH-06"
+    ]
+  },
+  "mut-backend_src_vendor_intake_deps-57-23": {
+    "file": "backend/src/vendor_intake/deps.py",
+    "line": 57,
+    "operator": "status 401 -> 403",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_deps-64-27": {
+    "file": "backend/src/vendor_intake/deps.py",
+    "line": 64,
+    "operator": "status 403 -> 401",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_errors-21-20": {
+    "file": "backend/src/vendor_intake/errors.py",
+    "line": 21,
+    "operator": "status 404 -> 403",
+    "killed_by": [
+      "AUD-02",
+      "VEN-07"
+    ]
+  },
+  "mut-backend_src_vendor_intake_errors-40-66": {
+    "file": "backend/src/vendor_intake/errors.py",
+    "line": 40,
+    "operator": "or -> and",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_errors-46-24": {
+    "file": "backend/src/vendor_intake/errors.py",
+    "line": 46,
+    "operator": "status 422 -> 400",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_errors-52-16": {
+    "file": "backend/src/vendor_intake/errors.py",
+    "line": 52,
+    "operator": "status 404 -> 403",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_repositories_audit-28-32": {
+    "file": "backend/src/vendor_intake/repositories/audit.py",
+    "line": 28,
+    "operator": "or -> and",
+    "killed_by": [
+      "LIF-02",
+      "LIF-06",
+      "REV-01",
+      "REV-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_audit-35-32": {
+    "file": "backend/src/vendor_intake/repositories/audit.py",
+    "line": 35,
+    "operator": "== -> !=",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_repositories_audit-36-40": {
+    "file": "backend/src/vendor_intake/repositories/audit.py",
+    "line": 36,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-02",
+      "LIF-06",
+      "REV-01"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_audit-36-75": {
+    "file": "backend/src/vendor_intake/repositories/audit.py",
+    "line": 36,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-02",
+      "LIF-06",
+      "REV-01",
+      "REV-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_documents-17-47": {
+    "file": "backend/src/vendor_intake/repositories/documents.py",
+    "line": 17,
+    "operator": "== -> !=",
+    "killed_by": [
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_documents-17-82": {
+    "file": "backend/src/vendor_intake/repositories/documents.py",
+    "line": 17,
+    "operator": "== -> !=",
+    "killed_by": [
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_documents-24-42": {
+    "file": "backend/src/vendor_intake/repositories/documents.py",
+    "line": 24,
+    "operator": "== -> !=",
+    "killed_by": [
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_documents-24-75": {
+    "file": "backend/src/vendor_intake/repositories/documents.py",
+    "line": 24,
+    "operator": "== -> !=",
+    "killed_by": [
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_documents-48-30": {
+    "file": "backend/src/vendor_intake/repositories/documents.py",
+    "line": 48,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_documents-48-69": {
+    "file": "backend/src/vendor_intake/repositories/documents.py",
+    "line": 48,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_documents-55-39": {
+    "file": "backend/src/vendor_intake/repositories/documents.py",
+    "line": 55,
+    "operator": "== -> !=",
+    "killed_by": [
+      "DOC-02",
+      "DOC-03",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_documents-55-76": {
+    "file": "backend/src/vendor_intake/repositories/documents.py",
+    "line": 55,
+    "operator": "== -> !=",
+    "killed_by": [
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_users-12-65": {
+    "file": "backend/src/vendor_intake/repositories/users.py",
+    "line": 12,
+    "operator": "== -> !=",
+    "killed_by": [
+      "AUD-02",
+      "LIF-11",
+      "VEN-07"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_users-16-39": {
+    "file": "backend/src/vendor_intake/repositories/users.py",
+    "line": 16,
+    "operator": "== -> !=",
+    "killed_by": [
+      "AUD-02",
+      "LIF-11",
+      "VEN-07"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_users-16-66": {
+    "file": "backend/src/vendor_intake/repositories/users.py",
+    "line": 16,
+    "operator": "== -> !=",
+    "killed_by": [
+      "AUD-02",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-11",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-17-43": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 17,
+    "operator": "== -> !=",
+    "killed_by": [
+      "AUD-02",
+      "DOC-03",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-17-74": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 17,
+    "operator": "== -> !=",
+    "killed_by": [
+      "AUD-02",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-22-29": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 22,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-10",
+      "VEN-03"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-22-59": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 22,
+    "operator": "== -> !=",
+    "killed_by": [
+      "AUD-02",
+      "AUTH-06",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-11",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-25-42": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 25,
+    "operator": "!= -> ==",
+    "killed_by": [
+      "LIF-10"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-37-54": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 37,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-41-46": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 41,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-14",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-42-88": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 42,
+    "operator": "or -> and",
+    "killed_by": [
+      "LIF-14",
+      "LIF-15",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-52-37": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 52,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-01",
+      "LIF-05",
+      "LIF-06",
+      "LIF-12"
+    ]
+  },
+  "mut-backend_src_vendor_intake_repositories_vendors-52-65": {
+    "file": "backend/src/vendor_intake/repositories/vendors.py",
+    "line": 52,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-01",
+      "LIF-05",
+      "LIF-06",
+      "LIF-12"
+    ]
+  },
+  "mut-backend_src_vendor_intake_routes_auth-34-7": {
+    "file": "backend/src/vendor_intake/routes/auth.py",
+    "line": 34,
+    "operator": "drop not",
+    "killed_by": [
+      "AUD-02",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-11",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_routes_auth-34-50": {
+    "file": "backend/src/vendor_intake/routes/auth.py",
+    "line": 34,
+    "operator": "or -> and",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_routes_auth-35-23": {
+    "file": "backend/src/vendor_intake/routes/auth.py",
+    "line": 35,
+    "operator": "status 401 -> 403",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_routes_auth-41-17": {
+    "file": "backend/src/vendor_intake/routes/auth.py",
+    "line": 41,
+    "operator": "True -> False",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_routes_auth-48-41": {
+    "file": "backend/src/vendor_intake/routes/auth.py",
+    "line": 48,
+    "operator": "status 204 -> 200",
+    "killed_by": [
+      "AUTH-06"
+    ]
+  },
+  "mut-backend_src_vendor_intake_routes_auth-50-52": {
+    "file": "backend/src/vendor_intake/routes/auth.py",
+    "line": 50,
+    "operator": "True -> False",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_routes_documents-17-59": {
+    "file": "backend/src/vendor_intake/routes/documents.py",
+    "line": 17,
+    "operator": "status 201 -> 200",
+    "killed_by": [
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_routes_documents-33-22": {
+    "file": "backend/src/vendor_intake/routes/documents.py",
+    "line": 33,
+    "operator": "or -> and",
+    "killed_by": [
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_routes_documents-41-31": {
+    "file": "backend/src/vendor_intake/routes/documents.py",
+    "line": 41,
+    "operator": "or -> and",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_routes_review-34-30": {
+    "file": "backend/src/vendor_intake/routes/review.py",
+    "line": 34,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_routes_vendors-45-29": {
+    "file": "backend/src/vendor_intake/routes/vendors.py",
+    "line": 45,
+    "operator": "status 201 -> 200",
+    "killed_by": [
+      "AUD-02",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_schemas-23-63": {
+    "file": "backend/src/vendor_intake/schemas.py",
+    "line": 23,
+    "operator": "True -> False",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_schemas-27-46": {
+    "file": "backend/src/vendor_intake/schemas.py",
+    "line": 27,
+    "operator": "True -> False",
+    "killed_by": [
+      "AUD-02",
+      "AUTH-06",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-11",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_schemas-33-51": {
+    "file": "backend/src/vendor_intake/schemas.py",
+    "line": 33,
+    "operator": "status 200 -> 201",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_schemas-116-77": {
+    "file": "backend/src/vendor_intake/schemas.py",
+    "line": 116,
+    "operator": "True -> False",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_schemas-121-37": {
+    "file": "backend/src/vendor_intake/schemas.py",
+    "line": 121,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-03",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_schemas-121-49": {
+    "file": "backend/src/vendor_intake/schemas.py",
+    "line": 121,
+    "operator": "and -> or",
+    "killed_by": [
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_schemas-121-53": {
+    "file": "backend/src/vendor_intake/schemas.py",
+    "line": 121,
+    "operator": "drop not",
+    "killed_by": [
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_schemas-121-63": {
+    "file": "backend/src/vendor_intake/schemas.py",
+    "line": 121,
+    "operator": "and -> or",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_security-34-15": {
+    "file": "backend/src/vendor_intake/security.py",
+    "line": 34,
+    "operator": "False -> True",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_documents-37-12": {
+    "file": "backend/src/vendor_intake/services/documents.py",
+    "line": 37,
+    "operator": "> -> >=",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_documents-38-23": {
+    "file": "backend/src/vendor_intake/services/documents.py",
+    "line": 38,
+    "operator": "status 413 -> 400",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_documents-40-30": {
+    "file": "backend/src/vendor_intake/services/documents.py",
+    "line": 40,
+    "operator": "or -> and",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_documents-41-24": {
+    "file": "backend/src/vendor_intake/services/documents.py",
+    "line": 41,
+    "operator": "or -> and",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_documents-43-23": {
+    "file": "backend/src/vendor_intake/services/documents.py",
+    "line": 43,
+    "operator": "status 415 -> 400",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_documents-44-12": {
+    "file": "backend/src/vendor_intake/services/documents.py",
+    "line": 44,
+    "operator": "== -> !=",
+    "killed_by": [
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_documents-45-23": {
+    "file": "backend/src/vendor_intake/services/documents.py",
+    "line": 45,
+    "operator": "status 422 -> 400",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_extraction-46-46": {
+    "file": "backend/src/vendor_intake/services/extraction.py",
+    "line": 46,
+    "operator": "== -> !=",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_extraction-80-20": {
+    "file": "backend/src/vendor_intake/services/extraction.py",
+    "line": 80,
+    "operator": "!= -> ==",
+    "killed_by": [
+      "LIF-01",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_extraction-92-35": {
+    "file": "backend/src/vendor_intake/services/extraction.py",
+    "line": 92,
+    "operator": "== -> !=",
+    "killed_by": [
+      "AUD-02",
+      "AUTH-06",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-11",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_extraction-100-38": {
+    "file": "backend/src/vendor_intake/services/extraction.py",
+    "line": 100,
+    "operator": "or -> and",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_review-28-82": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 28,
+    "operator": "!= -> ==",
+    "killed_by": [
+      "DOC-02",
+      "DOC-03",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-39-22": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 39,
+    "operator": "== -> !=",
+    "killed_by": [
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-39-50": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 39,
+    "operator": "and -> or",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_review-49-29": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 49,
+    "operator": "!= -> ==",
+    "killed_by": [
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-59-12": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 59,
+    "operator": "status 409 -> 400",
+    "killed_by": [
+      "LIF-04"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-79-26": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 79,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-01",
+      "LIF-05",
+      "LIF-06",
+      "LIF-12"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-81-11": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 81,
+    "operator": "drop not",
+    "killed_by": [
+      "LIF-01",
+      "LIF-05",
+      "LIF-06",
+      "LIF-12"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-92-76": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 92,
+    "operator": "or -> and",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_review-98-23": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 98,
+    "operator": "status 409 -> 400",
+    "killed_by": [
+      "LIF-08"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-99-14": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 99,
+    "operator": "< -> <=",
+    "killed_by": [
+      "LIF-07"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-100-23": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 100,
+    "operator": "status 409 -> 400",
+    "killed_by": [
+      "REV-07"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-117-24": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 117,
+    "operator": "or -> and",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_review-119-21": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 119,
+    "operator": "!= -> ==",
+    "killed_by": [
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-120-23": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 120,
+    "operator": "status 409 -> 400",
+    "killed_by": [
+      "LIF-03"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-121-25": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 121,
+    "operator": "!= -> ==",
+    "killed_by": [
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-122-23": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 122,
+    "operator": "status 409 -> 400",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_review-124-15": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 124,
+    "operator": "and -> or",
+    "killed_by": [
+      "LIF-06",
+      "LIF-12",
+      "REV-05",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-124-24": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 124,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-06",
+      "LIF-08",
+      "LIF-12",
+      "REV-05",
+      "REV-07",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-139-7": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 139,
+    "operator": "drop not",
+    "killed_by": [
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-09",
+      "REV-05",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-142-19": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 142,
+    "operator": "== -> !=",
+    "killed_by": [
+      "LIF-06",
+      "REV-05",
+      "VEN-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_review-145-21": {
+    "file": "backend/src/vendor_intake/services/review.py",
+    "line": 145,
+    "operator": "!= -> ==",
+    "killed_by": [
+      "LIF-02",
+      "LIF-06",
+      "REV-05"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_storage-12-34": {
+    "file": "backend/src/vendor_intake/services/storage.py",
+    "line": 12,
+    "operator": "True -> False",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_storage-12-49": {
+    "file": "backend/src/vendor_intake/services/storage.py",
+    "line": 12,
+    "operator": "True -> False",
+    "killed_by": [
+      "DOC-02",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-12",
+      "LIF-14",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-05",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_vendors-26-23": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 26,
+    "operator": "status 409 -> 400",
+    "killed_by": [
+      "DOC-06",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_vendors-31-23": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 31,
+    "operator": "status 409 -> 400",
+    "killed_by": [
+      "LIF-10",
+      "VEN-03"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_vendors-54-44": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 54,
+    "operator": "True -> False",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_vendors-54-63": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 54,
+    "operator": "True -> False",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_vendors-80-25": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 80,
+    "operator": "or -> and",
+    "killed_by": [
+      "AUD-02",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  },
+  "mut-backend_src_vendor_intake_services_vendors-80-45": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 80,
+    "operator": "!= -> ==",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_vendors-86-14": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 86,
+    "operator": "< -> <=",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_vendors-88-14": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 88,
+    "operator": "<= -> <",
+    "killed_by": []
+  },
+  "mut-backend_src_vendor_intake_services_vendors-96-74": {
+    "file": "backend/src/vendor_intake/services/vendors.py",
+    "line": 96,
+    "operator": "!= -> ==",
+    "killed_by": [
+      "AUD-02",
+      "DOC-02",
+      "DOC-03",
+      "DOC-06",
+      "LIF-01",
+      "LIF-02",
+      "LIF-03",
+      "LIF-04",
+      "LIF-05",
+      "LIF-06",
+      "LIF-07",
+      "LIF-08",
+      "LIF-09",
+      "LIF-10",
+      "LIF-12",
+      "LIF-13",
+      "LIF-14",
+      "LIF-15",
+      "REV-01",
+      "REV-05",
+      "REV-07",
+      "VEN-03",
+      "VEN-05",
+      "VEN-07",
+      "VEN-09"
+    ]
+  }
+}

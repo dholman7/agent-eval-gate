@@ -21,6 +21,8 @@ class SuiteRun:
     # Load or syntax errors: Playwright reports these instead of running tests.
     errors: list[str] = field(default_factory=list)
     passed_tags: set[str] = field(default_factory=set)
+    # Tags of tests that failed: which tasks' tests a seeded change broke.
+    failed_tags: set[str] = field(default_factory=set)
     # "<test title>: <first line of the assertion error>" for each failed test.
     failures: list[str] = field(default_factory=list)
 
@@ -78,6 +80,7 @@ def parse_report(report: dict[str, Any]) -> SuiteRun:
                 else:
                     run.failed += 1
                     run.failures.append(f"{spec.get('title', '?')}: {_first_error(test)}")
+                    run.failed_tags.update(f"@{t.lstrip('@')}" for t in spec.get("tags", []))
         for child in suite.get("suites", []):
             walk(child)
 
