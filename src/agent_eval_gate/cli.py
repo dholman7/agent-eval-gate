@@ -47,6 +47,10 @@ def _agent(args: argparse.Namespace, bench: benchmark.Benchmark) -> tuple[Agent,
         return ExistingTestsAgent(), "deterministic"
     if args.replay:
         return ReplayAgent(Recorder(Path(args.recordings), args.agent), args.agent), "replay"
+    if args.agent == "claude-code" and not args.command:
+        from agent_eval_gate.baselines.claude_code import ClaudeCodeAgent
+
+        return ClaudeCodeAgent(bench), "live"
     if not args.command:
         raise SystemExit(f"agent {args.agent!r} needs --command (or --replay)")
     return CommandAgent(args.agent, args.command), "live"

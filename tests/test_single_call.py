@@ -1,5 +1,8 @@
 """The Claude baseline, exercised against a stub client so tests never call the API."""
 
+import json
+import stat
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -100,3 +103,105 @@ def test_generate_reports_why_there_is_no_usable_file(
 
     assert result.code is None
     assert result.error == error
+
+
+# Stands in for `claude -p`: records what it was given, prints FAKE_RESULT or FAKE_STDOUT.
+FAKE_CLAUDE = """#!{python}
+import json, os, sys
+from pathlib import Path
+
+argv = sys.argv[1:]
+system = Path(argv[argv.index("--system-prompt-file") + 1]).read_text()
+record = {{"argv": argv, "stdin": sys.stdin.read(), "system": system,
+          "saw_api_key": "ANTHROPIC_API_KEY" in os.environ,
+          "nonessential": os.environ.get("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC")}}
+Path(os.environ["FAKE_RECORD"]).write_text(json.dumps(record))
+print(os.environ.get("FAKE_STDOUT") or os.environ["FAKE_RESULT"])
+"""
+
+HEADLESS = {
+    "subtype": "success",
+    "is_error": False,
+    "stop_reason": "end_turn",
+    "result": "```ts\ntest('x', { tag: '@VEN-01' }, async () => {});\n```",
+    "modelUsage": {
+        "claude-haiku-5-5": {
+            "inputTokens": 900,
+            "outputTokens": 300,
+            "cacheCreationInputTokens": 1000,
+            "cacheReadInputTokens": 0,
+            "costUSD": 0.0011,
+        }
+    },
+}
+
+
+@pytest.fixture
+def fake_claude(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[str, Path]:
+    binary = tmp_path / "claude"
+    binary.write_text(FAKE_CLAUDE.format(python=sys.executable))
+    binary.chmod(binary.stat().st_mode | stat.S_IEXEC)
+    record = tmp_path / "record.json"
+    monkeypatch.setenv("FAKE_RECORD", str(record))
+    monkeypatch.setenv("FAKE_RESULT", json.dumps(HEADLESS))
+    return str(binary), record
+
+
+def test_headless_runs_claude_code_bare_of_tools_settings_and_the_api_key(
+    fake_claude: tuple[str, Path], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    binary, record_file = fake_claude
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-should-not-be-seen")
+
+    result = single_call.generate_headless("SYSTEM", "USER", binary)
+
+    record = json.loads(record_file.read_text())
+    argv = record["argv"]
+    assert result.code is not None and "@VEN-01" in result.code
+    assert not record["saw_api_key"]  # with a key, Claude Code would bill it
+    assert argv[argv.index("--tools") + 1] == ""
+    assert argv[argv.index("--setting-sources") + 1] == ""
+    assert record["nonessential"] == "1"  # no uncached side request repeating the prompt
+    assert {"--safe-mode", "--strict-mcp-config", "--no-session-persistence"} <= set(argv)
+    assert argv[argv.index("--model") + 1] == single_call.MODEL
+    assert (record["system"], record["stdin"]) == ("SYSTEM", "USER")
+    assert result.input_tokens == 1900  # all input, cached or not
+    assert result.cache_write_tokens == 1000
+    assert result.cost_usd == pytest.approx(0.0011)  # Claude Code's own estimate
+    assert result.model == "claude-haiku-5-5"
+
+
+@pytest.mark.parametrize(
+    ("change", "error"),
+    [
+        ({"result": "No code here."}, "no ts code block in response"),
+        ({"stop_reason": "refusal"}, "refused"),
+        (
+            {"subtype": "error_during_execution", "is_error": True},
+            "claude -p error_during_execution",
+        ),
+    ],
+)
+def test_headless_reports_why_there_is_no_usable_file(
+    fake_claude: tuple[str, Path],
+    monkeypatch: pytest.MonkeyPatch,
+    change: dict[str, Any],
+    error: str,
+) -> None:
+    monkeypatch.setenv("FAKE_RESULT", json.dumps({**HEADLESS, **change}))
+
+    result = single_call.generate_headless("system", "user", fake_claude[0])
+
+    assert result.code is None
+    assert result.error is not None and result.error.startswith(error)
+
+
+def test_headless_output_that_is_not_a_json_result_is_an_error(
+    fake_claude: tuple[str, Path], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("FAKE_STDOUT", "Invalid API key · Please run /login")
+
+    result = single_call.generate_headless("system", "user", fake_claude[0])
+
+    assert result.code is None
+    assert result.error is not None and "no JSON result" in result.error

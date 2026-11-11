@@ -7,7 +7,9 @@ Runs as a CommandAgent: `python -m agent_eval_gate.baselines.single_call`. It an
 import json
 import os
 import re
+import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -24,6 +26,20 @@ if PROFILE not in PROFILES:
 MODEL = os.environ.get("AEG_MODEL", PROFILES[PROFILE][0])
 EFFORT = os.environ.get("AEG_EFFORT", PROFILES[PROFILE][1])
 MAX_TOKENS = 16000
+
+# api (the default, and CI's) bills ANTHROPIC_API_KEY. claude-code sends the same prompt through
+# headless Claude Code (`claude -p`, AEG_CLAUDE names the binary), billed to a Claude login, for
+# local runs. Claude Code adds a short identity line and environment section to the context and
+# has no refusal fallback; its cost is a list-price estimate a subscription doesn't bill.
+TRANSPORT = os.environ.get("AEG_TRANSPORT", "api")
+if TRANSPORT not in ("api", "claude-code"):
+    raise SystemExit(f"AEG_TRANSPORT must be api or claude-code, got {TRANSPORT!r}")
+CLAUDE_TIMEOUT_S = 600
+# Claude Code bills an API key when it finds one; without one it uses the claude.ai login.
+STRIPPED_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")
+# Without this, Claude Code sends the whole prompt again, uncached, for a side request (such as
+# a session title): about double the input per call.
+ADDED_ENV = {"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"}
 
 # Models that accept server-side refusal fallback (`fallbacks: "default"`). Haiku 5.5 has none.
 FALLBACK_MODELS = {"claude-opus-5-5", "claude-sonnet-5-5"}
@@ -68,9 +84,14 @@ class Generation:
     output_tokens: int
     cache_read_tokens: int
     error: str | None = None
+    cache_write_tokens: int = 0
+    # What the transport says the requests cost, when it knows better than the price table.
+    reported_cost_usd: float | None = None
 
     @property
     def cost_usd(self) -> float:
+        if self.reported_cost_usd is not None:
+            return self.reported_cost_usd
         prices = PRICES.get(self.model) or PRICES.get(MODEL)
         if prices is None:
             raise KeyError(f"no price for {self.model!r}; add it to PRICES")
@@ -152,15 +173,87 @@ def generate(client: Any, system: str, user: str) -> Generation:
     return generation
 
 
-def main() -> int:
-    import anthropic
+def claude_code_command(binary: str, system_file: Path) -> list[str]:
+    """Headless and tool-free. `--safe-mode` drops every customization: CLAUDE.md, skills,
+    plugins, hooks, MCP servers, custom agents, output styles."""
+    return [
+        binary, "-p",
+        "--model", MODEL,
+        "--effort", EFFORT,
+        "--output-format", "json",
+        "--system-prompt-file", str(system_file),
+        "--tools", "",
+        "--safe-mode",
+        "--setting-sources", "",
+        "--strict-mcp-config",
+        "--no-session-persistence",
+    ]  # fmt: skip
 
+
+def generate_headless(system: str, user: str, binary: str = "claude") -> Generation:
+    """The same request through `claude -p`, priced at Claude Code's own estimate."""
+    env = {k: v for k, v in os.environ.items() if k not in STRIPPED_ENV} | ADDED_ENV
+    with tempfile.TemporaryDirectory(prefix="aeg-single-call-") as tmp:
+        system_file = Path(tmp) / "system.md"
+        system_file.write_text(system)
+        try:
+            completed = subprocess.run(
+                claude_code_command(binary, system_file),
+                input=user,
+                capture_output=True,
+                text=True,
+                env=env,
+                cwd=tmp,
+                timeout=CLAUDE_TIMEOUT_S,
+            )
+        except subprocess.TimeoutExpired:
+            return Generation(None, MODEL, 0, 0, 0, error=f"timed out after {CLAUDE_TIMEOUT_S}s")
+    try:
+        result: dict[str, Any] = json.loads(completed.stdout)
+    except json.JSONDecodeError:
+        detail = (completed.stderr or completed.stdout).strip()[-300:]
+        return Generation(None, MODEL, 0, 0, 0, error=f"claude -p printed no JSON result: {detail}")
+
+    usage = result.get("modelUsage") or {}
+    rows = usage.values()
+    cache_read = sum(u.get("cacheReadInputTokens", 0) for u in rows)
+    cache_write = sum(u.get("cacheCreationInputTokens", 0) for u in rows)
+    generation = Generation(
+        code=None,
+        model=",".join(sorted(usage)) or MODEL,
+        input_tokens=sum(u.get("inputTokens", 0) for u in rows) + cache_read + cache_write,
+        output_tokens=sum(u.get("outputTokens", 0) for u in rows),
+        cache_read_tokens=cache_read,
+        cache_write_tokens=cache_write,
+        reported_cost_usd=sum(u.get("costUSD", 0.0) for u in rows),
+    )
+    if result.get("stop_reason") == "refusal":
+        generation.error = "refused"
+        return generation
+    if result.get("is_error") or result.get("subtype") != "success":
+        detail = result.get("api_error_status") or str(result.get("result", ""))[:300]
+        generation.error = f"claude -p {result.get('subtype')}: {detail}"
+        return generation
+    if result.get("stop_reason") == "max_tokens":
+        generation.error = "hit max_tokens before finishing"
+    generation.code = extract_code(str(result.get("result", "")))
+    if generation.code is None and generation.error is None:
+        generation.error = "no ts code block in response"
+    return generation
+
+
+def main() -> int:
     task = json.loads(Path(os.environ["AEG_TASK"]).read_text())
     workspace = Path(os.environ["AEG_WORKSPACE"])
     output = Path(os.environ["AEG_OUTPUT"])
 
     system, user = build_prompt(task, workspace)
-    result = generate(anthropic.Anthropic(), system, user)
+    if TRANSPORT == "claude-code":
+        result = generate_headless(system, user, os.environ.get("AEG_CLAUDE", "claude"))
+    else:
+        import anthropic
+
+        result = generate(anthropic.Anthropic(), system, user)
     if result.code is not None:
         (output / f"{task['task_id']}.spec.ts").write_text(result.code)
     (output / "usage.json").write_text(
@@ -168,6 +261,8 @@ def main() -> int:
             {
                 "input_tokens": result.input_tokens,
                 "output_tokens": result.output_tokens,
+                "cache_read_input_tokens": result.cache_read_tokens,
+                "cache_write_input_tokens": result.cache_write_tokens,
                 "cost_usd": round(result.cost_usd, 6),
                 "model": result.model,
             }

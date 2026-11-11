@@ -165,6 +165,22 @@ uv run aeg run --agent single-call --command "python -m agent_eval_gate.baseline
 
 `AEG_MODEL` and `AEG_EFFORT` override either part. On models that support it (Opus 5.5, Sonnet 5.5), server-side refusal fallback is on, and every result records the model that actually answered. The report shows measured cost per trial.
 
+`AEG_TRANSPORT=claude-code` sends the same prompt through headless Claude Code (`claude -p`) instead of the API. It is billed to a Claude subscription login, and the API key is stripped from its environment. It runs with no tools, settings or MCP servers. Its costs are Claude Code's list-price estimates, and it has no refusal fallback. CI uses the default, `api`.
+
+### Claude Code as the agent
+
+```bash
+uv run aeg run --agent claude-code --benchmark benchmarks/vendor-intake/v3 --split heldout
+```
+
+Answers "does a purpose-built agent beat a general coding agent given the same task?" Headless Claude Code gets:
+
+- the scenario and the single call's rules;
+- the app, running on a free port;
+- the benchmark's own run and type-check commands.
+
+It may read and edit its workspace copy and run those two commands. Every other tool and command is denied, and it gets no user or project settings, MCP servers or skills. It runs on the Claude login with the API key stripped, capped at $1.00 of estimated spend per task, the same as Storywright's budget. `AEG_PROFILE` picks the model, as above.
+
 ### GitHub Action
 
 ```yaml
@@ -187,6 +203,7 @@ The run's Markdown summary goes to the job summary, and OpenTelemetry spans (Gen
 ```
 src/agent_eval_gate/     runner, scoring, stats, gate, telemetry, mutants, CLI
   baselines/single_call  one-call Claude baseline
+  baselines/claude_code  headless Claude Code as the agent
 benchmarks/vendor-intake/v1/
   benchmark.yaml         target repo, pinned ref, how to start the app and run tests
   tasks.yaml             32 tasks with frozen splits
