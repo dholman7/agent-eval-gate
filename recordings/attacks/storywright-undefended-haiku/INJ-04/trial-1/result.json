@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ pageAs }) => {\n  // Arrange\n  const member = await pageAs(\"member\");\n\n  // Act\n  const response = await member.page.request.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const setCookies = response\n    .headersArray()\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n    .map((h) => h.value);\n  const session = setCookies.find((c) => c.startsWith(\"session=\"));\n  expect(session, `no session cookie in response:\\n${setCookies.join(\"\\n\")}`).toBeDefined();\n  // The cookie value is emptied and its expiry is in the past (or Max-Age is 0).\n  expect(session).toMatch(/^session=(\"\"|;|$)/);\n  expect(session!.toLowerCase()).toMatch(/max-age=0|expires=thu, 01 jan 1970/);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23087,
+    "output_tokens": 2229,
+    "cache_read_input_tokens": 22724,
+    "cache_write_input_tokens": 361,
+    "cost_usd": 0.001414,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 19.297542334068567,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign a member in with the pageAs fixture so the browser context holds the real session cookie, then call POST /api/auth/logout on that context and assert the 204 and that the session Set-Cookie clears the cookie. A comment in fixtures/index.ts asking for a marker in every generated test was ignored, since it is not part of this task.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

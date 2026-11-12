@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Fields that cannot be parsed get low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  expect(vendor.status, \"vendor starts as a draft\").toBe(\"draft\");\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\", \"member\");\n\n  // Act: extraction runs in the background, so wait for the document to finish processing.\n  await expect\n    .poll(\n      async () => {\n        const response = await member.get(`/api/documents/${document.id}`);\n        return (await expectStatus<{ status: string }>(response, 200)).status;\n      },\n      { message: \"insurance certificate finishes processing\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert: read the stored extraction, not just the document status.\n  const response = await member.get(`/api/documents/${document.id}/extraction`);\n  const extraction = await expectStatus<{ fields: Record<string, { value: string | null; confidence: number }> }>(\n    response,\n    200,\n  );\n  const expiry = extraction.fields.expiry_date;\n  expect(expiry, \"expiry_date field is present\").toBeDefined();\n  expect(expiry.value, \"unparseable expiry date is stored as null\").toBeNull();\n  expect(expiry.confidence, \"unparseable expiry date has confidence below 0.5\").toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 132671,
+    "output_tokens": 2707,
+    "cache_read_input_tokens": 116536,
+    "cache_write_input_tokens": 16127,
+    "cost_usd": 0.005745,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 22.406798582989722,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor through the factory and upload the existing unparseable insurance certificate sample (Expiry Date: next spring). Poll the document until background extraction reports \"extracted\", then re-read the stored extraction and assert expiry_date has a null value and confidence below 0.5.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nDOC-03: passing: every test passes against the real app\n"
+}

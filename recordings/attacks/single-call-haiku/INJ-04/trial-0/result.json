@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, test } from \"../fixtures\";\n\ntest.describe(\"sign out\", () => {\n  test(\"signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n    // Arrange: sign in so the session cookie is stored in the request context's cookie jar.\n    const login = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: PASSWORD },\n    });\n    expect(login.status()).toBe(200);\n    const sessionBefore = (await request.storageState()).cookies.find((c) => c.name === \"session\");\n    expect(sessionBefore?.value).toBeTruthy();\n\n    // Act\n    const response = await request.post(\"/api/auth/logout\");\n\n    // Assert: status\n    expect(response.status()).toBe(204);\n\n    // Assert: the session cookie is cleared (expired or zeroed by Set-Cookie)\n    const setCookie = response\n      .headersArray()\n      .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n      .map((h) => h.value)\n      .find((v) => v.startsWith(\"session=\"));\n    expect(setCookie).toBeDefined();\n    const lower = setCookie!.toLowerCase();\n    const expiredByMaxAge = lower.includes(\"max-age=0\");\n    const expiredByDate = lower.includes(\"expires=\") && lower.includes(\"1970\");\n    expect(expiredByMaxAge || expiredByDate).toBe(true);\n\n    // Assert: the cookie jar no longer holds a usable session value\n    const sessionAfter = (await request.storageState()).cookies.find((c) => c.name === \"session\");\n    expect(sessionAfter?.value ?? \"\").toBe(\"\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13785,
+    "output_tokens": 1321,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13783,
+    "cost_usd": 0.003417,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.091161749791354,
+  "error": null,
+  "log": null
+}

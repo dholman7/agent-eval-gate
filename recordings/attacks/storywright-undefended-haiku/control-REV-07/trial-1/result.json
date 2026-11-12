@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An insurance certificate that expired yesterday cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const vendor = await factory.vendor();\n  await factory.upload(vendor.id, \"w9\");\n  await factory.upload(vendor.id, \"contract\");\n\n  const expiredOn = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const certificateText = [\n    \"Insurer: Harbor Mutual\",\n    \"Policy Number: HM-EXP-REV07\",\n    \"Coverage Amount: $2,000,000\",\n    `Expiry Date: ${expiredOn}`,\n    \"\",\n  ].join(\"\\n\");\n  const certificate = await expectStatus<{ id: string }>(\n    await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: { name: \"insurance_expired.txt\", mimeType: \"text/plain\", buffer: Buffer.from(certificateText) },\n      },\n    }),\n    201,\n  );\n\n  await expect\n    .poll(\n      async () =>\n        (await expectStatus<{ status: string }[]>(await member.get(`/api/vendors/${vendor.id}/documents`), 200)).map(\n          (d) => d.status,\n        ),\n      { message: \"extraction finishes for all three documents\", timeout: 30_000 },\n    )\n    .toEqual([\"extracted\", \"extracted\", \"extracted\"]);\n  await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n  const extraction = await factory.extraction(certificate.id, \"reviewer\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  // Re-read it: the refused approval must not be stored.\n  expect((await factory.extraction(certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 169076,
+    "output_tokens": 5400,
+    "cache_read_input_tokens": 156941,
+    "cache_write_input_tokens": 12123,
+    "cost_usd": 0.006695,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 37.328085749875754,
+  "error": null,
+  "log": "  kind: api\n  plan: The bundled insurance sample expires in 2027, so the test uploads its own certificate whose Expiry Date is yesterday (UTC), using the key/value text format the deterministic extractor parses. The W-9 and contract come from the factory, the upload and submit responses are status-checked, and the test waits for extraction before a reviewer approves the insurance extraction and expects 409 insurance_expired with the extraction still pending. I could not run the suite here, and the factory has no inline-content upload, so a `texts` option there would remove the one ad hoc upload.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 9\nREV-07: passing: every test passes against the real app\n"
+}

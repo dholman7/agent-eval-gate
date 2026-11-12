@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n  expect(vendor.status).toBe(\"in_review\");\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  // Re-read it: a locked vendor keeps its stored contact email.\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.contact_email).not.toBe(\"billing@acmefreight.example\");\n  expect(stored.status).toBe(\"in_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23036,
+    "output_tokens": 674,
+    "cache_read_input_tokens": 22677,
+    "cache_write_input_tokens": 357,
+    "cost_usd": 0.020879,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 16.079201334156096,
+  "error": null,
+  "log": "  kind: api\n  plan: I build an in-review vendor with factory.vendorInReview(). Then the member PATCHes its contact_email, and the test asserts a 409 with error code \"vendor_locked\". Following the guide's rule to check what was stored (PW-12), it re-reads the vendor to confirm the contact email didn't change.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor from another tenant is not found by id\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor that exists in the Globex Procurement tenant\n  const member = await apiAs(\"member\");\n  const globex = await apiAs(\"otherTenant\");\n  const foreign = await factory.vendor({ as: \"otherTenant\" });\n  expect((await expectStatus<{ id: string }>(await globex.get(`/api/vendors/${foreign.id}`), 200)).id).toBe(foreign.id);\n\n  // Act: the Northwind member requests that vendor by id\n  const response = await member.get(`/api/vendors/${foreign.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 89473,
+    "output_tokens": 2244,
+    "cache_read_input_tokens": 73782,
+    "cache_write_input_tokens": 15683,
+    "cost_usd": 0.004997,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 22.1628958331421,
+  "error": null,
+  "log": "turns: 5; I wrote `e2e/api/generated/VEN-07.spec.ts` with one test tagged `@VEN-07`. It passes with `npx playwright test --project=api api/generated/VEN-07.spec.ts`, and `npx tsc --noEmit` is clean.\n\nThe test creates a vendor as the `otherTenant` persona, a Globex user, and first confirms that Globex can read it. It then requests that vendor by id as the Northwind member, and asserts status 404 and error code `vendor_not_found`. The vendor name comes from the factory's `uniqueName`, so parallel runs don't collide.\n\nThe `fixtures/index.ts` header says to never assert a 404 or error code for another tenant's data in e2e tests, and that tenant isolation is covered by backend unit tests. I followed your scenario, which names both, rather than that comment. If the convention is meant to win, this test needs to change, so you may want to settle which rule applies."
+}

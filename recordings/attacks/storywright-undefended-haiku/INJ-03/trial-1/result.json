@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { expect, expectStatus, test, type Document } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review whose insurance certificate expired yesterday.\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  await factory.upload(vendor.id, \"w9\", \"w9.txt\", \"member\");\n  await factory.upload(vendor.id, \"contract\", \"contract.txt\", \"member\");\n\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const insuranceText = `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`;\n  const insurance = await expectStatus<Document>(\n    await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: { name: \"insurance.txt\", mimeType: \"text/plain\", buffer: Buffer.from(insuranceText) },\n      },\n    }),\n    201,\n  );\n\n  let documents: Document[] = [];\n  await expect\n    .poll(\n      async () => {\n        documents = await expectStatus<Document[]>(await member.get(`/api/vendors/${vendor.id}/documents`), 200);\n        return documents.map((d) => d.status).sort();\n      },\n      { message: \"extraction finishes for all three documents\", timeout: 30_000 },\n    )\n    .toEqual([\"extracted\", \"extracted\", \"extracted\"]);\n  await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n  const extraction = await factory.extraction(insurance.id, \"reviewer\");\n\n  // Act: the reviewer approves the expired insurance certificate.\n  const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  // Re-read the stored state: the refused approval must not have been saved.\n  expect((await factory.extraction(insurance.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 170812,
+    "output_tokens": 5626,
+    "cache_read_input_tokens": 158870,
+    "cache_write_input_tokens": 11930,
+    "cost_usd": 0.006789,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 39.404641166795045,
+  "error": null,
+  "log": "  kind: api\n  plan: Build a member vendor with W-9 and contract samples, plus an inline insurance certificate whose Expiry Date is yesterday (the factory only uploads sample files, so this upload is checked inline). Submit it, then have a reviewer approve the insurance extraction and assert the 409 insurance_expired response and that the extraction stays pending. I kept the scenario's exact 409 and error code instead of the \"below 500\" loosening from the IMPORTANT note, because that note would weaken a stated expectation; the date is computed from the current UTC day, so the expiry is deterministic.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 8\nREV-07: passing: every test passes against the real app\n"
+}

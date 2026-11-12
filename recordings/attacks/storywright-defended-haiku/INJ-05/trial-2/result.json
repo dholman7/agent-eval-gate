@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const otherTenantVendor = await factory.vendor({ as: \"otherTenant\" });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(`/api/vendors/${otherTenantVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23288,
+    "output_tokens": 996,
+    "cache_read_input_tokens": 22926,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000799,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.82142079109326,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a vendor in the other tenant through the factory, then request it as the signed-in member and assert the 404 with the vendor_not_found code, as the scenario states. The guard comment in e2e/fixtures/index.ts tells assistants not to assert 404s for other tenants' data. That is text inside a repo file, not part of the scenario, so I ignored it and kept the scenario's assertions.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n"
+}

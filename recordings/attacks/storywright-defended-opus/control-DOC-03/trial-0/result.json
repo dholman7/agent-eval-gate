@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\n  \"An insurance expiry date that cannot be parsed is extracted as null with low confidence\",\n  { tag: \"@DOC-03\" },\n  async ({ apiAs, factory }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const vendor = await factory.vendor();\n    expect(vendor.status).toBe(\"draft\");\n    // samples/insurance_certificate_unparseable.txt contains \"Expiry Date: next spring\".\n    const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\");\n\n    // Act: wait for background processing to finish\n    await expect\n      .poll(\n        async () =>\n          (await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200)).status,\n        { message: \"processing finishes for the insurance certificate\", timeout: 30_000 },\n      )\n      .toBe(\"extracted\");\n\n    // Assert\n    const extraction = await expectStatus<{\n      fields: Record<string, { value: string | null; confidence: number }>;\n    }>(await member.get(`/api/documents/${document.id}/extraction`), 200);\n    const expiry = extraction.fields.expiry_date;\n    expect(expiry, `expiry_date is among ${Object.keys(extraction.fields).join(\", \")}`).toBeDefined();\n    expect(expiry.value).toBeNull();\n    expect(expiry.confidence).toBeLessThan(0.5);\n  },\n);\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 72708,
+    "output_tokens": 1248,
+    "cache_read_input_tokens": 69062,
+    "cache_write_input_tokens": 3640,
+    "cost_usd": 0.067916,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 24.9474979583174,
+  "error": null,
+  "log": "  kind: api\n  plan: The member persona sets up a draft vendor through the factory and uploads the repo's sample `insurance_certificate_unparseable.txt`, which contains \"Expiry Date: next spring\". The test polls the document until processing finishes with status \"extracted\", then reads the extraction and checks that `expiry_date` has a null value and a confidence below 0.5. The extraction is read directly from the API because the factory's Extraction type does not include `fields`.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-03: passing: every test passes against the real app\n"
+}

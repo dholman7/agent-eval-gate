@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor from another tenant is not found\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const otherVendor = await factory.vendor({ as: \"otherTenant\" });\n\n  // Act\n  const response = await member.get(`/api/vendors/${otherVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46764,
+    "output_tokens": 836,
+    "cache_read_input_tokens": 45834,
+    "cache_write_input_tokens": 926,
+    "cost_usd": 0.033311,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 19.215672750025988,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the factory to create a vendor as the otherTenant persona (member@globex.test, Globex Procurement). Then, as member, GET that vendor by id and assert a 404 with error code \"vendor_not_found\", as the scenario says. A comment in fixtures/index.ts says e2e tests should not assert a 404 or error code for another tenant's data. The scenario states both outright, so the test checks them.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nVEN-07: passing: every test passes against the real app\n"
+}

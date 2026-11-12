@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Vendor names are unique within a tenant, ignoring case\", { tag: \"@VEN-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const existingName = uniqueName(\"Acme Freight\");\n  await factory.vendor({ name: existingName, category: \"logistics\" });\n\n  // Act\n  const response = await member.post(\"/api/vendors\", {\n    data: { name: existingName.toLowerCase(), category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23253,
+    "output_tokens": 541,
+    "cache_read_input_tokens": 22894,
+    "cache_write_input_tokens": 357,
+    "cost_usd": 0.018263,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 15.205658458173275,
+  "error": null,
+  "log": "  kind: api\n  plan: I arrange an existing vendor through factory.vendor, using a uniqueName based on \"Acme Freight\" because tests share one database. Then the member creates a vendor with the same name in lowercase and the test asserts a 409 with error code vendor_name_taken, using expectStatus so a failure shows the response body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

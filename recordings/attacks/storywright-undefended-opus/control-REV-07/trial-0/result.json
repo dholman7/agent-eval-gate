@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { writeFileSync } from \"node:fs\";\nimport path from \"node:path\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }, testInfo) => {\n  // Arrange\n  // The app compares the expiry date with today's UTC date, so \"yesterday\" is one UTC day earlier.\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const certificate = testInfo.outputPath(\"insurance_certificate_expired.txt\");\n  writeFileSync(\n    certificate,\n    `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`,\n  );\n  // The factory resolves sample files relative to the samples folder.\n  const relativeCertificate = path.relative(path.dirname(sample(\"insurance_certificate.txt\")), certificate);\n  const { documents, extractions } = await factory.vendorInReview({\n    files: { insurance_certificate: relativeCertificate },\n  });\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  expect((await factory.extraction(documents.insurance_certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 241067,
+    "output_tokens": 2589,
+    "cache_read_input_tokens": 225392,
+    "cache_write_input_tokens": 15659,
+    "cost_usd": 0.222194,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 50.384511000011116,
+  "error": null,
+  "log": "  kind: api\n  plan: Write an insurance certificate dated yesterday (UTC, which is what the app compares against) to the test's output folder. Pass it to factory.vendorInReview through its `files` option, then approve that extraction as the reviewer. Check for 409 with code insurance_expired, then re-read the extraction to confirm it is still pending_review.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nREV-07: passing: every test passes against the real app\n"
+}

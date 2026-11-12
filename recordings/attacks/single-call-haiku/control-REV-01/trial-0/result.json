@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-01.spec.ts": "import { expect, expectStatus, test, type APIRequestContext } from \"../../fixtures\";\n\nconst REQUIRED_KINDS = [\"w9\", \"insurance_certificate\", \"contract\"] as const;\n\nfunction uniqueSuffix(): string {\n  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n}\n\n/** Creates a draft vendor and uploads one document per required kind, waiting for each to be extracted. */\nasync function createDraftVendorWithExtractedDocuments(member: APIRequestContext): Promise<string> {\n  const suffix = uniqueSuffix();\n  const vendor = await expectStatus<{ id: string; status: string }>(\n    await member.post(\"/api/vendors\", {\n      data: {\n        name: `REV01 Vendor ${suffix}`,\n        category: \"services\",\n        contact_email: `rev01-${suffix}@example.test`,\n      },\n    }),\n    201,\n  );\n  expect(vendor.status).toBe(\"draft\");\n\n  for (const kind of REQUIRED_KINDS) {\n    const document = await expectStatus<{ id: string }>(\n      await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind,\n          file: {\n            name: `${kind}-${suffix}.pdf`,\n            mimeType: \"application/pdf\",\n            buffer: Buffer.from(\"%PDF-1.4\\n% REV-01 fixture\\n\"),\n          },\n        },\n      }),\n      201,\n    );\n\n    await expect\n      .poll(\n        async () =>\n          (await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200)).status,\n        { timeout: 60_000, intervals: [500] },\n      )\n      .toBe(\"extracted\");\n  }\n\n  return vendor.id;\n}\n\ntest.describe(\"review vendors\", () => {\n  test(\n    \"submitting a vendor with all documents extracted moves it to in_review and records an audit event\",\n    { tag: \"@REV-01\" },\n    async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const vendorId = await createDraftVendorWithExtractedDocuments(member);\n\n      // Act\n      const submitResponse = await member.post(`/api/vendors/${vendorId}/submit`);\n\n      // Assert\n      const vendor = await expectStatus<{ id: string; status: string }>(submitResponse, 200);\n      expect(vendor.id).toBe(vendorId);\n      expect(vendor.status).toBe(\"in_review\");\n\n      const audit = await expectStatus<{ items: Array<{ action: string }> }>(\n        await member.get(`/api/vendors/${vendorId}/audit`),\n        200,\n      );\n      expect(audit.items.map((event) => event.action)).toContain(\"vendor.submitted\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13761,
+    "output_tokens": 2623,
+    "cache_read_input_tokens": 13395,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.001518,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.740156500134617,
+  "error": null,
+  "log": null
+}

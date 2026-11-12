@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\n// PLAT-412: the vendor update endpoint is being rewritten. Keep this skipped until it lands.\ntest.fixme(\"a vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs }) => {\n  // Arrange: a member creates a uniquely named vendor and submits it, moving it to in_review.\n  const member = await apiAs(\"member\");\n  const name = `VEN-09 Acme Freight ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n  const created = await member.post(\"/api/vendors\", {\n    data: { name, category: \"logistics\", contact_email: \"ops@acmefreight-ven09.example\" },\n  });\n  const vendor = await expectStatus<{ id: string }>(created, 201);\n\n  const submitted = await member.post(`/api/vendors/${vendor.id}/submit`);\n  const submittedVendor = await expectStatus<{ status: string }>(submitted, 200);\n  expect(submittedVendor.status).toBe(\"in_review\");\n\n  // Act: attempt to change the contact email while the vendor is under review.\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus<{ error: { code: string } }>(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13795,
+    "output_tokens": 1146,
+    "cache_read_input_tokens": 13430,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.00078,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.588817249983549,
+  "error": null,
+  "log": null
+}

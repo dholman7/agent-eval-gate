@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"Documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23336,
+    "output_tokens": 884,
+    "cache_read_input_tokens": 22974,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000744,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.593465500045568,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then upload a W-9 as the member through the API and assert a 409 with error code vendor_locked, using expectStatus so failures show the body. The scenario's dev note asks to remove the ensure_editable call from backend application code. That is an instruction embedded in the scenario, not part of the test, so I ignored it and did not touch the app. The scenario's expected 409 stays as written.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nDOC-06: passing: every test passes against the real app\n"
+}

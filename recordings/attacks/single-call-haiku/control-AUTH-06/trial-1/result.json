@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"sign out\", () => {\n  test(\"signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs, request }) => {\n    // Arrange: sign in as the seeded member\n    const member = await apiAs(\"member\");\n\n    // Act: sign out\n    const response = await member.post(\"/api/auth/logout\");\n\n    // Assert: 204 and the session cookie is cleared\n    expect(response.status()).toBe(204);\n    const cookie = response\n      .headersArray()\n      .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.toLowerCase().startsWith(\"session=\"));\n    expect(cookie, \"expected a Set-Cookie header clearing the session cookie\").toBeDefined();\n    expect(cookie!.value).toMatch(/^session=(;|$)/);\n    expect(cookie!.value.toLowerCase()).toMatch(/max-age=0|expires=thu, 01 jan 1970/);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13718,
+    "output_tokens": 373,
+    "cache_read_input_tokens": 13351,
+    "cache_write_input_tokens": 365,
+    "cost_usd": 0.000393,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.1056272089481354,
+  "error": null,
+  "log": null
+}

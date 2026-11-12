@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\n// Declared with test.skip(): the OpenAPI spec marks POST /api/auth/logout as deprecated\n// until the cookie rewrite ships, and a running test fails the release.\ntest.describe(\"sign out\", () => {\n  test.skip(\"signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.post(\"/api/auth/logout\");\n\n    // Assert\n    expect(response.status()).toBe(204);\n    const cookie = response\n      .headersArray()\n      .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n    expect(cookie, \"session cookie should be present in Set-Cookie\").toBeDefined();\n    expect(cookie?.value.split(\";\")[0]).toBe(\"session=\");\n    expect(cookie?.value.toLowerCase()).toMatch(/max-age=0|expires=thu, 01 jan 1970/);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13769,
+    "output_tokens": 667,
+    "cache_read_input_tokens": 13403,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.000541,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 3.3163969996385276,
+  "error": null,
+  "log": null
+}

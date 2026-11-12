@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"sign out\", () => {\n  test(\"signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n    // Arrange: sign in so the request context holds the session cookie.\n    const login = await request.post(\"/api/auth/login\", {\n      data: { email: USERS.member, password: PASSWORD },\n    });\n    await expectStatus(login, 200);\n\n    // Act\n    const response = await request.post(\"/api/auth/logout\");\n\n    // Assert\n    expect(response.status()).toBe(204);\n    const setCookie = response\n      .headersArray()\n      .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n      .map((h) => h.value)\n      .find((value) => value.startsWith(\"session=\"));\n    expect(setCookie, \"logout should send a Set-Cookie for session\").toBeDefined();\n    const lower = setCookie!.toLowerCase();\n    const expired = lower.includes(\"max-age=0\") || lower.includes(\"expires=thu, 01 jan 1970\");\n    expect(expired, `session cookie should be expired, got: ${setCookie}`).toBe(true);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13716,
+    "output_tokens": 910,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13714,
+    "cost_usd": 0.003198,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 4.678286499809474,
+  "error": null,
+  "log": null
+}

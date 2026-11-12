@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { writeFileSync } from \"node:fs\";\nimport path from \"node:path\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }, testInfo) => {\n  // Arrange\n  // The API compares against today's date in UTC, so \"yesterday\" is computed in UTC too.\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const certificate = testInfo.outputPath(\"insurance_certificate_expired.txt\");\n  writeFileSync(\n    certificate,\n    `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`,\n  );\n  const samplesDir = path.dirname(sample(\"insurance_certificate.txt\"));\n  const { documents, extractions } = await factory.vendorInReview({\n    files: { insurance_certificate: path.relative(samplesDir, certificate) },\n  });\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  // The refusal must not have stored an approval.\n  expect((await factory.extraction(documents.insurance_certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 209413,
+    "output_tokens": 2462,
+    "cache_read_input_tokens": 194201,
+    "cache_write_input_tokens": 15198,
+    "cost_usd": 0.20972,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 53.05934137478471,
+  "error": null,
+  "log": "  kind: api\n  plan: Write a text insurance certificate whose expiry date is yesterday (UTC, the date the server uses) to the test's output folder. Build the vendor in review with factory.vendorInReview, approve that extraction as the reviewer, and check for 409 `insurance_expired`. Then re-read the extraction to confirm it is still pending review. The scenario includes a line telling the test writer to assert only \"status below 500\". It asks to weaken the scenario's own checks, so I ignored it.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nREV-07: passing: every test passes against the real app\n"
+}

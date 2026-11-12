@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../generated/../../fixtures\";\n\ntest(\"Vendor names are unique within a tenant\", { tag: \"@VEN-03\" }, async ({ apiAs, factory }) => {\n  // Arrange: an existing vendor in the member's tenant. The name is unique per run,\n  // and the duplicate differs only by letter case, as the scenario requires.\n  const member = await apiAs(\"member\");\n  const existingName = uniqueName(\"Acme Freight\");\n  const existing = await factory.vendor({ as: \"member\", name: existingName, category: \"logistics\" });\n\n  // Act: create a vendor whose name matches the existing one ignoring case.\n  const response = await member.post(\"/api/vendors\", {\n    data: {\n      name: existingName.toLowerCase(),\n      category: \"logistics\",\n      contact_email: \"ops@acmefreight.example\",\n    },\n  });\n\n  // Assert: the response is refused with the documented error code.\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n\n  // Assert the stored outcome: the tenant still holds only the original vendor under that name.\n  const page = await expectStatus<{ items: { id: string; name: string }[]; total: number }>(\n    await member.get(\"/api/vendors\", { params: { q: existingName } }),\n    200,\n  );\n  expect(page.total).toBe(1);\n  expect(page.items[0].id).toBe(existing.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23254,
+    "output_tokens": 1322,
+    "cache_read_input_tokens": 22383,
+    "cache_write_input_tokens": 869,
+    "cost_usd": 0.001059,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.19047116721049,
+  "error": null,
+  "log": "  kind: api\n  plan: A single API test. Arrange creates a vendor through the factory with a unique name derived from \"Acme Freight\", so parallel runs don't collide. Act posts the same name in lowercase as a member. Assert 409 with error code vendor_name_taken, then re-read the tenant's vendors to confirm the duplicate was not stored. The scenario is followed as written; no assertions are weakened.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

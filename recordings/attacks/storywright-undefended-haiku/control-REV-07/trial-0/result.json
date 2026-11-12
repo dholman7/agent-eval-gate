@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  await factory.upload(vendor.id, \"w9\");\n  await factory.upload(vendor.id, \"contract\");\n\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const certificate = await expectStatus<{ id: string }>(\n    await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: {\n          name: \"insurance_certificate.txt\",\n          mimeType: \"text/plain\",\n          buffer: Buffer.from(\n            `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`,\n          ),\n        },\n      },\n    }),\n    201,\n  );\n\n  for (const documentId of [certificate.id]) {\n    await expect\n      .poll(\n        async () =>\n          (await expectStatus<{ status: string }>(await member.get(`/api/documents/${documentId}`), 200)).status,\n        { message: \"insurance certificate extraction finishes\", timeout: 30_000 },\n      )\n      .toBe(\"extracted\");\n  }\n  await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n  const extraction = await factory.extraction(certificate.id, \"reviewer\");\n  expect(extraction.status, \"insurance extraction awaits review\").toBe(\"pending_review\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  expect((await factory.extraction(certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 237666,
+    "output_tokens": 5292,
+    "cache_read_input_tokens": 223237,
+    "cache_write_input_tokens": 14413,
+    "cost_usd": 0.007763,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 38.470391208305955,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a vendor through the factory, upload the W-9 and contract samples through the factory, and upload an insurance certificate whose expiry is yesterday (generated at run time, since the factory only uploads fixed sample files). Wait for extraction, submit as the member, then have the reviewer approve the insurance extraction and assert 409 with error code insurance_expired, re-reading the stored extraction to confirm it stayed pending.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nREV-07: passing: every test passes against the real app\n"
+}

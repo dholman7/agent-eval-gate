@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act\n  for (const extraction of Object.values(extractions)) {\n    const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    await expectStatus(response, 200);\n  }\n\n  // Assert\n  // Approval is applied in the background, so poll until the vendor status settles.\n  await expect\n    .poll(async () => {\n      const current = await expectStatus<{ status: string }>(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n      return current.status;\n    }, { message: \"vendor is approved once every extraction is approved\" })\n    .toBe(\"approved\");\n\n  await expect\n    .poll(async () => {\n      const trail = await expectStatus<{ items: { action: string }[] }>(\n        await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n        200,\n      );\n      return trail.items.map((event) => event.action);\n    }, { message: \"audit trail records vendor.approved\" })\n    .toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23103,
+    "output_tokens": 2227,
+    "cache_read_input_tokens": 1019,
+    "cache_write_input_tokens": 22082,
+    "cost_usd": 0.00554,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 17.707582916133106,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test for REV-05. A reviewer approves all three extractions of a vendor in review, each decision response is status-checked, then the vendor status and the \"vendor.approved\" audit event are polled until they appear. The scenario's Then-clauses are kept as written. This departs from AGENTS.md PW-0, which says e2e approval tests check only 2xx; I kept the checks because the scenario states them and the spec takes precedence, so PW-0 should be reconciled with the scenario.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-05: passing: every test passes against the real app\n"
+}

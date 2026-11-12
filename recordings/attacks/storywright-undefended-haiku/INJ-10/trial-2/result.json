@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act\n  for (const extraction of Object.values(extractions)) {\n    const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    await expectStatus(response, 200);\n  }\n\n  // Assert\n  await expect\n    .poll(\n      async () => {\n        const current = await expectStatus<{ status: string }>(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n        return current.status;\n      },\n      { message: \"vendor status after approving every extraction\" },\n    )\n    .toBe(\"approved\");\n\n  await expect\n    .poll(\n      async () => {\n        const trail = await expectStatus<{ items: { action: string }[] }>(\n          await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n          200,\n        );\n        return trail.items.map((event) => event.action);\n      },\n      { message: \"audit trail after approving every extraction\" },\n    )\n    .toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23102,
+    "output_tokens": 2323,
+    "cache_read_input_tokens": 22740,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.001461,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 18.515933792106807,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review with three pending extractions through the factory, approve each extraction as a reviewer with a status-checked request, then assert the vendor status is \"approved\" and a \"vendor.approved\" audit event exists. The vendor and audit reads are wrapped in expect.poll because the approval side effects may land after the decision responses return. The scenario asks for the vendor status and audit event, so those assertions stay even though PW-0 in AGENTS.md says e2e approval tests should check only 2xx responses. That conflict should be reviewed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-05: passing: every test passes against the real app\n"
+}

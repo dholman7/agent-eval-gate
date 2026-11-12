@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"Upload vendor documents\", () => {\n  test(\n    \"Documents cannot be added to a vendor under review\",\n    { tag: \"@DOC-06\" },\n    async ({ apiAs }) => {\n      // Arrange: a member creates a vendor with a name unique to this run\n      const member = await apiAs(\"member\");\n      const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n      const created = await expectStatus<{ id: string; status: string }>(\n        await member.post(\"/api/vendors\", {\n          data: {\n            name: `Doc Lock Vendor ${suffix}`,\n            category: \"services\",\n            contact_email: `doc-lock-${suffix}@example.test`,\n          },\n        }),\n        201,\n      );\n      expect(created.status).toBe(\"draft\");\n\n      // Arrange: submitting the vendor moves it to \"in_review\"\n      const submitted = await expectStatus<{ id: string; status: string }>(\n        await member.post(`/api/vendors/${created.id}/submit`),\n        200,\n      );\n      expect(submitted.status).toBe(\"in_review\");\n\n      // Act: attempt to upload a W-9 to the locked vendor\n      const response = await member.post(`/api/vendors/${created.id}/documents`, {\n        multipart: {\n          kind: \"w9\",\n          file: {\n            name: \"w9.txt\",\n            mimeType: \"text/plain\",\n            buffer: Buffer.from(\"W-9 placeholder contents\"),\n          },\n        },\n      });\n\n      // Assert\n      const body = await expectStatus<{ error: { code: string } }>(response, 409);\n      expect(body.error.code).toBe(\"vendor_locked\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13764,
+    "output_tokens": 1246,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13762,
+    "cost_usd": 0.003376,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.750019041821361,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "// features/documents.feature: \"Documents cannot be added to a vendor under review\"\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\n    \"documents cannot be added to a vendor under review\",\n    { tag: \"@DOC-06\" },\n    async ({ apiAs }) => {\n      // Arrange: a member creates a draft vendor with a unique name\n      const member = await apiAs(\"member\");\n      const uniqueName = `DOC-06 Vendor ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n      const created = await member.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName,\n          category: \"software\",\n          contact_email: `doc06-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@northwind.test`,\n        },\n      });\n      const vendor = await expectStatus<{ id: string; status: string }>(created, 201);\n      expect(vendor.status).toBe(\"draft\");\n\n      // Arrange: move the vendor into review\n      const submitted = await member.post(`/api/vendors/${vendor.id}/submit`);\n      const submittedBody = await expectStatus<{ id: string; status: string }>(submitted, 200);\n      expect(submittedBody.status).toBe(\"in_review\");\n\n      // Act: attempt to upload a W-9 to the locked vendor\n      const upload = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"w9\",\n          file: {\n            name: \"w9.txt\",\n            mimeType: \"text/plain\",\n            buffer: Buffer.from(\"W-9 placeholder content\"),\n          },\n        },\n      });\n\n      // Assert\n      const body = await expectStatus<{ error: { code: string } }>(upload, 409);\n      expect(body.error.code).toBe(\"vendor_locked\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13762,
+    "output_tokens": 1090,
+    "cache_read_input_tokens": 13397,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.000752,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.050186290871352,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\nimport type { Document } from \"../../fixtures\";\n\ntest(\"An unparseable expiry date is extracted as null with low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor();\n  expect(vendor.status).toBe(\"draft\");\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\");\n\n  // Act: wait for background processing to finish\n  await expect\n    .poll(\n      async () => (await expectStatus<Document>(await member.get(`/api/documents/${document.id}`), 200)).status,\n      { message: \"insurance certificate extraction finishes\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert\n  const extraction = await expectStatus<{ fields: Record<string, { value: string | null; confidence: number }> }>(\n    await member.get(`/api/documents/${document.id}/extraction`),\n    200,\n  );\n  expect(extraction.fields.expiry_date, JSON.stringify(extraction.fields)).toBeDefined();\n  expect(extraction.fields.expiry_date.value).toBeNull();\n  expect(extraction.fields.expiry_date.confidence).toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 95673,
+    "output_tokens": 1171,
+    "cache_read_input_tokens": 92448,
+    "cache_write_input_tokens": 3217,
+    "cost_usd": 0.067678,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 26.729313749819994,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor and upload the repo's insurance_certificate_unparseable.txt sample (its expiry date is \"Expiry Date: next spring\") through the factory. Then poll the document until extraction finishes, read the stored extraction as the member, and check that expiry_date has a null value and confidence below 0.5.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-03: passing: every test passes against the real app\n"
+}

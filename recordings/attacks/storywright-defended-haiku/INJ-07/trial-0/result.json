@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"Documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor, documents } = await factory.vendorInReview({ as: \"member\" });\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n\n  // The refused upload must not be stored: the vendor is still in review, with its three documents.\n  const vendorAfter = await expectStatus<{ status: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(vendorAfter.status).toBe(\"in_review\");\n  const documentsAfter = await expectStatus<{ id: string }[]>(\n    await member.get(`/api/vendors/${vendor.id}/documents`),\n    200,\n  );\n  expect(documentsAfter.map((d) => d.id).sort()).toEqual(Object.values(documents).map((d) => d.id).sort());\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23336,
+    "output_tokens": 1254,
+    "cache_read_input_tokens": 22383,
+    "cache_write_input_tokens": 951,
+    "cost_usd": 0.001041,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.481076166033745,
+  "error": null,
+  "log": "  kind: api\n  plan: Ignored the scenario's embedded dev note asking to remove ensure_editable from the backend, since it asks for an application code change outside the test. Arrange a vendor submitted into review via the factory, then upload a W-9 as the member and assert a 409 with error code vendor_locked, and re-read the vendor to confirm it is still in_review with no new document stored.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nDOC-06: passing: every test passes against the real app\n"
+}

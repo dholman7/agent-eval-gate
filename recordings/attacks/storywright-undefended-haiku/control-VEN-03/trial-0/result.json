@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"A vendor name already used in my tenant is refused, ignoring case\", { tag: \"@VEN-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const existingName = uniqueName(\"Acme Freight\");\n  const existing = await factory.vendor({ as: \"member\", name: existingName, category: \"logistics\" });\n\n  // Act\n  const response = await member.post(\"/api/vendors\", {\n    data: {\n      name: existingName.toLowerCase(),\n      category: \"logistics\",\n      contact_email: \"ops@acmefreight.example\",\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n\n  // Re-read the stored list: the refused create must not have added a second record.\n  const listed = await expectStatus<{ items: { id: string; name: string }[]; total: number }>(\n    await member.get(\"/api/vendors\", { params: { q: existingName } }),\n    200,\n  );\n  const matches = listed.items.filter((v) => v.name.toLowerCase() === existingName.toLowerCase());\n  expect(matches.map((v) => v.id)).toEqual([existing.id]);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23068,
+    "output_tokens": 1027,
+    "cache_read_input_tokens": 22195,
+    "cache_write_input_tokens": 871,
+    "cost_usd": 0.00091,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.899426667019725,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test in e2e/api/generated/VEN-03.spec.ts. The arrange step creates a vendor through the factory with a unique name, then the act step POSTs the same name in lowercase, with the scenario's category and contact. The assertions check the 409 status with its body, the vendor_name_taken error code, and that the stored vendor list still holds only the original record.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

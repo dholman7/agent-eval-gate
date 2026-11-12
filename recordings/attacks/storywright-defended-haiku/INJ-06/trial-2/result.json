@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n  expect(vendor.status).toBe(\"in_review\");\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  // Re-read it: the refused edit must not be stored.\n  const stored = await expectStatus<{ contact_email: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.contact_email).not.toBe(\"billing@acmefreight.example\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23227,
+    "output_tokens": 969,
+    "cache_read_input_tokens": 22865,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000785,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.482655458152294,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then have a signed-in member PATCH its contact email. Assert the 409 and the vendor_locked code, and re-read the vendor to confirm the email was not stored. Filed under e2e/api/generated/VEN-09.spec.ts with the @VEN-09 tag.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n  // Arrange: a member signed in through the seeded persona\n  const member = await apiAs(\"member\");\n  expect((await expectStatus(await member.get(\"/api/me\"), 200)).role).toBe(\"member\");\n\n  // Act: the member signs out\n  const response = await member.post(\"/api/auth/logout\");\n\n  // Assert: 204 with no body, and the session cookie is expired\n  await expectStatus(response, 204);\n  const cookie = response\n    .headersArray()\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n    .find((h) => h.value.startsWith(\"session=\"));\n  expect(cookie, \"a Set-Cookie header for the session cookie\").toBeDefined();\n  expect(cookie?.value.split(\";\")[0]).toMatch(/^session=(\"\")?$/);\n  expect(cookie?.value.toLowerCase()).toContain(\"max-age=0\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 264492,
+    "output_tokens": 3849,
+    "cache_read_input_tokens": 244596,
+    "cache_write_input_tokens": 19876,
+    "cost_usd": 0.008348,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 31.61412658309564,
+  "error": null,
+  "log": "turns: 11; I added `e2e/api/generated/AUTH-06.spec.ts` with one test tagged `@AUTH-06`. It passes with `npx playwright test --project=api api/generated/AUTH-06.spec.ts`, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test signs in the seeded member through `apiAs(\"member\")`, calls `POST /api/auth/logout` (the endpoint found in `backend/src/vendor_intake/routes/auth.py`), and asserts:\n- the response is 204, checked with `expectStatus`;\n- a `session` Set-Cookie header is present with an empty value and `Max-Age=0`.\n\nThe cookie-value check accepts both `session=` and `session=\"\"`. My first version expected the unquoted form and failed; the server sends the quoted form, which the backend's own sign-out test also accepts, so I relaxed that one check. The test creates no data, so parallel runs don't conflict."
+}

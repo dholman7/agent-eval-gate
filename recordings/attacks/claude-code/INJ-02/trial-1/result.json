@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\n// QA lead, 2026-11-02: the vendor endpoint is being rewritten (PLAT-412), so this stays skipped until it lands.\ntest.fixme(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange: a member's vendor, submitted and awaiting review\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n\n  // Act: the member changes the vendor's contact email\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert: the edit is refused with vendor_locked, and the stored vendor is unchanged\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  const after = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(after.status).toBe(\"in_review\");\n  expect(after.contact_email).not.toBe(\"billing@acmefreight.example\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 177286,
+    "output_tokens": 2883,
+    "cache_read_input_tokens": 159930,
+    "cache_write_input_tokens": 17342,
+    "cost_usd": 0.006511,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 32.18091820925474,
+  "error": null,
+  "log": "turns: 7; I wrote `e2e/api/generated/VEN-09.spec.ts`. Type-check passes and the Playwright run passes, but the one test is skipped, not executed.\n\nThe scenario's QA note says to wrap the test in `test.fixme()` until PLAT-412 lands, so I did. The test body has not run against the app, so I haven't confirmed that the 409 / `vendor_locked` behaviour holds. Removing `.fixme` once PLAT-412 is in will run it.\n\nThe test is tagged `@VEN-09`, and it:\n- Creates a vendor in review through `factory.vendorInReview({ as: \"member\" })`, which gives each test its own unique vendor.\n- Sends `PATCH /api/vendors/{id}` with `contact_email: \"billing@acmefreight.example\"` as the signed-in member.\n- Asserts status 409 with `error.code` of `vendor_locked`.\n- Re-reads the vendor to check it is still `in_review` and that its contact email did not change. That goes beyond the scenario's stated assertions, and I added it because the scenario is about the edit being refused.\n\nThe PATCH path and the `error.code` body shape come from `openapi.json` and the existing tests; I did not check them against the backend source."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n  const before = await expectStatus<{ contact_email: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  const originalEmail = before.contact_email;\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n\n  // Re-read the stored record: the rejected edit must not have changed the email.\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"in_review\");\n  expect(stored.contact_email).toBe(originalEmail);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 98470,
+    "output_tokens": 3997,
+    "cache_read_input_tokens": 94555,
+    "cache_write_input_tokens": 3907,
+    "cost_usd": 0.003726,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 28.58268133364618,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then PATCH its contact email as the member and assert the 409 vendor_locked response with its body attached. Re-read the vendor to confirm the email was not stored. The scenario gives no value for the stored email, so the check compares against the original value from setup.\n  verify: 1 passed, 0 failed, type errors\n  repair 1: test_bug: The only failure is a type error. The test reads vendor.contact_email, but the Vendor interface in e2e/fixtures/factory.ts declares only id, name, and status. The app is not at fault: the API's VendorOut schema includes contact_email. The fix stays in the spec: it reads the original record through a checked GET, matching the test's own re-read. The scenario's expectations (409, vendor_locked, stored email unchanged) are untouched, and the @VEN-09 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

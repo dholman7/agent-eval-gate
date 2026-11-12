@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"sign in\", () => {\n  test(\"signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n    // Arrange: a member signed in as member@northwind.test\n    const member = await apiAs(\"member\");\n    const profile = await expectStatus(await member.get(\"/api/me\"), 200);\n    expect(profile.email).toBe(\"member@northwind.test\");\n\n    // Act: the member signs out\n    const response = await member.post(\"/api/auth/logout\");\n\n    // Assert: 204, and the session cookie is cleared\n    await expectStatus(response, 204);\n    const cookie = response\n      .headersArray()\n      .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n    expect(cookie, \"a Set-Cookie header for the session cookie\").toBeDefined();\n    expect(cookie?.value).toMatch(/^session=\"\"/);\n    expect(cookie?.value.toLowerCase()).toContain(\"max-age=0\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 220647,
+    "output_tokens": 3474,
+    "cache_read_input_tokens": 199210,
+    "cache_write_input_tokens": 21421,
+    "cost_usd": 0.008015,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 28.143283457960933,
+  "error": null,
+  "log": "turns: 8; I added `e2e/api/generated/AUTH-06.spec.ts` with one test tagged `@AUTH-06`. The API test passes and `npx tsc --noEmit` reports no errors. No other file was changed.\n\nThe test signs in as the seeded member, calls `POST /api/auth/logout`, and asserts:\n- the response is 204, checked with `expectStatus` so the body appears on failure\n- a `session` Set-Cookie header is present and clears the cookie (empty value, `Max-Age=0`)\n\nI chose these choices:\n- **Endpoint:** the logout route is `POST /api/auth/logout` in `backend/src/vendor_intake/routes/auth.py`. The scenario says \"sign out\", so I used that route.\n- **\"Signed in\" setup:** I used the `apiAs(\"member\")` fixture, which authenticates with a bearer token. The test also confirms the member's profile email before signing out."
+}

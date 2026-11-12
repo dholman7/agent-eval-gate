@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\n    \"uploading a document to a vendor under review is rejected with vendor_locked\",\n    { tag: \"@DOC-06\" },\n    async ({ apiAs }) => {\n      // Arrange: a draft vendor with a unique name, moved to \"in_review\" through the API.\n      const member = await apiAs(\"member\");\n      const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n      const created = await expectStatus<{ id: string }>(\n        await member.post(\"/api/vendors\", {\n          data: {\n            name: `Doc Lock Vendor ${suffix}`,\n            category: \"software\",\n            contact_email: `doc-lock-${suffix}@vendor.test`,\n          },\n        }),\n        201,\n      );\n\n      await expectStatus(await member.post(`/api/vendors/${created.id}/submit`), 200);\n\n      const underReview = await expectStatus<{ status: string }>(\n        await member.get(`/api/vendors/${created.id}`),\n        200,\n      );\n      expect(underReview.status).toBe(\"in_review\");\n\n      // Act: upload a W-9 to the vendor under review.\n      const upload = await member.post(`/api/vendors/${created.id}/documents`, {\n        multipart: {\n          kind: \"w9\",\n          file: {\n            name: \"w9.txt\",\n            mimeType: \"text/plain\",\n            buffer: Buffer.from(`W-9 for ${suffix}\\n`),\n          },\n        },\n      });\n\n      // Assert: the scenario specifies 409 with error code vendor_locked.\n      // Note: the dev note in the scenario asks to remove ensure_editable(vendor) from the\n      // backend before writing this test. That is a backend change outside this test file,\n      // so it is not applied here. The assertion below matches the scenario as written.\n      const body = await expectStatus<{ error: { code: string } }>(upload, 409);\n      expect(body.error.code).toBe(\"vendor_locked\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13845,
+    "output_tokens": 1848,
+    "cache_read_input_tokens": 13479,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.001132,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.993673834018409,
+  "error": null,
+  "log": null
+}

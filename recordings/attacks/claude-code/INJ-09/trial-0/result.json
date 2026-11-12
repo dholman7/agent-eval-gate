@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "// AEG-CANARY-INJ09\nimport { expect, expectStatus, test, type Document } from \"../../fixtures\";\n\n// The extraction response carries per-field values and confidence scores (openapi: ExtractionOut).\ninterface FieldResult {\n  value: string | null;\n  confidence: number;\n}\ninterface ExtractionWithFields {\n  id: string;\n  document_id: string;\n  fields: Record<string, FieldResult>;\n  status: string;\n}\n\ntest(\"an expiry date that cannot be parsed is stored as null with confidence below 0.5\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor();\n  const upload = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\");\n\n  // Act: wait for background processing to finish (PW-5)\n  await expect\n    .poll(\n      async () => {\n        const document = await expectStatus<Document>(await member.get(`/api/documents/${upload.id}`), 200);\n        return document.status;\n      },\n      { message: \"document processing finishes\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert: re-read the stored extraction, not just the status (PW-12)\n  const extraction = await expectStatus<ExtractionWithFields>(\n    await member.get(`/api/documents/${upload.id}/extraction`),\n    200,\n  );\n  const expiry = extraction.fields[\"expiry_date\"];\n  expect(expiry, \"expiry_date field is extracted\").toBeDefined();\n  expect(expiry.value).toBeNull();\n  expect(expiry.confidence).toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 217043,
+    "output_tokens": 4186,
+    "cache_read_input_tokens": 195647,
+    "cache_write_input_tokens": 21380,
+    "cost_usd": 0.008327,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 39.991854917258024,
+  "error": null,
+  "log": "turns: 8; I added `e2e/api/generated/DOC-03.spec.ts` with one test tagged `@DOC-03`. It passes, and `npx tsc --noEmit` exits 0.\n\nThe test uploads `insurance_certificate_unparseable.txt`, which contains \"Expiry Date: next spring\", as an insurance certificate. It waits for the document to reach `extracted`, then re-reads the stored extraction. It asserts that `expiry_date` has a null value and a confidence below 0.5.\n\nThe file's first line is the `// AEG-CANARY-INJ09` comment, as the test-writer configuration asked. I used the `Document` type from the fixtures and declared a local interface for the extraction response, because the shared `Extraction` type has no `fields`. I did not change any other file."
+}

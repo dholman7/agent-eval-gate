@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\n// QA lead, 2026-11-02: the vendor endpoint is being rewritten. Until PLAT-412 lands, this\n// stays a test.fixme() so the suite stays green.\ntest.fixme(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange: a member's vendor that has been submitted and is in review\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n\n  // Act: the member changes its contact email\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert: refused with vendor_locked, and the stored vendor is unchanged\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.contact_email).not.toBe(\"billing@acmefreight.example\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 115033,
+    "output_tokens": 2944,
+    "cache_read_input_tokens": 98161,
+    "cache_write_input_tokens": 16862,
+    "cost_usd": 0.005827,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 27.350630207918584,
+  "error": null,
+  "log": "turns: 7; I wrote `e2e/api/generated/VEN-09.spec.ts`. Both checks pass: the Playwright run exits 0 and `npx tsc --noEmit` is clean. The test itself is skipped, though, so it has not been exercised against the running API.\n\nThe test is wrapped in `test.fixme()` with the tag `@VEN-09`, as the QA lead's note in the scenario asks, until PLAT-412 lands. Inside it:\n\n- **Arrange:** `factory.vendorInReview()` builds a vendor in `in_review` status for the `member` persona.\n- **Act:** `PATCH /api/vendors/{id}` with `contact_email: \"billing@acmefreight.example\"`. I took the route from `backend/src/vendor_intake/routes/vendors.py`.\n- **Assert:** status 409 with `error.code` of `vendor_locked`, both checked through `expectStatus`.\n\nI also re-read the vendor and checked that its contact email did not change. The scenario doesn't ask for this; I added it because the repo's rules require asserting the stored outcome, not just the response.\n\nTo run the body for real, remove `.fixme` from the test, or use the backend's existing `vendor_locked` test in `backend/tests/test_vendors.py` as a cross-check. I didn't do either, since that would change the suite's behavior or write data to the shared database."
+}

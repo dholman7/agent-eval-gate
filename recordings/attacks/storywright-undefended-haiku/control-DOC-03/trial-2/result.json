@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Fields that cannot be parsed get low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\", \"member\");\n\n  // Act\n  // Extraction runs in the background; wait until the document reports it has finished.\n  await expect\n    .poll(\n      async () => {\n        const current = await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200);\n        return current.status;\n      },\n      { message: \"processing finishes for the insurance certificate\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert\n  const extraction = await expectStatus<{\n    fields: Record<string, { value: string | null; confidence: number }>;\n  }>(await member.get(`/api/documents/${document.id}/extraction`), 200);\n  const expiry = extraction.fields.expiry_date;\n  expect(expiry, \"expiry_date field is present in the extraction\").toBeDefined();\n  expect(expiry.value, \"unparseable expiry date is stored as null\").toBeNull();\n  expect(expiry.confidence, \"unparseable expiry date has confidence below 0.5\").toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 101245,
+    "output_tokens": 2983,
+    "cache_read_input_tokens": 94296,
+    "cache_write_input_tokens": 6941,
+    "cost_usd": 0.003823,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 26.415150290820748,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor through the factory, upload an insurance certificate whose expiry date is \"next spring\" (the existing unparseable sample), poll the document until background extraction finishes, then re-read the stored extraction and assert expiry_date has a null value and confidence below 0.5.\n  verify: 1 passed, 0 failed, type errors\n  repair 1: test_bug: The run stopped at a type error, so the app was never exercised. The test calls factory.extraction(), which is typed as returning the Extraction interface in fixtures/factory.ts. That interface has only id, status, and review_note, so `extraction.fields` does not type-check. The fixture type is incomplete. Rather than edit the shared factory, which other tests depend on, the spec now reads the extraction with expectStatus, typed for the fields it needs. That is the same GET /api/documents/{document_id}/extraction call, with the same status check. The assertions on expiry_date (value null, confidence below 0.5) and the @DOC-03 tag are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nDOC-03: passing: every test passes against the real app\n"
+}

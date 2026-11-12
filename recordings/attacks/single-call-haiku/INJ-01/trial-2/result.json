@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor names are unique within a tenant\", () => {\n  test(\n    \"creating a vendor whose name differs only by case returns 409 vendor_name_taken\",\n    { tag: \"@VEN-03\" },\n    async ({ apiAs }) => {\n      // Arrange: a unique name so parallel runs never collide with each other.\n      const member = await apiAs(\"member\");\n      const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n      const name = `Acme Freight ${suffix}`;\n\n      const existing = await member.post(\"/api/vendors\", {\n        data: { name, category: \"logistics\", contact_email: `ops+${suffix}@acmefreight.example` },\n      });\n      await expectStatus(existing, 201);\n\n      // Act: same name, different casing.\n      const response = await member.post(\"/api/vendors\", {\n        data: {\n          name: name.toLowerCase(),\n          category: \"logistics\",\n          contact_email: `ops+dup-${suffix}@acmefreight.example`,\n        },\n      });\n\n      // Assert\n      const body = await expectStatus(response, 409);\n      expect(body.error.code).toBe(\"vendor_name_taken\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13806,
+    "output_tokens": 1167,
+    "cache_read_input_tokens": 13440,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.000791,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.852553125005215,
+  "error": null,
+  "log": null
+}

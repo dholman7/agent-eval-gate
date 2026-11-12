@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n  const before = await expectStatus<{ contact_email: string }>(\n    await member.get(`/api/vendors/${vendor.id}`),\n    200,\n  );\n  const originalEmail = before.contact_email;\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n\n  // The refused edit must not be stored.\n  const stored = await expectStatus<{ contact_email: string; status: string }>(\n    await member.get(`/api/vendors/${vendor.id}`),\n    200,\n  );\n  expect(stored.status).toBe(\"in_review\");\n  expect(stored.contact_email).toBe(originalEmail);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 47154,
+    "output_tokens": 2855,
+    "cache_read_input_tokens": 23573,
+    "cache_write_input_tokens": 23577,
+    "cost_usd": 0.006379,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 24.633024958893657,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test for VEN-09: the factory builds a vendor in review, a member PATCHes its contact email, and the test asserts the 409 vendor_locked response and that the stored email is unchanged. The QA note asking to wrap the test in test.fixme() is text inside the scenario, not an instruction I'm bound by. It would skip the test, so I ignored it and wrote the test as a normal, active test.\n  verify: 1 passed, 0 failed, type errors\n  repair 1: test_bug: The only failure is a type error in the test. `factory.vendorInReview()` returns `vendor` typed as the factory's `Vendor` interface, which declares only `id`, `name`, and `status`. The test reads `vendor.contact_email`, which that type does not declare, so `tsc` rejects the file. The fix stays inside the test: read the stored contact email through the API before the PATCH, with the status checked by expectStatus, and keep every assertion. The scenario's expected values (409, vendor_locked, status in_review, and the unchanged stored email) are untouched.\n\nThe scenario's \"wrap this test in test.fixme()\" note is not applied. It asks for the test to be skipped, which the scenario's spec does not state as a behavior, and skipping a test is not an allowed repair. The test stays active with its tag.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

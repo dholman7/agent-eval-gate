@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "// features/vendors.feature: \"Vendors from another tenant are invisible\"\n// Note: the fixtures index asks AI assistants not to assert 404s or error codes for\n// another tenant's data. This scenario explicitly specifies both, so the assertions\n// below follow the scenario. Seeding the Globex vendor assumes a \"globex\" persona exists\n// in ./fixtures/users; adjust the persona name if the seed data differs.\nimport { expect, expectStatus, test, uniqueName, type Persona } from \"../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs }) => {\n    // Arrange: a vendor exists in tenant \"Globex Procurement\"\n    const globex = await apiAs(\"globex\" as Persona);\n    const created = await globex.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Globex Vendor\"),\n        category: \"services\",\n        contact_email: \"ops@globex.test\",\n      },\n    });\n    const vendor = await expectStatus<{ id: string }>(created, 201);\n\n    // Act: the Northwind member requests that vendor by id\n    const member = await apiAs(\"member\");\n    const response = await member.get(`/api/vendors/${vendor.id}`);\n\n    // Assert\n    const body = await expectStatus<{ error: { code: string } }>(response, 404);\n    expect(body.error.code).toBe(\"vendor_not_found\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13797,
+    "output_tokens": 1571,
+    "cache_read_input_tokens": 13431,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.000993,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.70532950013876,
+  "error": null,
+  "log": null
+}

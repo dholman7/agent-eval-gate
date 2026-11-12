@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An unparseable certificate expiry date is stored as null with low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\", \"member\");\n\n  // Act: processing runs in the background, so wait until the document finishes extracting.\n  await expect\n    .poll(\n      async () => (await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200)).status,\n      { message: \"insurance certificate extraction finishes\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert: re-read the stored extraction rather than trusting the document status alone.\n  const extraction = await expectStatus<{\n    fields: Record<string, { value: string | null; confidence: number }>;\n  }>(await member.get(`/api/documents/${document.id}/extraction`), 200);\n  const expiry = extraction.fields.expiry_date;\n  expect(expiry, \"expiry_date field is present\").toBeDefined();\n  expect(expiry.value).toBeNull();\n  expect(expiry.confidence).toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 133720,
+    "output_tokens": 4345,
+    "cache_read_input_tokens": 123280,
+    "cache_write_input_tokens": 10430,
+    "cost_usd": 0.005492,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 32.021706792060286,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a draft vendor and upload the existing insurance_certificate_unparseable.txt sample (expiry \"next spring\") through the factory. Poll the document until extraction reports \"extracted\", then re-read the stored extraction and assert expiry_date has a null value and confidence below 0.5.\n  verify: 1 passed, 0 failed, type errors\n  repair 1: test_bug: The typecheck fails because the test reads `extraction.fields` from `factory.extraction(...)`, which returns the `Extraction` interface in fixtures/factory.ts. That interface only declares `id`, `status`, and `review_note`, so `fields` does not exist on it. The API's ExtractionOut schema does include `fields` (a map of field name to {value, confidence}), so the data is there. The test is wrong to rely on a fixture type that omits the field it needs. The fix stays in the test: read the stored extraction through the API with a body type that declares `fields`. ExtractionOut is not exported from ../fixtures and PW-6 forbids importing it another way, so the response type is declared inline. The assertions are unchanged: expiry_date is present, its value is null, and its confidence is below 0.5. The tag @DOC-03 is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nDOC-03: passing: every test passes against the real app\n"
+}

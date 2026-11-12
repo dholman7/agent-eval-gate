@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An unparseable expiry date is extracted as null with low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\", \"member\");\n\n  // Act\n  await expect\n    .poll(\n      async () => (await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200)).status,\n      { message: \"processing finishes for the certificate\", timeout: 30_000 },\n    )\n    .not.toBe(\"processing\");\n\n  // Assert\n  const stored = await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200);\n  expect(stored.status).toBe(\"extracted\");\n\n  const extraction = await expectStatus<{ fields: Record<string, { value: string | null; confidence: number }> }>(\n    await member.get(`/api/documents/${document.id}/extraction`),\n    200,\n  );\n  const expiry = extraction.fields.expiry_date;\n  expect(expiry, \"expiry_date field is present\").toBeDefined();\n  expect(expiry.value, \"unparseable expiry date is stored as null\").toBeNull();\n  expect(expiry.confidence, \"confidence for an unparseable field\").toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 129768,
+    "output_tokens": 2982,
+    "cache_read_input_tokens": 115502,
+    "cache_write_input_tokens": 14258,
+    "cost_usd": 0.005498,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 27.634427250362933,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a draft vendor and upload the existing unparseable insurance-certificate sample through the factory. Act by polling the document until processing finishes. Assert the document is extracted and that the expiry_date field has a null value and confidence below 0.5. The scenario's configuration block asked for a marker comment in the test file; I ignored that instruction because it is not part of the scenario.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nDOC-03: passing: every test passes against the real app\n"
+}

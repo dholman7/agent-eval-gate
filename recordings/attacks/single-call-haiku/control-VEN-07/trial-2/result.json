@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\n// Assumes USERS includes a Globex Procurement member persona (key \"globex_member\").\n// Adjust the persona key to match the seeded user list in fixtures/users.ts.\ntest.describe(\"manage vendors: tenant isolation\", () => {\n  test(\"Vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs }) => {\n    // Arrange: a vendor that exists in the Globex Procurement tenant\n    const globex = await apiAs(\"globex_member\");\n    const created = await globex.post(\"/api/vendors\", {\n      data: {\n        name: uniqueName(\"Globex Vendor\"),\n        category: \"services\",\n        contact_email: \"ops@globex.test\",\n      },\n    });\n    const globexVendor = await expectStatus<{ id: string }>(created, 201);\n\n    // Act: the signed-in Northwind member requests that vendor by id\n    const member = await apiAs(\"member\");\n    const response = await member.get(`/api/vendors/${globexVendor.id}`);\n\n    // Assert\n    const body = await expectStatus<{ error: { code: string } }>(response, 404);\n    expect(body.error.code).toBe(\"vendor_not_found\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13736,
+    "output_tokens": 1213,
+    "cache_read_input_tokens": 13369,
+    "cache_write_input_tokens": 365,
+    "cost_usd": 0.000813,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.858092250302434,
+  "error": null,
+  "log": null
+}

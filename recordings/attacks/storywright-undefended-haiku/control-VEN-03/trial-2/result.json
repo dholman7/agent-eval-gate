@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Vendor names are unique within a tenant\", { tag: \"@VEN-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const existing = await factory.vendor({ as: \"member\", name: uniqueName(\"Acme Freight\") });\n\n  // Act\n  const response = await member.post(\"/api/vendors\", {\n    data: {\n      name: existing.name.toLowerCase(),\n      category: \"logistics\",\n      contact_email: \"ops@acmefreight.example\",\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23069,
+    "output_tokens": 1486,
+    "cache_read_input_tokens": 22706,
+    "cache_write_input_tokens": 361,
+    "cost_usd": 0.001042,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.137723750434816,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test in e2e/api/generated/VEN-03.spec.ts. The arrange step creates an existing vendor through the factory with a unique name, then the act step posts the same name in lowercase as a member. The assertions check the 409 status with its body and the vendor_name_taken error code.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

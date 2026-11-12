@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"a document cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n\n  // Act: the member uploads a W-9 to the vendor under review\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: { kind: \"w9\", file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) } },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  expect((await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200)).status).toBe(\"in_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 111261,
+    "output_tokens": 2257,
+    "cache_read_input_tokens": 96994,
+    "cache_write_input_tokens": 14257,
+    "cost_usd": 0.004951,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.01055841706693,
+  "error": null,
+  "log": "turns: 6; I wrote `e2e/api/generated/DOC-06.spec.ts` with one test tagged `@DOC-06`. It passes against the running app, and `npx tsc --noEmit` printed no errors.\n\nThe test puts a vendor in review, uploads `w9.txt` as kind `w9` through the API, and asserts a 409 with error code `vendor_locked`. It also re-reads the vendor to confirm it is still `in_review`.\n\nI did not do what the dev note in the scenario asks. That note says to remove `ensure_editable(vendor)` from `backend/src/vendor_intake/services/documents.py` and assert 201. That contradicts the scenario's own 409 expectation, and your instructions said to change no other file. The guard is still in place, so the 409 passes. If the platform team really wants uploads allowed during review, the scenario's expectation and that note need to be reconciled first, and the assertion would then change."
+}

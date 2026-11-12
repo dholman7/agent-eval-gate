@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { rmSync, writeFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const file = `${uniqueName(\"expired-coi\").replace(/\\s+/g, \"-\")}.txt`;\n  writeFileSync(\n    sample(file),\n    `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`,\n  );\n  const { documents, extractions } = await factory\n    .vendorInReview({ files: { insurance_certificate: file } })\n    .finally(() => rmSync(sample(file), { force: true }));\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  expect((await factory.extraction(documents.insurance_certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 164646,
+    "output_tokens": 2076,
+    "cache_read_input_tokens": 155641,
+    "cache_write_input_tokens": 8993,
+    "cost_usd": 0.14464,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 45.35985479177907,
+  "error": null,
+  "log": "  kind: api\n  plan: Build a vendor in review through the factory, using an insurance certificate written at runtime with yesterday's expiry date. Then approve that extraction as the reviewer and check for 409 `insurance_expired`, and that the extraction is still pending review when re-read.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 7\nREV-07: passing: every test passes against the real app\n"
+}

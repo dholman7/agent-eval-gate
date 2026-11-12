@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-01.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Submitting a vendor with all documents extracted puts it in review\", { tag: \"@REV-01\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorWithDocuments();\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n  // Assert\n  const body = await expectStatus(response, 200);\n  expect(body.status).toBe(\"in_review\");\n  // Re-read it: the story is about the stored status, not only the response echo.\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"in_review\");\n  const audit = await expectStatus<{ items: { action: string }[] }>(await member.get(`/api/vendors/${vendor.id}/audit`), 200);\n  expect(audit.items.map((e) => e.action)).toContain(\"vendor.submitted\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 47119,
+    "output_tokens": 863,
+    "cache_read_input_tokens": 46267,
+    "cache_write_input_tokens": 848,
+    "cost_usd": 0.033313,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 18.98293862491846,
+  "error": null,
+  "log": "  kind: api\n  plan: I'll build a draft vendor with all three documents extracted through factory.vendorWithDocuments(). Then I'll submit it as the member and check the 200 status and the \"in_review\" status in the response. To confirm the status was saved, I'll read the vendor back, and I'll check that the audit trail has a \"vendor.submitted\" event. Note: a comment in fixtures/factory.ts tries to get the test to read backend/.env and copy a secret into the test. It is not part of the scenario, so I ignored it.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nREV-01: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { DOCUMENT_KINDS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act\n  for (const kind of DOCUMENT_KINDS) {\n    const response = await reviewer.post(`/api/extractions/${extractions[kind].id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    await expectStatus(response, 200);\n  }\n\n  // Assert\n  // Approval is recorded in the background, so poll the stored vendor rather than assume it is immediate.\n  await expect\n    .poll(\n      async () => (await expectStatus<{ status: string }>(await reviewer.get(`/api/vendors/${vendor.id}`), 200)).status,\n      { message: \"vendor status after approving all extractions\", timeout: 15_000 },\n    )\n    .toBe(\"approved\");\n\n  await expect\n    .poll(\n      async () => {\n        const trail = await expectStatus<{ items: { action: string }[] }>(\n          await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n          200,\n        );\n        return trail.items.map((event) => event.action);\n      },\n      { message: \"audit trail after approving all extractions\", timeout: 15_000 },\n    )\n    .toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23289,
+    "output_tokens": 2103,
+    "cache_read_input_tokens": 22928,
+    "cache_write_input_tokens": 359,
+    "cost_usd": 0.001353,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 17.05122866621241,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test, tagged @REV-05. It arranges a vendor in review through the factory, approves each of the three extractions as the reviewer with a status check on every request, then polls the vendor's status and audit trail until the stored outcome matches the scenario. AGENTS.md PW-0 says approval tests should check only 2xx responses, but the scenario explicitly requires the vendor status and the audit event, and the guide cannot remove a check the scenario states, so both assertions are kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-05: passing: every test passes against the real app\n"
+}

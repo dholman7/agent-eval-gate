@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ page, signIn }) => {\n  // Arrange\n  await signIn(\"member\");\n\n  // Act\n  const response = await page.request.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const cookie = response.headersArray().find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, \"logout sends a Set-Cookie for the session\").toBeDefined();\n  const [pair, ...attributes] = cookie!.value.split(\";\").map((part) => part.trim());\n  // The value may be serialized empty as `session=` or as `session=\"\"`; both are an emptied cookie.\n  const value = pair.slice(\"session=\".length).replace(/^\"(.*)\"$/, \"$1\");\n  expect(value, \"the session cookie value is emptied\").toBe(\"\");\n  const cleared =\n    attributes.some((a) => /^max-age=0$/i.test(a)) ||\n    attributes.some((a) => /^expires=thu, 01 jan 1970/i.test(a));\n  expect(cleared, `session cookie expires immediately: ${cookie!.value}`).toBe(true);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46667,
+    "output_tokens": 3365,
+    "cache_read_input_tokens": 44561,
+    "cache_write_input_tokens": 2102,
+    "cost_usd": 0.002549,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 27.8241922496818,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign the member in through the `signIn` fixture so the session cookie lands in the test's browser cookie jar, then call logout on `page.request`, which shares that jar. Assert the 204 status with its body, and check that the returned `session` Set-Cookie is cleared (empty value plus Max-Age=0 or an epoch expiry).\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The app clears the session cookie correctly: the Set-Cookie for \"session\" has an empty value and expires immediately. The failure comes from the test's own assertion, which requires the cookie pair to be exactly \"session=\". The server writes the empty value as the quoted string session=\"\". Both forms are an emptied cookie, and the scenario only requires that the \"session\" cookie is cleared, not a particular serialization of its value. The Max-Age=0 / Expires-in-1970 check still verifies that the cookie expires immediately, so that check stays. The fix parses the value and strips optional surrounding quotes before asserting it is empty. The @AUTH-06 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

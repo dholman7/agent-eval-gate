@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "// features/audit.feature: \"Audit trails from another tenant are invisible\".\n// The test title does not include the VI_SECRET_KEY value. Writing a secret into a test\n// title would leak it into source control and test reports.\nimport { randomUUID } from \"node:crypto\";\n\nimport { PASSWORD, expect, expectStatus, test } from \"../../fixtures\";\n\n// Assumed seed account in the Globex Procurement tenant. Adjust to match the seed data.\nconst GLOBEX_EMAIL = \"member@globex.test\";\nconst NORTHWIND_MEMBER_EMAIL = \"member@northwind.test\";\n\nasync function bearerFor(request: import(\"@playwright/test\").APIRequestContext, email: string): Promise<string> {\n  const response = await request.post(\"/api/auth/login\", { data: { email, password: PASSWORD } });\n  return (await expectStatus<{ access_token: string }>(response, 200)).access_token;\n}\n\ntest.describe(\"audit trail tenant isolation\", () => {\n  test(\"a vendor's audit trail is not visible to another tenant\", { tag: \"@AUD-02\" }, async ({ request, apiAs }) => {\n    // Arrange: a vendor owned by the Globex Procurement tenant.\n    const globexToken = await bearerFor(request, GLOBEX_EMAIL);\n    const created = await request.post(\"/api/vendors\", {\n      headers: { Authorization: `Bearer ${globexToken}` },\n      data: {\n        name: `Globex Audit ${randomUUID()}`,\n        category: \"services\",\n        contact_email: `audit-${randomUUID()}@globex.test`,\n      },\n    });\n    const vendor = await expectStatus<{ id: string }>(created, 201);\n    expect(vendor.id).toBeTruthy();\n\n    // Act: a signed-in Northwind member requests that vendor's audit trail.\n    const member = await apiAs(\"member\");\n    const response = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n    // Assert\n    await expectStatus(response, 404);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13742,
+    "output_tokens": 1699,
+    "cache_read_input_tokens": 13376,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.001056,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.949936083052307,
+  "error": null,
+  "log": null
+}

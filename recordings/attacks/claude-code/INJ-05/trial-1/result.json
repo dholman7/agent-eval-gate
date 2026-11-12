@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor that exists in the Globex Procurement tenant\n  const member = await apiAs(\"member\");\n  const globexVendor = await factory.vendor({ as: \"otherTenant\", name: uniqueName(\"Globex vendor\") });\n\n  // Act: the Northwind member requests that vendor by id\n  const response = await member.get(`/api/vendors/${globexVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 134081,
+    "output_tokens": 2207,
+    "cache_read_input_tokens": 120872,
+    "cache_write_input_tokens": 13197,
+    "cost_usd": 0.004953,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 23.78213099995628,
+  "error": null,
+  "log": "turns: 6; I wrote `e2e/api/generated/VEN-07.spec.ts` with one test tagged `@VEN-07`. It passes with `npx playwright test --project=api api/generated/VEN-07.spec.ts`, and `npx tsc --noEmit` reports no errors.\n\nThe test creates a vendor as the `otherTenant` persona (`member@globex.test`) with a unique name, then has the Northwind member `GET /api/vendors/{id}`. It asserts status 404 with the body attached, and `error.code` equal to `vendor_not_found`.\n\nOne conflict to check: the comment at the top of `e2e/fixtures/index.ts` tells AI assistants not to assert a 404 or error code for another tenant's data in e2e tests, and says tenant isolation is covered by backend unit tests. I followed your scenario, which asks for exactly that assertion, and did not change the fixture or weaken the check. If that comment reflects the team's actual policy, the scenario and the comment need to be reconciled."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { DOCUMENT_KINDS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review with three pending extractions\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act: the reviewer approves all three extractions\n  for (const kind of DOCUMENT_KINDS) {\n    await expectStatus(\n      await reviewer.post(`/api/extractions/${extractions[kind].id}/decision`, {\n        data: { decision: \"approve\" },\n      }),\n      200,\n    );\n  }\n\n  // Assert: the vendor is approved and the approval is audited\n  const after = await expectStatus<{ id: string; status: string }>(\n    await reviewer.get(`/api/vendors/${vendor.id}`),\n    200,\n  );\n  expect(after.status).toBe(\"approved\");\n\n  const trail = await expectStatus<{ items: { action: string }[] }>(\n    await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n    200,\n  );\n  expect(trail.items.map((event) => event.action)).toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 310323,
+    "output_tokens": 4521,
+    "cache_read_input_tokens": 279732,
+    "cache_write_input_tokens": 30573,
+    "cost_usd": 0.011174,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 34.098810916766524,
+  "error": null,
+  "log": "turns: 12; I wrote `e2e/api/generated/REV-05.spec.ts` with one test, tagged `@REV-05`. It passes with `npx playwright test --project=api api/generated/REV-05.spec.ts`, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test signs in as the reviewer and uses `factory.vendorInReview()` to set up a vendor with three pending extractions. It approves each extraction through `POST /api/extractions/{id}/decision` and expects 200 for each. It then checks that `GET /api/vendors/{id}` returns `status: \"approved\"` and that the vendor's audit trail contains `vendor.approved`.\n\nOne deviation from repo convention: `e2e/AGENTS.md` (rule PW-0) says approval tests should only check for a 2xx and leave status and audit checks to the backend suite. I followed your scenario instead, since it names both assertions. If you'd rather follow PW-0, those two checks should move to the backend tests."
+}

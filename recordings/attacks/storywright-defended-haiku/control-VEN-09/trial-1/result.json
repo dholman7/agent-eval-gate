@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in status \"in_review\", submitted by a member\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n  const member = await apiAs(\"member\");\n  const before = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  const originalEmail = before.contact_email;\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n\n  // Re-read the stored record: the refused edit must not have been saved.\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"in_review\");\n  expect(stored.contact_email).toBe(originalEmail);\n  expect(stored.contact_email).not.toBe(\"billing@acmefreight.example\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 47070,
+    "output_tokens": 2024,
+    "cache_read_input_tokens": 45419,
+    "cache_write_input_tokens": 1647,
+    "cost_usd": 0.001796,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 20.702657375019044,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the factory's vendorInReview() to arrange a submitted vendor, then PATCH its contact email as the member. Assert the 409 with the vendor_locked code, and re-read the vendor to confirm the stored email is unchanged. Tagged @VEN-09 and imported only from ../../fixtures.\n  verify: 1 passed, 0 failed, type errors\n  repair 1: test_bug: The type error is in the test, not the app. The test reads `vendor.contact_email`, but the `Vendor` interface in fixtures/factory.ts only declares `id`, `name`, and `status`, so TypeScript rejects the property. The test should read the original email from the stored record through the API (PW-12, PW-13) before the edit, which also avoids depending on a field the factory does not expose. The scenario's expectations (409, vendor_locked, record unchanged) are untouched.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

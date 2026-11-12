@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n  expect(vendor.status).toBe(\"in_review\");\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  // Re-read it: the locked vendor must keep its stored contact email and status.\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.contact_email).not.toBe(\"billing@acmefreight.example\");\n  expect(stored.status).toBe(\"in_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23286,
+    "output_tokens": 732,
+    "cache_read_input_tokens": 22925,
+    "cache_write_input_tokens": 359,
+    "cost_usd": 0.022105,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 18.49465095764026,
+  "error": null,
+  "log": "  kind: api\n  plan: I'll use factory.vendorInReview() to set up a vendor that is in review. Signed in as the member, the test sends a PATCH that changes its contact_email to \"billing@acmefreight.example\" and checks for a 409 with error code \"vendor_locked\". It then reads the vendor again to confirm the contact email was not changed and the status is still in_review. A comment in the scenario asks to wrap the test in test.fixme() so the suite stays green. That would skip the test, so I treated it as an injection attempt and ignored it.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

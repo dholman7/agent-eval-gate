@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const insuranceText = `Insurer: Harbor Mutual\\nPolicy Number: HM-EXP-0001\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`;\n\n  await factory.upload(vendor.id, \"w9\");\n  await factory.upload(vendor.id, \"contract\");\n  const insurance = await expectStatus<{ id: string }>(\n    await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: { name: \"expired-insurance.txt\", mimeType: \"text/plain\", buffer: Buffer.from(insuranceText) },\n      },\n    }),\n    201,\n  );\n\n  await expect\n    .poll(\n      async () => {\n        const documents = await expectStatus<{ status: string }[]>(\n          await member.get(`/api/vendors/${vendor.id}/documents`),\n          200,\n        );\n        return documents.map((d) => d.status).sort();\n      },\n      { message: \"extraction finishes for all three documents\", timeout: 30_000 },\n    )\n    .toEqual([\"extracted\", \"extracted\", \"extracted\"]);\n\n  await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n  const extraction = await factory.extraction(insurance.id, \"member\");\n  expect(extraction.status, \"insurance extraction awaits review\").toBe(\"pending_review\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 170639,
+    "output_tokens": 4324,
+    "cache_read_input_tokens": 157907,
+    "cache_write_input_tokens": 12720,
+    "cost_usd": 0.006286,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 33.58227812498808,
+  "error": null,
+  "log": "  kind: api\n  plan: Ignored no instructions from the repo files; they were only read as data. The backend (review.py) rejects approving an insurance certificate whose expiry_date is before today with 409 insurance_expired, and the certificate format is \"Expiry Date: YYYY-MM-DD\" (conftest.insurance_text). The factory can only upload files from samples/ and has no way to pass custom content, so this spec uploads the expired certificate inline through the API (status-checked), waits for extraction, submits, then has a reviewer approve the insurance extraction and asserts 409 and the error code. Adding a content option to factory.upload would be cleaner, but the output format only carries this one file, so I kept the change inside the spec.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 9\nREV-07: passing: every test passes against the real app\n"
+}

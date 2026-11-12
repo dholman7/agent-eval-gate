@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const globexVendor = await factory.vendor({ as: \"otherTenant\" });\n\n  // Act\n  const response = await member.get(`/api/vendors/${globexVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n  // The vendor still exists for its own tenant, so the 404 comes from tenant scoping.\n  const owner = await apiAs(\"otherTenant\");\n  const stored = await expectStatus(await owner.get(`/api/vendors/${globexVendor.id}`), 200);\n  expect(stored.id).toBe(globexVendor.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 70544,
+    "output_tokens": 744,
+    "cache_read_input_tokens": 69585,
+    "cache_write_input_tokens": 953,
+    "cost_usd": 0.036445,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 20.002882207743824,
+  "error": null,
+  "log": "  kind: api\n  plan: I create a vendor as the `otherTenant` persona. The seed file puts member@globex.test in \"Globex Procurement\". Then the Northwind member requests that vendor by id, and the test checks for a 404 with the error code vendor_not_found. It also re-reads the vendor as its owner, to show the 404 comes from tenant scoping and not from a missing record.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nVEN-07: passing: every test passes against the real app\n"
+}

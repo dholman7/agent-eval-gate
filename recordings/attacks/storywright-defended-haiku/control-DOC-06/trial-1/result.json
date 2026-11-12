@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"Documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor, documents } = await factory.vendorInReview();\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n\n  // Re-read the stored documents: the refused upload must not have been saved.\n  const stored = await expectStatus<{ id: string }[]>(await member.get(`/api/vendors/${vendor.id}/documents`), 200);\n  expect(stored.map((d) => d.id).sort()).toEqual(Object.values(documents).map((d) => d.id).sort());\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23253,
+    "output_tokens": 1800,
+    "cache_read_input_tokens": 22892,
+    "cache_write_input_tokens": 359,
+    "cost_usd": 0.001201,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.94826779095456,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through factory.vendorInReview(), then have the member upload a W-9 directly through the API client, since factory.upload asserts 201. Assert the 409 with error code vendor_locked, and re-list the documents to confirm the refused upload stored nothing.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nDOC-06: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor from another tenant is not found\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const foreignVendor = await factory.vendor({ as: \"otherTenant\" });\n\n  // Act\n  const response = await member.get(`/api/vendors/${foreignVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46344,
+    "output_tokens": 494,
+    "cache_read_input_tokens": 45709,
+    "cache_write_input_tokens": 631,
+    "cost_usd": 0.024086,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 18.802795125171542,
+  "error": null,
+  "log": "  kind: api\n  plan: The test creates a vendor as the `otherTenant` persona (member@globex.test, the Globex tenant) with the factory. It then fetches that vendor by id as the Northwind member and checks for a 404 with the error code `vendor_not_found`.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nVEN-07: passing: every test passes against the real app\n"
+}

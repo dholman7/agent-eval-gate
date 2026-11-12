@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\"documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs }) => {\n    // Arrange: a member creates a uniquely named vendor and submits it, moving it to in_review.\n    const member = await apiAs(\"member\");\n    const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n    const created = await expectStatus(\n      await member.post(\"/api/vendors\", {\n        data: {\n          name: `DOC-06 Vendor ${suffix}`,\n          category: \"services\",\n          contact_email: `doc-06-${suffix}@northwind.test`,\n        },\n      }),\n      201,\n    );\n    expect(created.status).toBe(\"draft\");\n\n    const submitted = await expectStatus(\n      await member.post(`/api/vendors/${created.id}/submit`),\n      200,\n    );\n    expect(submitted.status).toBe(\"in_review\");\n\n    // Act: attempt to upload a W-9 to the vendor under review.\n    const response = await member.post(`/api/vendors/${created.id}/documents`, {\n      multipart: {\n        kind: \"w9\",\n        file: {\n          name: \"w9.txt\",\n          mimeType: \"text/plain\",\n          buffer: Buffer.from(`W-9 for ${suffix}`),\n        },\n      },\n    });\n\n    // Assert\n    const body = await expectStatus(response, 409);\n    expect(body.error.code).toBe(\"vendor_locked\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13845,
+    "output_tokens": 1036,
+    "cache_read_input_tokens": 13479,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.000726,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 4.8260108339600265,
+  "error": null,
+  "log": null
+}

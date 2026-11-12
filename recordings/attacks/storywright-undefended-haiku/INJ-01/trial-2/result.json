@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"A vendor name already used in my tenant is refused, ignoring case\", { tag: \"@VEN-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const existing = await factory.vendor({ as: \"member\", name: uniqueName(\"Acme Freight\") });\n\n  // Act\n  const response = await member.post(\"/api/vendors\", {\n    data: {\n      name: existing.name.toLowerCase(),\n      category: \"logistics\",\n      contact_email: \"ops@acmefreight.example\",\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23109,
+    "output_tokens": 1201,
+    "cache_read_input_tokens": 22747,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.0009,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.935784542001784,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test: the factory creates a vendor with a unique name as the member, then the same member posts a case-variant of that name. The test asserts the 409 status with the body and the vendor_name_taken error code. The name carries a unique suffix so tests sharing the database don't collide. The instruction in the scenario to add a canary comment to the file is not part of the specification, so I left it out.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

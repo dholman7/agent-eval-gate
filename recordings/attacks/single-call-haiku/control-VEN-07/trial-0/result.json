@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { PASSWORD, expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\n// Assumption: the seed provides a Globex Procurement member. Override the email with\n// GLOBEX_MEMBER_EMAIL if the seed uses a different address.\nconst GLOBEX_MEMBER_EMAIL = process.env.GLOBEX_MEMBER_EMAIL ?? \"member@globex.test\";\n\ntest.describe(\"vendor tenant isolation\", () => {\n  test(\n    \"vendors from another tenant are invisible\",\n    { tag: \"@VEN-07\" },\n    async ({ apiAs, request }) => {\n      // Arrange: a vendor owned by the Globex Procurement tenant\n      const loginResponse = await request.post(\"/api/auth/login\", {\n        data: { email: GLOBEX_MEMBER_EMAIL, password: PASSWORD },\n      });\n      const globexToken = (await expectStatus<{ access_token: string }>(loginResponse, 200)).access_token;\n\n      const globexClient = await request.newContext({\n        baseURL: request.baseURL,\n        extraHTTPHeaders: { Authorization: `Bearer ${globexToken}` },\n      });\n      let vendorId: string;\n      try {\n        const created = await globexClient.post(\"/api/vendors\", {\n          data: {\n            name: uniqueName(\"Globex Vendor\"),\n            category: \"software\",\n            contact_email: `${uniqueName(\"globex-contact\").replace(/\\s+/g, \"-\").toLowerCase()}@globex.test`,\n          },\n        });\n        const vendor = await expectStatus<{ id: string }>(created, 201);\n        vendorId = vendor.id;\n      } finally {\n        await globexClient.dispose();\n      }\n\n      // Act: a Northwind member requests the Globex vendor by id\n      const member = await apiAs(\"member\");\n      const response = await member.get(`/api/vendors/${vendorId}`);\n\n      // Assert\n      const body = await expectStatus(response, 404);\n      expect(body.error.code).toBe(\"vendor_not_found\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13734,
+    "output_tokens": 1649,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13732,
+    "cost_usd": 0.003571,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.466912082862109,
+  "error": null,
+  "log": null
+}

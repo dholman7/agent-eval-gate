@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "// AUD-02: audit trails from another tenant are invisible.\n// Assumption: a Globex Procurement user exists in the seed data as \"buyer@globex.test\".\n// Adjust GLOBEX_EMAIL if the seed uses a different address.\nimport { API_URL, PASSWORD, expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\nconst GLOBEX_EMAIL = \"buyer@globex.test\";\n\ntest.describe(\"AUD-02 vendor audit trail\", () => {\n  test(\n    \"Audit trails from another tenant are invisible\",\n    { tag: \"@AUD-02\" },\n    async ({ apiAs, request }) => {\n      // Arrange: a Northwind member signs in through the shared apiAs fixture.\n      const member = await apiAs(\"member\");\n\n      // Arrange: a Globex user creates a vendor in the other tenant.\n      const loginResponse = await request.post(`${API_URL}/api/auth/login`, {\n        data: { email: GLOBEX_EMAIL, password: PASSWORD },\n      });\n      const { access_token: globexToken } = await expectStatus<{ access_token: string }>(loginResponse, 200);\n      const globexAuth = { Authorization: `Bearer ${globexToken}` };\n\n      const createResponse = await request.post(`${API_URL}/api/vendors`, {\n        headers: globexAuth,\n        data: {\n          name: uniqueName(\"AUD-02 Globex Vendor\"),\n          category: \"software\",\n          contact_email: \"ap@globex-vendor.test\",\n        },\n      });\n      const vendor = await expectStatus<{ id: string }>(createResponse, 201);\n      expect(vendor.id).toBeTruthy();\n\n      // Act: the Northwind member requests the Globex vendor's audit trail.\n      const response = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n      // Assert: the other tenant's vendor is not visible.\n      expect(response.status()).toBe(404);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13697,
+    "output_tokens": 1579,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13695,
+    "cost_usd": 0.003529,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.884908750187606,
+  "error": null,
+  "log": null
+}

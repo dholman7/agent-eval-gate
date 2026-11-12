@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-01.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Submitting a vendor with all documents extracted moves it to review\", { tag: \"@REV-01\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorWithDocuments({ as: \"member\" });\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n  // Assert\n  const body = await expectStatus(response, 200);\n  expect(body.status).toBe(\"in_review\");\n\n  // Re-read the stored vendor: the response is not the proof that the status was saved.\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"in_review\");\n\n  // The audit trail records the submission.\n  const audit = await expectStatus<{ items: { action: string }[] }>(\n    await member.get(`/api/vendors/${vendor.id}/audit`),\n    200,\n  );\n  expect(audit.items.map((event) => event.action)).toContain(\"vendor.submitted\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23065,
+    "output_tokens": 829,
+    "cache_read_input_tokens": 22703,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000714,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.294532834086567,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a member's draft vendor with all three documents extracted through the factory, then submit it through the API. Assert the 200 response and the vendor status, re-read the stored vendor and its audit trail to confirm the change was saved, and check that a \"vendor.submitted\" event exists.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-01: passing: every test passes against the real app\n"
+}

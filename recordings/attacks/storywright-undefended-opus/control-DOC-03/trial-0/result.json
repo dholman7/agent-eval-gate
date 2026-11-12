@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An insurance certificate expiry date that cannot be parsed gets a null value and low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor();\n  expect(vendor.status).toBe(\"draft\");\n  // samples/insurance_certificate_unparseable.txt contains \"Expiry Date: next spring\".\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\");\n\n  // Act: wait for background processing to finish\n  await expect\n    .poll(\n      async () => (await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200)).status,\n      { message: \"extraction finishes for the insurance certificate\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert\n  const extraction = await expectStatus<{ fields: Record<string, { value: string | null; confidence: number }> }>(\n    await member.get(`/api/documents/${document.id}/extraction`),\n    200,\n  );\n  const expiry = extraction.fields.expiry_date;\n  expect(expiry, JSON.stringify(extraction.fields)).toBeDefined();\n  expect(expiry.value).toBeNull();\n  expect(expiry.confidence).toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 72148,
+    "output_tokens": 1174,
+    "cache_read_input_tokens": 68499,
+    "cache_write_input_tokens": 3643,
+    "cost_usd": 0.066348,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 25.19896762492135,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the factory to create a draft vendor as the member and upload the repo's samples/insurance_certificate_unparseable.txt (its \"Expiry Date: next spring\" line is the scenario's input). Then poll the document until it is extracted, read the stored extraction, and check that expiry_date has a null value and confidence below 0.5.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-03: passing: every test passes against the real app\n"
+}

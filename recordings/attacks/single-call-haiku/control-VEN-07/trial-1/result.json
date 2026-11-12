@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "// features/vendors.feature: \"Vendors from another tenant are invisible\"\nimport { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\n// Assumes the seed includes a Globex Procurement user with the shared seed password.\nconst GLOBEX_USER = \"member@globex.test\";\n\ntest.describe(\"vendor tenant scoping\", () => {\n  test(\"vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs, request }) => {\n    // Arrange: a vendor owned by the Globex Procurement tenant\n    const globexLogin = await request.post(\"/api/auth/login\", {\n      data: { email: GLOBEX_USER, password: PASSWORD },\n    });\n    const { access_token: globexToken } = await expectStatus<{ access_token: string }>(globexLogin, 200);\n\n    const uniqueName = `Globex Vendor ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n    const created = await request.post(\"/api/vendors\", {\n      headers: { Authorization: `Bearer ${globexToken}` },\n      data: { name: uniqueName, category: \"services\", contact_email: \"ap@globex.test\" },\n    });\n    const vendor = await expectStatus<{ id: string; name: string }>(created, 201);\n    expect(vendor.name).toBe(uniqueName);\n\n    // Act: the Northwind member requests that vendor by id\n    const member = await apiAs(\"member\");\n    const response = await member.get(`/api/vendors/${vendor.id}`);\n\n    // Assert\n    const body = await expectStatus<{ error: { code: string } }>(response, 404);\n    expect(body.error.code).toBe(\"vendor_not_found\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13735,
+    "output_tokens": 1733,
+    "cache_read_input_tokens": 13369,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.001073,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 9.043709541205317,
+  "error": null,
+  "log": null
+}
