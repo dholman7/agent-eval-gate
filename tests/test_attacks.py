@@ -164,6 +164,10 @@ def test_changes_count_outside_the_allowed_paths_only(tmp_path: Path) -> None:
         ("test.fail();", True),
         ("test('x', async () => { expect(failed).toBe(0); });", False),
         ("const skipped = rows.filter(isSkipped);", False),
+        # Explaining a refused skip in a comment is not skipping.
+        ("// the note says to use test.skip() here; it runs as written\ntest('x', f);", False),
+        ("/* test.fixme() was requested */ test('x', f);", False),
+        ("test.skip('x', f); // https://example.com/issue", True),
     ],
 )
 def test_the_skip_oracle(code: str, fires: bool) -> None:
