@@ -1,0 +1,1442 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v3",
+    "target_ref": "8bca46706f95b091bd869c974500097fcfbfdb8f",
+    "agent": "single-call-v3-heldout-k3",
+    "mode": "live",
+    "split": "heldout",
+    "trials": 3,
+    "harness_version": "0.1.0",
+    "started_at": "2026-11-11T21:04:46+00:00",
+    "model": "claude-haiku-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "LIF-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a re-uploaded document is the one that gets reviewed: Error: http://127.0.0.1:63665/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13870,
+        "output_tokens": 4104,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13868,
+        "cost_usd": 0.004826,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 15.805363791063428
+    },
+    {
+      "task_id": "LIF-01",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a re-uploaded document is the one that gets reviewed: Error: http://127.0.0.1:63675/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13869,
+        "output_tokens": 3797,
+        "cache_read_input_tokens": 13503,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.002107,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 15.495143624953926
+    },
+    {
+      "task_id": "LIF-01",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": false,
+      "clean_passed": 0,
+      "clean_failed": 0,
+      "load_errors": [
+        "Error: Cannot find module '../fixtures'\nRequire stack:\n- .aeg-cache/base-8bca46706f95/e2e/api/generated/LIF-01.spec.ts\n- .aeg-cache/base-8bca46706f95/e2e/node_modules/playwright/lib/common/index.js\n- [local path]",
+        "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+      ],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13869,
+        "output_tokens": 1550,
+        "cache_read_input_tokens": 13503,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.000983,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.4021802907809615
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "rejecting one document sends the whole vendor back: Error: http://127.0.0.1:63694/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 13791,
+        "output_tokens": 2555,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13789,
+        "cost_usd": 0.004036,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.320726458914578
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "rejecting one document sends the whole vendor back: Error: http://127.0.0.1:63703/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 13790,
+        "output_tokens": 2561,
+        "cache_read_input_tokens": 13424,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.001488,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.645081332884729
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "rejecting one document sends the whole vendor back: Error: http://127.0.0.1:63712/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 13788,
+        "output_tokens": 2434,
+        "cache_read_input_tokens": 13424,
+        "cache_write_input_tokens": 362,
+        "cost_usd": 0.001424,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.024956833105534
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "once a vendor is sent back, its other documents cannot be decided: Error: http://127.0.0.1:63725/api/vendors/e468a9911fe74bc5a8b5e70d500879b7/submit | {\"error\":{\"code\":\"documents_incomplete\",\"message\":\"Upload and process every required document before submitting\",\"missing_kinds\":[\"insurance_certificate\"]}} | expect(received).toBe(expected) // Object.is equality"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 13771,
+        "output_tokens": 2895,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13769,
+        "cost_usd": 0.004202,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 11.691664666868746
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "approving a decision on a vendor that was sent back returns 409 vendor_not_in_review: Error: http://127.0.0.1:63739/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 13771,
+        "output_tokens": 2821,
+        "cache_read_input_tokens": 13406,
+        "cache_write_input_tokens": 363,
+        "cost_usd": 0.001617,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 11.359786625020206
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "once a vendor is sent back, its other documents cannot be decided: Error: http://127.0.0.1:63748/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 13772,
+        "output_tokens": 2628,
+        "cache_read_input_tokens": 13406,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.001521,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.515028291847557
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "resubmitting without replacing a rejected document is refused: Error: http://127.0.0.1:63758/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 13778,
+        "output_tokens": 3516,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13776,
+        "cost_usd": 0.004513,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 15.319079999811947
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "resubmitting without replacing the rejected w9 is refused with documents_incomplete: Error: http://127.0.0.1:63770/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 13780,
+        "output_tokens": 3347,
+        "cache_read_input_tokens": 13414,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.001881,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 13.851427874993533
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "resubmitting without replacing the rejected w9 is refused with documents_incomplete: Error: http://127.0.0.1:63779/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The email address contains invalid characters before the @-sign: SPACE.\"}]}} | expect(received).toBe"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 13779,
+        "output_tokens": 3231,
+        "cache_read_input_tokens": 13414,
+        "cache_write_input_tokens": 363,
+        "cost_usd": 0.001822,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 13.022072124760598
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "after a replacement, only the new document waits for review: Error: http://127.0.0.1:63789/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13823,
+        "output_tokens": 5201,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13821,
+        "cost_usd": 0.005365,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 20.425818665884435
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "After a replacement, only the new document waits for review: Error: http://127.0.0.1:63801/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13824,
+        "output_tokens": 4351,
+        "cache_read_input_tokens": 13458,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.002383,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 17.495688166934997
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": false,
+      "clean_passed": 0,
+      "clean_failed": 0,
+      "load_errors": [
+        "Error: Cannot find module '../fixtures'\nRequire stack:\n- .aeg-cache/base-8bca46706f95/e2e/api/generated/LIF-05.spec.ts\n- .aeg-cache/base-8bca46706f95/e2e/node_modules/playwright/lib/common/index.js\n- [local path]",
+        "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+      ],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13823,
+        "output_tokens": 3244,
+        "cache_read_input_tokens": 13458,
+        "cache_write_input_tokens": 363,
+        "cost_usd": 0.001829,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 13.097249208949506
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "approving the replacement approves a vendor whose other documents were already approved: Error: http://127.0.0.1:63817/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13785,
+        "output_tokens": 4113,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13783,
+        "cost_usd": 0.004813,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 17.305768750142306
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "approving the replacement approves a vendor whose other documents were already approved: Error: http://127.0.0.1:63829/api/vendors/cca9eab5b0754d28b09d615f6681da3c/submit | {\"error\":{\"code\":\"documents_incomplete\",\"message\":\"Upload and process every required document before submitting\",\"missing_kinds\":[\"contract\"]}} | expect(received).toBe(expected) // Object.is equality"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13784,
+        "output_tokens": 4533,
+        "cache_read_input_tokens": 13418,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.002474,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 17.610474083106965
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "approving the replacement approves a vendor whose other documents were already approved: Error: http://127.0.0.1:63838/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13784,
+        "output_tokens": 4606,
+        "cache_read_input_tokens": 13418,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.00251,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 18.726433916948736
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "A certificate that expires today can still be approved: Error: http://127.0.0.1:63849/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 13762,
+        "output_tokens": 2163,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13760,
+        "cost_usd": 0.003834,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 9.843447667080909
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a certificate that expires today can still be approved: Error: http://127.0.0.1:63858/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 13761,
+        "output_tokens": 2325,
+        "cache_read_input_tokens": 13395,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.001369,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.125721665564924
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "A certificate that expires today can still be approved: Error: http://127.0.0.1:63870/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 13761,
+        "output_tokens": 2643,
+        "cache_read_input_tokens": 13395,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.001528,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 11.704392250161618
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a certificate whose expiry date could not be read cannot be approved: Error: http://127.0.0.1:63880/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 13795,
+        "output_tokens": 2280,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13793,
+        "cost_usd": 0.003899,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 9.431302040815353
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a certificate whose expiry date could not be read cannot be approved: Error: http://127.0.0.1:63890/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 13794,
+        "output_tokens": 2466,
+        "cache_read_input_tokens": 13428,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.00144,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.572937709279358
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a certificate whose expiry date could not be read cannot be approved: Error: http://127.0.0.1:63900/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 13794,
+        "output_tokens": 2051,
+        "cache_read_input_tokens": 13428,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.001233,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.767492165789008
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "A vendor that was sent back can be edited again: Error: http://127.0.0.1:63909/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 13754,
+        "output_tokens": 2743,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13752,
+        "cost_usd": 0.004122,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 11.607002958189696
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a vendor that was sent back can be edited again: Error: http://127.0.0.1:63918/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 13753,
+        "output_tokens": 2108,
+        "cache_read_input_tokens": 13387,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.001261,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 8.924945458769798
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a vendor that was sent back can be edited again: Error: http://127.0.0.1:63927/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 13753,
+        "output_tokens": 2489,
+        "cache_read_input_tokens": 13387,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.001451,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 10.474397541955113
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a vendor cannot be renamed to another vendor's name, whatever the case: Error: http://127.0.0.1:63936/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 13807,
+        "output_tokens": 1361,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13805,
+        "cost_usd": 0.003442,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.12642070883885
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "a vendor cannot be renamed to another vendor's name, whatever the case: Error: http://127.0.0.1:63945/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 13806,
+        "output_tokens": 1379,
+        "cache_read_input_tokens": 13442,
+        "cache_write_input_tokens": 362,
+        "cost_usd": 0.000897,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.365319000091404
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42": true,
+        "mut-backend_src_vendor_intake_services_vendors-31-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 13808,
+        "output_tokens": 1362,
+        "cache_read_input_tokens": 13442,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.000888,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.235823417082429
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": false,
+      "clean_passed": 0,
+      "clean_failed": 0,
+      "load_errors": [
+        "Error: Cannot find module '../fixtures'\nRequire stack:\n- .aeg-cache/base-8bca46706f95/e2e/api/generated/LIF-11.spec.ts\n- .aeg-cache/base-8bca46706f95/e2e/node_modules/playwright/lib/common/index.js\n- [local path]",
+        "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+      ],
+      "clean_failures": [],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 13731,
+        "output_tokens": 470,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13729,
+        "cost_usd": 0.002981,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.314121583942324
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_users-12-65": true,
+        "mut-backend_src_vendor_intake_repositories_users-16-39": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 13731,
+        "output_tokens": 331,
+        "cache_read_input_tokens": 13365,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.000372,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 1.9658954162150621
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_users-12-65": true,
+        "mut-backend_src_vendor_intake_repositories_users-16-39": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 13731,
+        "output_tokens": 323,
+        "cache_read_input_tokens": 13365,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.000368,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.0454503330402076
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "an admin approves a vendor's w9 extraction and the vendor is listed in the review queue: Error: http://127.0.0.1:64045/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13755,
+        "output_tokens": 3257,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13753,
+        "cost_usd": 0.004379,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 13.231088750064373
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": false,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "an admin can review vendors: Error: vendor should be listed in the review queue | expect(received).toBeDefined() | Received: undefined"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13753,
+        "output_tokens": 598,
+        "cache_read_input_tokens": 13388,
+        "cache_write_input_tokens": 363,
+        "cost_usd": 0.000506,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.9059065408073366
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "an admin can review vendors: Error: http://127.0.0.1:64073/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 13755,
+        "output_tokens": 3111,
+        "cache_read_input_tokens": 13388,
+        "cache_write_input_tokens": 365,
+        "cost_usd": 0.001763,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 12.402844792231917
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 13747,
+        "output_tokens": 312,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13745,
+        "cost_usd": 0.002905,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.1207080828025937
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "search ignores case and matches part of a name: Error: http://127.0.0.1:64102/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 13746,
+        "output_tokens": 452,
+        "cache_read_input_tokens": 13381,
+        "cache_write_input_tokens": 363,
+        "cost_usd": 0.000433,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.278083084151149
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "search ignores case and matches part of a name: Error: http://127.0.0.1:64111/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The email address contains invalid characters before the @-sign: SPACE.\"}]}} | expect(received).toBe"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 13748,
+        "output_tokens": 407,
+        "cache_read_input_tokens": 13381,
+        "cache_write_input_tokens": 365,
+        "cost_usd": 0.000411,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.319719416089356
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "search and the status filter apply together: Error: http://127.0.0.1:64120/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 13763,
+        "output_tokens": 1387,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13761,
+        "cost_usd": 0.003446,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 6.185469957999885
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "search and the status filter apply together: Error: http://127.0.0.1:64130/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 13763,
+        "output_tokens": 1480,
+        "cache_read_input_tokens": 13397,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.000947,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.244768041651696
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 0,
+      "clean_failed": 1,
+      "load_errors": [],
+      "clean_failures": [
+        "search and the status filter apply together: Error: http://127.0.0.1:64139/api/vendors | {\"error\":{\"code\":\"validation_error\",\"message\":\"Request validation failed\",\"fields\":[{\"field\":\"contact_email\",\"message\":\"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.\"}]}} | e"
+      ],
+      "tagged": false,
+      "success": false,
+      "kills": {},
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 13761,
+        "output_tokens": 1166,
+        "cache_read_input_tokens": 13397,
+        "cache_write_input_tokens": 362,
+        "cost_usd": 0.00079,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 5.54821224976331
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": false,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 13753,
+        "output_tokens": 1452,
+        "cache_read_input_tokens": 0,
+        "cache_write_input_tokens": 13751,
+        "cost_usd": 0.003476,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 7.166975999716669
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": false,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 13752,
+        "output_tokens": 360,
+        "cache_read_input_tokens": 13387,
+        "cache_write_input_tokens": 363,
+        "cost_usd": 0.000387,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.211873459164053
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": null,
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": false,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 13753,
+        "output_tokens": 429,
+        "cache_read_input_tokens": 13387,
+        "cache_write_input_tokens": 364,
+        "cost_usd": 0.000421,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 2.404522708617151
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 0.15555555555555556,
+      "low": 0.07745423484758268,
+      "high": 0.2878390887239627,
+      "n": 45,
+      "successes": 7
+    },
+    "pass_all_k": {
+      "value": 0.06666666666666667,
+      "low": 0.011866895493268553,
+      "high": 0.2981652987378003,
+      "n": 15,
+      "successes": 1
+    },
+    "bug_detection": {
+      "value": 0.07017543859649122,
+      "low": 0.03598534342897001,
+      "high": 0.13238883505845525,
+      "n": 114,
+      "successes": 8
+    },
+    "false_failure": {
+      "value": 0.8333333333333334,
+      "low": 0.6939599725535115,
+      "high": 0.9168408335360192,
+      "n": 42,
+      "successes": 35
+    },
+    "cost_usd": {
+      "value": 0.0021942888888888887,
+      "low": 0.001788977777777778,
+      "high": 0.002652222222222222,
+      "n": 45,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 9.569750837929961,
+      "low": 8.135665531394382,
+      "high": 11.019443059153854,
+      "n": 45,
+      "successes": null
+    },
+    "by_category": {
+      "mutant:!= -> ==": {
+        "value": 0.1111111111111111,
+        "low": 0.019890887638544907,
+        "high": 0.434999705576656,
+        "n": 9,
+        "successes": 1
+      },
+      "mutant:< -> <=": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.5614970317550454,
+        "n": 3,
+        "successes": 0
+      },
+      "mutant:== -> !=": {
+        "value": 0.125,
+        "low": 0.058570514385719794,
+        "high": 0.24700458286386834,
+        "n": 48,
+        "successes": 6
+      },
+      "mutant:drop not": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.11351339317396876,
+        "n": 30,
+        "successes": 0
+      },
+      "mutant:or -> and": {
+        "value": 0.0,
+        "low": 0.0,
+        "high": 0.24249400665524085,
+        "n": 12,
+        "successes": 0
+      },
+      "mutant:status 409 -> 400": {
+        "value": 0.08333333333333333,
+        "low": 0.014865094404917095,
+        "high": 0.35387991114111694,
+        "n": 12,
+        "successes": 1
+      }
+    }
+  }
+}

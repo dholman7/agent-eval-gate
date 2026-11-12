@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-10.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"a vendor cannot be renamed to another vendor's name in any case\", { tag: \"@LIF-10\" }, async ({ apiAs, factory }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const atlas = await factory.vendor({ name: uniqueName(\"Atlas Freight\") });\n    const borealis = await factory.vendor({ name: uniqueName(\"Borealis Freight\") });\n    expect(atlas.status).toBe(\"draft\");\n    expect(borealis.status).toBe(\"draft\");\n\n    // Act\n    const response = await member.patch(`/api/vendors/${borealis.id}`, {\n      data: { name: atlas.name.toUpperCase() },\n    });\n\n    // Assert\n    const body = await expectStatus(response, 409);\n    expect(body.error.code).toBe(\"vendor_name_taken\");\n\n    // The rename is not stored: Borealis keeps its name.\n    const stored = await expectStatus<{ name: string }>(await member.get(`/api/vendors/${borealis.id}`), 200);\n    expect(stored.name).toBe(borealis.name);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 294167,
+    "output_tokens": 3480,
+    "cache_read_input_tokens": 273388,
+    "cache_write_input_tokens": 20757,
+    "cost_usd": 0.008627,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 34.801304041873664,
+  "error": null,
+  "log": "turns: 11; I added `e2e/api/generated/LIF-10.spec.ts` with one test tagged `@LIF-10`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test creates two draft vendors, \"Atlas Freight\" and \"Borealis Freight\", each with a `uniqueName` suffix so parallel runs don't collide. It then sends `PATCH /api/vendors/{id}` to rename Borealis to the Atlas name in upper case. It asserts a 409 with `error.code` of `vendor_name_taken`, then re-reads Borealis and checks its name is unchanged.\n\nI took the endpoint and body shape from `openapi.json`, which lists `PATCH /api/vendors/{vendor_id}` with a `name` field. The error code comes from the existing backend test for the same rule."
+}

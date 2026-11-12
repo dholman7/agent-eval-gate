@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-07.spec.ts": "import { expect, expectStatus, test, type Document, type Extraction } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"a certificate that expires today can still be approved\", { tag: \"@LIF-07\" }, async ({ apiAs, factory }) => {\n    // Arrange\n    // The server decides \"today\" from its UTC clock (app.state.today = utcnow().date()), so the\n    // expiry is built from the same UTC date. Only expiry before today is refused.\n    const today = new Date().toISOString().slice(0, 10);\n    const member = await apiAs(\"member\");\n    const vendor = await factory.vendor({ as: \"member\" });\n    await factory.upload(vendor.id, \"w9\");\n    await factory.upload(vendor.id, \"contract\");\n    const certificate = [\n      \"Insurer: Harbor Mutual\",\n      \"Policy Number: HM-55-1290\",\n      \"Coverage Amount: $2,000,000\",\n      `Expiry Date: ${today}`,\n      \"\",\n    ].join(\"\\n\");\n    const insurance = await expectStatus<Document>(\n      await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"insurance_certificate\",\n          file: { name: \"insurance_certificate_expires_today.txt\", mimeType: \"text/plain\", buffer: Buffer.from(certificate) },\n        },\n      }),\n      201,\n    );\n    await expect\n      .poll(\n        async () => {\n          const documents = await expectStatus<Document[]>(await member.get(`/api/vendors/${vendor.id}/documents`), 200);\n          return documents.map((d) => d.status).sort();\n        },\n        { message: \"extraction finishes for all three documents\", timeout: 30_000 },\n      )\n      .toEqual([\"extracted\", \"extracted\", \"extracted\"]);\n    await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n    const pending = await factory.extraction(insurance.id, \"member\");\n    expect(pending.status, \"insurance extraction awaits review\").toBe(\"pending_review\");\n\n    // Act\n    const reviewer = await apiAs(\"reviewer\");\n    const response = await reviewer.post(`/api/extractions/${pending.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n\n    // Assert\n    const decided = await expectStatus<Extraction>(response, 200);\n    expect(decided.status).toBe(\"approved\");\n    const stored = await factory.extraction(insurance.id, \"reviewer\");\n    expect(stored.status, \"approval is stored, not just echoed\").toBe(\"approved\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 207973,
+    "output_tokens": 5108,
+    "cache_read_input_tokens": 193774,
+    "cache_write_input_tokens": 14185,
+    "cost_usd": 0.00733,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 36.73299000039697,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor through the factory, upload an insurance certificate whose expiry is the server's current UTC date (the server rejects only expiry before today, and the shared samples expire in 2027, so this upload is inline), wait for extraction, and submit. Then the reviewer approves it and the test expects 200 with status \"approved\", re-read through the factory to confirm it was stored.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nLIF-07: passing: every test passes against the real app\n"
+}

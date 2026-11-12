@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "import { expect, expectStatus, test, type Document, type Extraction, type Vendor } from \"../../fixtures\";\n\ntype ReviewQueueEntry = { vendor_id: string; vendor_name: string; extractions: Extraction[] };\n\ntest(\n  \"an admin approves a vendor's w9 extraction and the vendor is listed in the review queue\",\n  { tag: \"@LIF-12\" },\n  async ({ apiAs }) => {\n    // Arrange: an admin creates a vendor, uploads three documents, and submits it for review.\n    const admin = await apiAs(\"admin\");\n    const suffix = crypto.randomUUID();\n\n    const vendor = await expectStatus<Vendor>(\n      await admin.post(\"/api/vendors\", {\n        data: {\n          name: `LIF-12 Vendor ${suffix}`,\n          category: \"software\",\n          contact_email: `lif12-${suffix}@example.test`,\n        },\n      }),\n      201,\n    );\n\n    for (const kind of [\"w9\", \"insurance_certificate\", \"contract\"] as const) {\n      await expectStatus<Document>(\n        await admin.post(`/api/vendors/${vendor.id}/documents`, {\n          multipart: {\n            kind,\n            file: { name: `${kind}.pdf`, mimeType: \"application/pdf\", buffer: Buffer.from(\"%PDF-1.4 lif-12 test\") },\n          },\n        }),\n        201,\n      );\n    }\n\n    await expectStatus<Vendor>(await admin.post(`/api/vendors/${vendor.id}/submit`), 200);\n\n    const documents = await expectStatus<Document[]>(await admin.get(`/api/vendors/${vendor.id}/documents`), 200);\n    const w9 = documents.find((d) => d.kind === \"w9\");\n    expect(w9, \"vendor should have a w9 document\").toBeDefined();\n\n    // Extraction runs asynchronously after upload, so wait for the w9 extraction to be pending review.\n    let w9Extraction: Extraction | undefined;\n    await expect\n      .poll(\n        async () => {\n          const response = await admin.get(`/api/documents/${w9!.id}/extraction`);\n          if (response.status() !== 200) return null;\n          w9Extraction = (await response.json()) as Extraction;\n          return w9Extraction.status;\n        },\n        { timeout: 60_000 },\n      )\n      .toBe(\"pending_review\");\n\n    // Act: approve the w9 extraction.\n    const decided = await expectStatus<Extraction>(\n      await admin.post(`/api/extractions/${w9Extraction!.id}/decision`, {\n        data: { decision: \"approve\" },\n      }),\n      200,\n    );\n\n    // Assert: the decision is recorded, and the review queue still lists the vendor.\n    expect(decided.status).toBe(\"approved\");\n\n    const queue = await expectStatus<ReviewQueueEntry[]>(await admin.get(\"/api/review-queue\"), 200);\n    expect(queue.map((entry) => entry.vendor_id)).toContain(vendor.id);\n  },\n);\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13755,
+    "output_tokens": 3257,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13753,
+    "cost_usd": 0.004379,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.231088750064373,
+  "error": null,
+  "log": null
+}

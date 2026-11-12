@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor list search and status filter\", () => {\n  test(\n    \"search and the status filter apply together\",\n    { tag: \"@LIF-14\" },\n    async ({ apiAs, factory }) => {\n      // Arrange\n      const word = uniqueName(\"Lif14Search\").replace(/\\s+/g, \"\");\n      const draft = await factory.vendor({ name: `${word} draft` });\n      const review = await factory.vendorInReview({ name: `${word} review` });\n      const member = await apiAs(\"member\");\n\n      // Act\n      const response = await member.get(\"/api/vendors\", {\n        params: { q: word, status: \"in_review\" },\n      });\n\n      // Assert\n      const page = await expectStatus<{ items: { id: string; name: string; status: string }[]; total: number }>(\n        response,\n        200,\n      );\n      expect(page.items.map((v) => v.id)).toEqual([review.vendor.id]);\n      expect(page.items[0].status).toBe(\"in_review\");\n      expect(page.items.some((v) => v.id === draft.id)).toBe(false);\n      expect(page.total).toBe(1);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 285558,
+    "output_tokens": 3993,
+    "cache_read_input_tokens": 266205,
+    "cache_write_input_tokens": 19331,
+    "cost_usd": 0.008527,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 33.450009332969785,
+  "error": null,
+  "log": "turns: 11; I added `e2e/api/generated/LIF-14.spec.ts` with one test tagged `@LIF-14`. It passes, and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test creates two vendors whose names share a unique one-word token: one draft, one submitted for review. It then calls `GET /api/vendors?q=<token>&status=in_review` as the member persona. It asserts a 200, that the only item is the review vendor with status `in_review`, and that `total` is 1.\n\nChoices I made:\n- **Unique word:** built with `uniqueName` and stripped of spaces, so the search term is a single token.\n- **Setup:** the review vendor is built with `factory.vendorInReview()`, which uploads, extracts, and submits it. The draft comes from `factory.vendor()`."
+}

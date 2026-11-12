@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"a page past the last vendor is empty but still reports the total\", { tag: \"@LIF-15\" }, async ({ apiAs }) => {\n  // Arrange: learn the total from the first page, then pick an offset well beyond it.\n  const member = await apiAs(\"member\");\n  const firstPage = await expectStatus<{ items: unknown[]; total: number }>(\n    await member.get(\"/api/vendors\", { params: { limit: 20, offset: 0 } }),\n    200,\n  );\n  const beyondOffset = firstPage.total + 1000;\n\n  // Act: list the page that starts past the last vendor.\n  const response = await member.get(\"/api/vendors\", { params: { limit: 20, offset: beyondOffset } });\n\n  // Assert: the page is empty, but the total matches the first page.\n  const page = await expectStatus<{ items: unknown[]; total: number }>(response, 200);\n  expect(page.items).toEqual([]);\n  expect(page.total).toBe(firstPage.total);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22469,
+    "output_tokens": 1669,
+    "cache_read_input_tokens": 22109,
+    "cache_write_input_tokens": 358,
+    "cost_usd": 0.001127,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 17.19201875012368,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test as a member. It reads the first page to learn the total, then requests an offset well past that total. It asserts a 200 with no items and the same total. Both status checks go through expectStatus so failures show the response body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-15: passing: every test passes against the real app\n"
+}

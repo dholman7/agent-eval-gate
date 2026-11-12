@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "// features/lifecycle.feature: Sign-in ignores the case of the email address\nimport { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n  // Arrange: the scenario's mixed-case spelling (\"Member@Northwind.TEST\") of the seeded member's address\n  const [local = \"\", domain = \"\"] = USERS.member.split(\"@\");\n  const [host = \"\", tld = \"\"] = domain.split(\".\");\n  const mixedCaseEmail = `${local.charAt(0).toUpperCase()}${local.slice(1)}@${host.charAt(0).toUpperCase()}${host.slice(1)}.${tld.toUpperCase()}`;\n  expect(mixedCaseEmail, \"the sign-in address differs only by case\").not.toBe(USERS.member);\n  expect(mixedCaseEmail.toLowerCase(), \"seeded member's email, lowercased\").toBe(USERS.member);\n\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: mixedCaseEmail, password: PASSWORD },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 200);\n  expect(body.user.email).toBe(USERS.member);\n\n  const me = await expectStatus(\n    await request.get(\"/api/me\", { headers: { Authorization: `Bearer ${body.access_token}` } }),\n    200,\n  );\n  expect(me.email).toBe(USERS.member);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 94263,
+    "output_tokens": 2791,
+    "cache_read_input_tokens": 89477,
+    "cache_write_input_tokens": 4778,
+    "cost_usd": 0.111971,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 42.60921008326113,
+  "error": null,
+  "log": "  kind: api\n  plan: Post to /api/auth/login with the mixed-case email from the scenario and the shared PASSWORD. Then check that the login response's user.email and GET /api/me (called with the returned token) both give the lowercase seeded address, USERS.member.\n  verify: 1 passed, 0 failed, 1 lint errors\n  repair 1: test_bug: The app never ran. The test failed lint because of rule PW-4 (\"No credentials in specs\"), which bans account email literals in spec files: line 7 is the hard-coded \"Member@Northwind.TEST\" (line 8 also had a literal address). The fix builds the scenario's spelling, \"Member@Northwind.TEST\", from USERS.member, the seeded account from the fixtures, which PW-4 allows for sign-in tests. It also checks that the built address really is mixed case and lowercases back to the seeded one. The scenario's checks are unchanged: status 200, and the user's email in the response and from /api/me equals the lowercase address. All expected values still come from USERS.member, which the original test confirmed is \"member@northwind.test\".\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nLIF-11: passing: every test passes against the real app\n"
+}

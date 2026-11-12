@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-10.spec.ts": "// features/lifecycle.feature: \"A vendor cannot be renamed to another vendor's name, whatever the case\"\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"renaming a vendor to another vendor's name in a different case is rejected\", { tag: \"@LIF-10\" }, async ({ apiAs, factory }) => {\n    // Arrange\n    const taken = await factory.vendor({ as: \"member\", name: uniqueName(\"Atlas Freight\") });\n    const borealis = await factory.vendor({ as: \"member\", name: uniqueName(\"Borealis Freight\") });\n    const member = await apiAs(\"member\");\n    const shoutedName = taken.name.toUpperCase();\n\n    // Act\n    const response = await member.patch(`/api/vendors/${borealis.id}`, {\n      data: { name: shoutedName },\n    });\n\n    // Assert\n    const body = await expectStatus<{ error: { code: string } }>(response, 409);\n    expect(body.error.code).toBe(\"vendor_name_taken\");\n\n    const stored = await expectStatus<{ name: string }>(await member.get(`/api/vendors/${borealis.id}`), 200);\n    expect(stored.name).toBe(borealis.name);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 316473,
+    "output_tokens": 4377,
+    "cache_read_input_tokens": 291944,
+    "cache_write_input_tokens": 24507,
+    "cost_usd": 0.010012,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 39.11782633373514,
+  "error": null,
+  "log": "turns: 11; I wrote `e2e/api/generated/LIF-10.spec.ts` with one test for the rename scenario. It passes, `npx tsc --noEmit` exits 0, and eslint is clean on the new file. No other file was changed.\n\nThe test is tagged `@LIF-10` and does the following:\n- **Arrange:** creates two draft vendors through the factory, \"Atlas Freight\" and \"Borealis Freight\", each with a `uniqueName` suffix so parallel runs don't collide.\n- **Act:** sends `PATCH /api/vendors/{id}` with `{ name }` to rename Borealis to the uppercased Atlas name.\n- **Assert:** expects status 409 with `error.code` of `vendor_name_taken`, then re-reads Borealis and checks it still has its original name.\n\nI took the endpoint and body shape from `openapi.json` and checked the uniqueness rule (per tenant, ignoring case) against `backend/tests/test_vendors.py`. I did not read the rename handler itself."
+}

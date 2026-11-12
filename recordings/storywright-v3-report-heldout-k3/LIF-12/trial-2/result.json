@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "// features/lifecycle.feature: An admin can review vendors\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"an admin can open the review queue and approve a vendor's w9 extraction\", { tag: \"@LIF-12\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const { vendor, documents, extractions } = await factory.vendorInReview();\n  const admin = await apiAs(\"admin\");\n\n  // Act\n  const queueBefore = await expectStatus<{ vendor_id: string }[]>(await admin.get(\"/api/review-queue\"), 200);\n  const decision = await admin.post(`/api/extractions/${extractions.w9.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const decided = await expectStatus<{ id: string; status: string }>(decision, 200);\n  expect(decided.status).toBe(\"approved\");\n  expect(queueBefore.map((item) => item.vendor_id)).toContain(vendor.id);\n  const queueAfter = await expectStatus<{ vendor_id: string; vendor_name: string }[]>(await admin.get(\"/api/review-queue\"), 200);\n  const listed = queueAfter.find((item) => item.vendor_id === vendor.id);\n  expect(listed?.vendor_name, \"the queue lists the vendor\").toBe(vendor.name);\n  const stored = await factory.extraction(documents.w9.id, \"admin\");\n  expect(stored.status).toBe(\"approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22470,
+    "output_tokens": 893,
+    "cache_read_input_tokens": 22110,
+    "cache_write_input_tokens": 358,
+    "cost_usd": 0.025154,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 17.69010974979028,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the factory to set up a vendor in review with three pending extractions. Then, signed in as admin, read the review queue, approve the w9 extraction and check for a 200. Finally, read the queue again to confirm it still lists the vendor, and read the extraction to confirm the approval was saved.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-12: passing: every test passes against the real app\n"
+}

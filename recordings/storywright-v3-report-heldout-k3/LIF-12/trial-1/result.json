@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "// features/lifecycle.feature: An admin can review vendors\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"an admin can open the review queue and approve a vendor's w9 extraction\", { tag: \"@LIF-12\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const admin = await apiAs(\"admin\");\n  const { vendor, documents, extractions } = await factory.vendorInReview();\n\n  // Act\n  const queueBefore = await expectStatus<{ vendor_id: string }[]>(await admin.get(\"/api/review-queue\"), 200);\n  const response = await admin.post(`/api/extractions/${extractions.w9.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const decided = await expectStatus<{ id: string; status: string }>(response, 200);\n  expect(decided.id).toBe(extractions.w9.id);\n  expect(queueBefore.map((item) => item.vendor_id), \"queue lists the vendor\").toContain(vendor.id);\n  const queueAfter = await expectStatus<{ vendor_id: string }[]>(await admin.get(\"/api/review-queue\"), 200);\n  expect(queueAfter.map((item) => item.vendor_id), \"queue still lists the vendor\").toContain(vendor.id);\n  const stored = await factory.extraction(documents.w9.id, \"admin\");\n  expect(stored.status).toBe(\"approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 45737,
+    "output_tokens": 2093,
+    "cache_read_input_tokens": 43891,
+    "cache_write_input_tokens": 1842,
+    "cost_usd": 0.06539,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 32.151817709207535,
+  "error": null,
+  "log": "  kind: api\n  plan: The factory builds a vendor in review with three pending extractions. Signed in as the admin persona, the test reads the review queue, approves the w9 extraction and checks for a 200. It then re-reads the queue to confirm the vendor is still listed, and re-reads the extraction to confirm the approval was saved.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing request is GET /api/documents/{id}/extraction, which returned document_not_found. Factory.extraction(documentId, as) takes a document ID: it calls `/api/documents/${documentId}/extraction`. The test passed it extractions.w9.id, an extraction ID, so the app was right that no such document exists. The fix re-reads the stored extraction with documents.w9.id, which vendorInReview() returns. All assertions and expected values are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-12: passing: every test passes against the real app\n"
+}

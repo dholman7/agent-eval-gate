@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "// features: Vendor lifecycle, LIF-08\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"a certificate whose expiry date could not be read cannot be approved\", { tag: \"@LIF-08\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review whose insurance certificate reads \"Expiry Date: next spring\".\n  const { documents, extractions } = await factory.vendorInReview({\n    files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n  });\n  const certificate = extractions.insurance_certificate;\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act: the reviewer approves the certificate's extraction.\n  const response = await reviewer.post(`/api/extractions/${certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert: the approval is refused with the expiry-missing code.\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expiry_missing\");\n\n  // Assert: the stored extraction is still awaiting review, not approved.\n  // factory.extraction takes the document ID, not the extraction ID.\n  const stored = await factory.extraction(documents.insurance_certificate.id, \"reviewer\");\n  expect(stored.status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 127759,
+    "output_tokens": 3336,
+    "cache_read_input_tokens": 117801,
+    "cache_write_input_tokens": 9948,
+    "cost_usd": 0.004837,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 30.86739420797676,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the factory to build a vendor in review whose insurance certificate is the existing unparseable sample (\"Expiry Date: next spring\"). As the reviewer, approve that extraction through the decision endpoint, then assert the 409 status with its error code, and re-read the stored extraction to confirm it is still pending review.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing call is factory.extraction(certificate.id, \"reviewer\"). Factory.extraction takes a document ID and calls GET /api/documents/{id}/extraction, but the test passed the extraction's ID (certificate.id comes from extractions, not documents). The app correctly answered document_not_found. The 409 assertion before it had already passed, so the app's refusal behavior is fine. The fix is to re-read the stored extraction through the certificate's document ID, which the factory returns as documents.insurance_certificate.id. The assertions (409, insurance_expiry_missing, status still pending_review) are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nLIF-08: passing: every test passes against the real app\n"
+}

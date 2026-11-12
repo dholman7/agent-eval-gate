@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "// features/vendor-lifecycle.feature: \"A certificate whose expiry date could not be read cannot be approved\"\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"a certificate whose expiry date could not be read cannot be approved\", { tag: \"@LIF-08\" }, async ({ factory, apiAs }) => {\n  // Arrange: a vendor in review whose insurance certificate has the expiry date \"next spring\"\n  const { documents, extractions } = await factory.vendorInReview({\n    files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n  });\n  const certificate = extractions.insurance_certificate;\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act: the reviewer approves the insurance certificate extraction\n  const response = await reviewer.post(`/api/extractions/${certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert: the approval is refused with the expiry-missing error\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expiry_missing\");\n\n  // Assert: the stored extraction is still awaiting review\n  const stored = await factory.extraction(documents.insurance_certificate.id, \"reviewer\");\n  expect(stored.status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 102088,
+    "output_tokens": 3153,
+    "cache_read_input_tokens": 91965,
+    "cache_write_input_tokens": 10115,
+    "cost_usd": 0.00452,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 28.18750008288771,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, using the sample insurance certificate whose expiry reads \"next spring\". Act: the reviewer approves that insurance_certificate extraction through the decision endpoint. Assert the 409 with its error code, then re-read the stored extraction to confirm it is still pending review.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing GET is /api/documents/{id}/extraction, and the id in the URL is the extraction's id, not the document's. The test calls factory.extraction(certificate.id, \"reviewer\"), but Factory.extraction(documentId) takes a document id. The app correctly reports document_not_found for an id that is not a document. The fix is to pass the insurance certificate's document id, which the test already has from vendorInReview() but did not destructure. The scenario's expectations (409, insurance_expiry_missing, still pending_review) are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nLIF-08: passing: every test passes against the real app\n"
+}

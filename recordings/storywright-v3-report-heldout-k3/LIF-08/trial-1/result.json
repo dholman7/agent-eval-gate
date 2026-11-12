@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "// features/lifecycle.feature: A certificate whose expiry date could not be read cannot be approved\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\n  \"a certificate whose expiry date could not be read cannot be approved\",\n  { tag: \"@LIF-08\" },\n  async ({ apiAs, factory }) => {\n    // Arrange: samples/insurance_certificate_unparseable.txt reads \"Expiry Date: next spring\"\n    const { documents, extractions } = await factory.vendorInReview({\n      files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n    });\n    const reviewer = await apiAs(\"reviewer\");\n\n    // Act\n    const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n\n    // Assert\n    const body = await expectStatus(response, 409);\n    expect(body.error.code).toBe(\"insurance_expiry_missing\");\n    const stored = await factory.extraction(documents.insurance_certificate.id, \"reviewer\");\n    expect(stored.status).toBe(\"pending_review\");\n  },\n);\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 219084,
+    "output_tokens": 2751,
+    "cache_read_input_tokens": 211398,
+    "cache_write_input_tokens": 7668,
+    "cost_usd": 0.158716,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 50.81647316692397,
+  "error": null,
+  "log": "  kind: api\n  plan: Use factory.vendorInReview with the repo's insurance_certificate_unparseable.txt sample, whose text is \"Expiry Date: next spring\". As the reviewer, post an approve decision on the insurance extraction. Assert the 409 and the insurance_expiry_missing error code, then read the extraction again to confirm it is still pending_review.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing request is the test's final read: GET /api/documents/{id}/extraction. The test passed an extraction ID there, but the route (routes/documents.py, get_extraction) looks the path ID up as a document with DocumentRepository.get(document_id, ...). No document has that ID, so the app returns document_not_found. The setup and the approve call did not cause the failure. The fix passes the insurance certificate's document ID, documents.insurance_certificate.id, to factory.extraction. All expected values are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nLIF-08: passing: every test passes against the real app\n"
+}

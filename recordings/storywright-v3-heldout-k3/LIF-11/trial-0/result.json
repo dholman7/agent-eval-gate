@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n  // Arrange: the seeded member's address with its case changed, as the scenario states it.\n  const email = USERS.member.replace(\"member\", \"Member\").replace(\"northwind.test\", \"Northwind.TEST\");\n\n  // Act\n  const login = await request.post(\"/api/auth/login\", {\n    data: { email, password: PASSWORD },\n  });\n\n  // Assert\n  const body = await expectStatus<{ access_token: string; user: { email: string } }>(login, 200);\n  expect(body.user.email).toBe(USERS.member);\n\n  // The stored current user, read back with the issued token.\n  const me = await request.get(\"/api/me\", {\n    headers: { Authorization: `Bearer ${body.access_token}` },\n  });\n  const profile = await expectStatus<{ email: string }>(me, 200);\n  expect(profile.email).toBe(USERS.member);\n});"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 69603,
+    "output_tokens": 3648,
+    "cache_read_input_tokens": 66439,
+    "cache_write_input_tokens": 3158,
+    "cost_usd": 0.003121,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 30.808753832709044,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test in e2e/api/generated/LIF-11.spec.ts. It signs in with a mixed-case email and the seeded password, expects 200 through expectStatus, then checks that the stored user email is lowercased, both in the login body and in /api/me using the returned bearer token.\n  verify: 1 passed, 0 failed, 2 lint errors\n  repair 1: test_bug: The only failures are two lint errors (PW-4). The spec hard-codes account email literals. AGENTS.md says the one exception, a test of signing in itself, must take its credentials from USERS and PASSWORD, not literals. fixtures/users.ts defines USERS.member as \"member@northwind.test\" and PASSWORD as \"demo-password\". The scenario's case-variant \"Member@Northwind.TEST\" is derived from that account, so the spec can build it from USERS.member. The expected stored email is the same value as USERS.member, so no assertion changes. The app's behavior was not exercised because lint failed first; no app defect is shown.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nLIF-11: passing: every test passes against the real app\n"
+}

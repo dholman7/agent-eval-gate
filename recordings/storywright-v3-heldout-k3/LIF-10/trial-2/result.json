@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-10.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"renaming a vendor to another vendor's name is refused whatever the case\", { tag: \"@LIF-10\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const atlas = await factory.vendor({ as: \"member\", name: uniqueName(\"Atlas Freight\") });\n  const borealis = await factory.vendor({ as: \"member\", name: uniqueName(\"Borealis Freight\") });\n  const member = await apiAs(\"member\");\n\n  // Act: rename Borealis to Atlas's name, in upper case\n  const response = await member.patch(`/api/vendors/${borealis.id}`, {\n    data: { name: atlas.name.toUpperCase() },\n  });\n\n  // Assert: refused with the documented error code\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n\n  // Assert: the stored name is unchanged\n  const stored = await expectStatus(await member.get(`/api/vendors/${borealis.id}`), 200);\n  expect(stored.name).toBe(borealis.name);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22526,
+    "output_tokens": 1574,
+    "cache_read_input_tokens": 22164,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.001081,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.995158832985908,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange two draft vendors through the factory with unique names, then PATCH one to the other's name in upper case to check that the name match ignores case. Assert the 409 status with its body, the vendor_name_taken error code, and by re-reading the vendor that its stored name did not change.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-10: passing: every test passes against the real app\n"
+}

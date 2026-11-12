@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"an insurance certificate whose expiry date could not be read cannot be approved\", { tag: \"@LIF-08\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const { extractions, documents } = await factory.vendorInReview({\n    files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n  });\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expiry_missing\");\n  const extraction = await factory.extraction(documents.insurance_certificate.id, \"reviewer\");\n  expect(extraction.status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 261685,
+    "output_tokens": 3548,
+    "cache_read_input_tokens": 242497,
+    "cache_write_input_tokens": 19168,
+    "cost_usd": 0.008035,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 29.385520666837692,
+  "error": null,
+  "log": "turns: 10; I wrote `e2e/api/generated/LIF-08.spec.ts` with one test tagged `@LIF-08`. Both checks pass: the Playwright run shows 1 passed, and `npx tsc --noEmit` exits 0.\n\nThe test:\n- **Arrange:** `factory.vendorInReview()` with the insurance certificate swapped for `samples/insurance_certificate_unparseable.txt`, whose expiry line reads \"next spring\". The name is unique through the factory.\n- **Act:** the reviewer posts `{ decision: \"approve\" }` to `/api/extractions/{id}/decision`.\n- **Assert:** status 409 with `error.code === \"insurance_expiry_missing\"`. The extraction is then re-read and still `pending_review`, so the stored outcome is checked, not only the response.\n\nI took the endpoint and error shape from `openapi.json` and the existing auth test, not from the backend code, which isn't in this checkout. I didn't test the negative case of an approvable certificate, since the scenario doesn't cover it."
+}

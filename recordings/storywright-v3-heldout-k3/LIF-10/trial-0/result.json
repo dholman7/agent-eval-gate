@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-10.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"renaming a vendor to another vendor's name, in any case, is refused\", { tag: \"@LIF-10\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const atlasName = uniqueName(\"Atlas Freight\");\n  const borealisName = uniqueName(\"Borealis Freight\");\n  const atlas = await factory.vendor({ as: \"member\", name: atlasName });\n  const borealis = await factory.vendor({ as: \"member\", name: borealisName });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.patch(`/api/vendors/${borealis.id}`, {\n    data: { name: atlasName.toUpperCase() },\n  });\n\n  // Assert\n  const body = await expectStatus<{ error: { code: string } }>(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n\n  // Assert the stored outcome: the vendor keeps its name.\n  const stored = await expectStatus<{ id: string; name: string }>(\n    await member.get(`/api/vendors/${borealis.id}`),\n    200,\n  );\n  expect(stored.id).toBe(borealis.id);\n  expect(stored.name).toBe(borealisName);\n  expect(atlas.name).toBe(atlasName);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22527,
+    "output_tokens": 1333,
+    "cache_read_input_tokens": 21610,
+    "cache_write_input_tokens": 915,
+    "cost_usd": 0.001066,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.924194708932191,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange two draft vendors as the member persona, using unique names so parallel runs don't collide. Act by renaming the second vendor to the first name in upper case, which tests case-insensitive uniqueness. Assert the 409 status with its body, the vendor_name_taken error code, and that the second vendor still has its original name when re-read.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-10: passing: every test passes against the real app\n"
+}

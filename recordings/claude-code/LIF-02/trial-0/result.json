@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-02.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"rejecting one document sends the whole vendor back\", () => {\n  test(\"rejecting the contract extraction moves the vendor to rejected\", { tag: \"@LIF-02\" }, async ({ factory, apiAs }) => {\n    // Arrange\n    const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n    const reviewer = await apiAs(\"reviewer\");\n\n    // Act\n    const response = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n      data: { decision: \"reject\", note: \"Wrong counterparty\" },\n    });\n\n    // Assert\n    const decided = await expectStatus(response, 200);\n    expect(decided.status).toBe(\"rejected\");\n    expect(decided.review_note).toBe(\"Wrong counterparty\");\n\n    const stored = await expectStatus(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n    expect(stored.status).toBe(\"rejected\");\n  });\n\n  test(\"audit trail records extraction.rejected and then vendor.rejected\", { tag: \"@LIF-02\" }, async ({ factory, apiAs }) => {\n    // Arrange\n    const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n    const reviewer = await apiAs(\"reviewer\");\n    await expectStatus(\n      await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n        data: { decision: \"reject\", note: \"Wrong counterparty\" },\n      }),\n      200,\n    );\n\n    // Act\n    const trail = await expectStatus<{ items: { action: string; details: Record<string, unknown> }[] }>(\n      await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n      200,\n    );\n\n    // Assert\n    const decisionEvents = trail.items.filter((e) => [\"extraction.rejected\", \"vendor.rejected\"].includes(e.action));\n    expect(decisionEvents.map((e) => e.action)).toEqual([\"extraction.rejected\", \"vendor.rejected\"]);\n    expect(decisionEvents[0].details).toMatchObject({ extraction_id: extractions.contract.id, kind: \"contract\", note: \"Wrong counterparty\" });\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 226650,
+    "output_tokens": 4940,
+    "cache_read_input_tokens": 198342,
+    "cache_write_input_tokens": 28294,
+    "cost_usd": 0.010114,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 34.20321737462655,
+  "error": null,
+  "log": "turns: 10; I wrote `e2e/api/generated/LIF-02.spec.ts` with two API tests, both tagged `@LIF-02`. Both pass and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe two tests cover the scenario's two outcomes:\n\n- **Vendor status:** the reviewer rejects the contract extraction with the note \"Wrong counterparty\". The decision response has status `rejected` and the stored note, and `GET /api/vendors/{id}` returns `rejected`.\n- **Audit trail:** `GET /api/vendors/{id}/audit` contains `extraction.rejected` followed by `vendor.rejected`. The first event's details carry the extraction id, `contract` kind and note.\n\nEach test builds its own vendor with `factory.vendorInReview()`, so the parallel runs don't share data.\n\nI filter the audit trail to exactly those two actions. A broader filter would also pick up `vendor.submitted`, which the scenario doesn't name.\n\nI did not run `npm run lint` on the new file."
+}

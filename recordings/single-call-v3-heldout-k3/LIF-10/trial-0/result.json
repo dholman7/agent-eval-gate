@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-10.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"a vendor cannot be renamed to another vendor's name, whatever the case\",\n    { tag: \"@LIF-10\" },\n    async ({ apiAs }) => {\n      // Arrange: a unique suffix keeps names distinct from other parallel tests.\n      const member = await apiAs(\"member\");\n      const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n      const atlasName = `Atlas Freight ${suffix}`;\n      const borealisName = `Borealis Freight ${suffix}`;\n\n      const atlas = await expectStatus<{ id: string; name: string }>(\n        await member.post(\"/api/vendors\", {\n          data: { name: atlasName, category: \"logistics\", contact_email: `ops-atlas-${suffix}@example.test` },\n        }),\n        201,\n      );\n      const borealis = await expectStatus<{ id: string; name: string }>(\n        await member.post(\"/api/vendors\", {\n          data: { name: borealisName, category: \"logistics\", contact_email: `ops-borealis-${suffix}@example.test` },\n        }),\n        201,\n      );\n      expect(atlas.name).toBe(atlasName);\n      expect(borealis.name).toBe(borealisName);\n\n      // Act: rename Borealis to Atlas's name with different casing.\n      const renameTo = atlasName.toUpperCase();\n      const response = await member.patch(`/api/vendors/${borealis.id}`, {\n        data: { name: renameTo },\n      });\n\n      // Assert: the rename is rejected with a conflict.\n      const body = await expectStatus<{ error: { code: string } }>(response, 409);\n      expect(body.error.code).toBe(\"vendor_name_taken\");\n\n      // Assert: Borealis keeps its original name.\n      const current = await expectStatus<{ id: string; name: string }>(\n        await member.get(`/api/vendors/${borealis.id}`),\n        200,\n      );\n      expect(current.name).toBe(borealisName);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13807,
+    "output_tokens": 1361,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13805,
+    "cost_usd": 0.003442,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.12642070883885,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-07.spec.ts": "// features/lifecycle.feature: A certificate that expires today can still be approved\nimport { readFileSync, writeFileSync } from \"node:fs\";\nimport path from \"node:path\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"a certificate that expires today can still be approved\", { tag: \"@LIF-07\" }, async ({ apiAs, factory }, testInfo) => {\n  // Arrange\n  // The server compares expiry against its UTC date (utcnow().date()).\n  const today = new Date().toISOString().slice(0, 10);\n  const certificate = readFileSync(sample(\"insurance_certificate.txt\"), \"utf-8\").replace(\n    /^Expiry Date: .*$/m,\n    `Expiry Date: ${today}`,\n  );\n  expect(certificate, \"sample certificate carries today's expiry\").toContain(`Expiry Date: ${today}`);\n  const certificatePath = testInfo.outputPath(\"insurance_certificate_expires_today.txt\");\n  writeFileSync(certificatePath, certificate);\n  const { extractions } = await factory.vendorInReview({\n    files: { insurance_certificate: path.relative(sample(\".\"), certificatePath) },\n  });\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const decided = await expectStatus(response, 200);\n  expect(decided.status).toBe(\"approved\");\n  const stored = await factory.extraction(decided.document_id, \"reviewer\");\n  expect(stored.status).toBe(\"approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 237242,
+    "output_tokens": 2562,
+    "cache_read_input_tokens": 221859,
+    "cache_write_input_tokens": 15367,
+    "cost_usd": 0.218612,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 43.174764750059694,
+  "error": null,
+  "log": "  kind: api\n  plan: Write a copy of the insurance certificate sample with today's UTC date as its expiry, use the factory to build a vendor in review with that file, approve the extraction as the reviewer, then check the status code, the status in the response, and the stored status.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nLIF-07: passing: every test passes against the real app\n"
+}

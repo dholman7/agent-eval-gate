@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-02.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle: rejecting one document\", () => {\n  test(\"rejecting one extraction sends the whole vendor back\", { tag: \"@LIF-02\" }, async ({ factory, apiAs }) => {\n    // Arrange\n    const { vendor, extractions } = await factory.vendorInReview();\n    const reviewer = await apiAs(\"reviewer\");\n    const member = await apiAs(\"member\");\n\n    // Act\n    const decision = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n      data: { decision: \"reject\", note: \"Wrong counterparty\" },\n    });\n    await expectStatus(decision, 200);\n\n    // Assert\n    const stored = await expectStatus<{ status: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n    expect(stored.status).toBe(\"rejected\");\n\n    const trail = await expectStatus<{ items: { action: string }[] }>(\n      await member.get(`/api/vendors/${vendor.id}/audit`),\n      200,\n    );\n    expect(trail.items.map((event) => event.action).slice(-2)).toEqual([\"extraction.rejected\", \"vendor.rejected\"]);\n  });\n\n  test(\"the rejected extraction stores the reviewer's note\", { tag: \"@LIF-02\" }, async ({ factory, apiAs }) => {\n    // Arrange\n    const { documents, extractions } = await factory.vendorInReview();\n    const reviewer = await apiAs(\"reviewer\");\n\n    // Act\n    await expectStatus(\n      await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n        data: { decision: \"reject\", note: \"Wrong counterparty\" },\n      }),\n      200,\n    );\n\n    // Assert\n    const stored = await factory.extraction(documents.contract.id, \"reviewer\");\n    expect(stored.review_note).toBe(\"Wrong counterparty\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 313527,
+    "output_tokens": 4778,
+    "cache_read_input_tokens": 284417,
+    "cache_write_input_tokens": 29090,
+    "cost_usd": 0.011053,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 40.57835479080677,
+  "error": null,
+  "log": "turns: 11; I wrote `e2e/api/generated/LIF-02.spec.ts` with two tests, both tagged `@LIF-02`. Both pass, and `npx tsc --noEmit` exits 0. No other file was changed.\n\n- **Rejecting one document sends the whole vendor back:** arranges a vendor in review with `factory.vendorInReview()`, has the reviewer reject the contract extraction with \"Wrong counterparty\" (expects 200), then checks that the vendor's status is `rejected` and that the audit trail ends with `extraction.rejected` then `vendor.rejected`.\n- **The rejected extraction stores the reviewer's note:** checks that the stored extraction's `review_note` is \"Wrong counterparty\". The scenario doesn't name this, but the repo's standard (PW-12) asks for stored outcomes to be re-read, so I added it as a second test.\n\nThe endpoints and audit shape come from the backend's `test_review.py` and `conftest.py`, not from the OpenAPI spec. The decision endpoint is `POST /api/extractions/{id}/decision`, and the audit list is `items[].action`.\n\nOnly the first run failed: the second test passed the extraction ID to the extraction-read endpoint, which expects the document ID. I fixed that and both tests then passed."
+}

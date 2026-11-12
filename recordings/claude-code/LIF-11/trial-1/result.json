@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n    // Arrange\n    const mixedCaseEmail = \"Member@Northwind.TEST\";\n\n    // Act\n    const login = await request.post(\"/api/auth/login\", {\n      data: { email: mixedCaseEmail, password: PASSWORD },\n    });\n\n    // Assert\n    const session = await expectStatus<{ access_token: string }>(login, 200);\n    const me = await request.get(\"/api/me\", {\n      headers: { Authorization: `Bearer ${session.access_token}` },\n    });\n    const profile = await expectStatus<{ email: string }>(me, 200);\n    expect(profile.email).toBe(USERS.member);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 256873,
+    "output_tokens": 3787,
+    "cache_read_input_tokens": 233756,
+    "cache_write_input_tokens": 23099,
+    "cost_usd": 0.008853,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 30.27465770812705,
+  "error": null,
+  "log": "turns: 9; I wrote `e2e/api/generated/LIF-11.spec.ts` with one test, tagged `@LIF-11`. It passes against the running API, and `npx tsc --noEmit` reports no errors. No other file was changed.\n\nThe test signs in as `Member@Northwind.TEST` with the correct password and expects a 200. It then calls `/api/me` with the returned token and expects `email` to equal the seeded member address. The expected value comes from `USERS.member`, so the spec has no lowercase account-email literal for the PW-4 lint rule to flag. I didn't run `npm run lint`."
+}

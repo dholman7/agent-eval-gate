@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ninterface VendorOut {\n  id: string;\n  name: string;\n  status: \"draft\" | \"in_review\" | \"approved\" | \"rejected\";\n}\n\ninterface VendorPage {\n  items: VendorOut[];\n  total: number;\n  limit: number;\n  offset: number;\n}\n\ntest.describe(\"vendor list search and status filter\", () => {\n  test(\n    \"search and the status filter apply together\",\n    { tag: \"@LIF-14\" },\n    async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const word = `lif14term${Date.now()}${Math.random().toString(36).slice(2, 8)}`;\n\n      const draftResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: `${word} draft vendor`,\n          category: \"software\",\n          contact_email: `draft-${word}@example.test`,\n        },\n      });\n      const draftVendor = await expectStatus<VendorOut>(draftResponse, 201);\n\n      const reviewResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: `${word} review vendor`,\n          category: \"services\",\n          contact_email: `review-${word}@example.test`,\n        },\n      });\n      const reviewVendor = await expectStatus<VendorOut>(reviewResponse, 201);\n\n      const submitResponse = await member.post(`/api/vendors/${reviewVendor.id}/submit`);\n      const submitted = await expectStatus<VendorOut>(submitResponse, 200);\n      expect(submitted.status).toBe(\"in_review\");\n\n      // Act\n      const listResponse = await member.get(\"/api/vendors\", {\n        params: { q: word, status: \"in_review\" },\n      });\n\n      // Assert\n      const page = await expectStatus<VendorPage>(listResponse, 200);\n      expect(page.items.map((v) => v.id)).toEqual([reviewVendor.id]);\n      expect(page.items.map((v) => v.id)).not.toContain(draftVendor.id);\n      expect(page.items[0].status).toBe(\"in_review\");\n      expect(page.total).toBe(1);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13763,
+    "output_tokens": 1387,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13761,
+    "cost_usd": 0.003446,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.185469957999885,
+  "error": null,
+  "log": null
+}

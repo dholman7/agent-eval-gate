@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-09.spec.ts": "import { expect, expectStatus, test, uniqueName, type Vendor } from \"../../fixtures\";\n\ntest(\"a vendor sent back for a rejected contract can be renamed\", { tag: \"@LIF-09\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n  const reviewer = await apiAs(\"reviewer\");\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n      data: { decision: \"reject\", note: \"Wrong counterparty\" },\n    }),\n    200,\n  );\n  const member = await apiAs(\"member\");\n  const newName = uniqueName(\"Renamed Vendor\");\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, { data: { name: newName } });\n\n  // Assert\n  const updated = await expectStatus<Vendor>(response, 200);\n  expect(updated.name).toBe(newName);\n  const stored = await expectStatus<Vendor>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.name).toBe(newName);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 357102,
+    "output_tokens": 6137,
+    "cache_read_input_tokens": 328866,
+    "cache_write_input_tokens": 28212,
+    "cost_usd": 0.012002,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 42.02776870876551,
+  "error": null,
+  "log": "turns: 14; I added `e2e/api/generated/LIF-09.spec.ts` with one test, tagged `@LIF-09`. It passes with `npx playwright test --project=api api/generated/LIF-09.spec.ts`, and `npx tsc --noEmit` printed no errors.\n\nThe test builds a vendor in review through the factory. A reviewer rejects its `contract` extraction with a note. The member then PATCHes the vendor's name to a unique name. It asserts a 200 response with the new name, and re-reads the vendor with GET to confirm the name was stored.\n\nI did not add an assertion on the vendor's status after the rename, because the scenario doesn't name one. No other file was changed."
+}

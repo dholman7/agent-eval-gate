@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-10.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"a vendor cannot be renamed to another vendor's name, whatever the case\",\n    { tag: \"@LIF-10\" },\n    async ({ apiAs }) => {\n      // Arrange: two draft vendors with unique names owned by the member's tenant\n      const member = await apiAs(\"member\");\n      const atlasName = uniqueName(\"Atlas Freight\");\n      const borealisName = uniqueName(\"Borealis Freight\");\n\n      const atlasResponse = await member.post(\"/api/vendors\", {\n        data: { name: atlasName, category: \"logistics\", contact_email: \"ops@atlas.example.com\" },\n      });\n      await expectStatus(atlasResponse, 201);\n\n      const borealisResponse = await member.post(\"/api/vendors\", {\n        data: { name: borealisName, category: \"logistics\", contact_email: \"ops@borealis.example.com\" },\n      });\n      const borealis = await expectStatus<{ id: string; name: string }>(borealisResponse, 201);\n\n      // Act: rename Borealis to Atlas's name in upper case\n      const renameResponse = await member.patch(`/api/vendors/${borealis.id}`, {\n        data: { name: atlasName.toUpperCase() },\n      });\n\n      // Assert: the rename is rejected with a name-taken conflict\n      const body = await expectStatus<{ error: { code: string } }>(renameResponse, 409);\n      expect(body.error.code).toBe(\"vendor_name_taken\");\n\n      // Assert: Borealis keeps its original name\n      const current = await expectStatus<{ id: string; name: string }>(\n        await member.get(`/api/vendors/${borealis.id}`),\n        200,\n      );\n      expect(current.name).toBe(borealisName);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13808,
+    "output_tokens": 1362,
+    "cache_read_input_tokens": 13442,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.000888,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.235823417082429,
+  "error": null,
+  "log": null
+}

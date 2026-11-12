@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n  // Arrange: the seeded member's address with mixed case in the local part and domain\n  const [local, domain] = USERS.member.split(\"@\");\n  const mixedCaseEmail = `${local[0].toUpperCase()}${local.slice(1)}@${domain.toUpperCase()}`;\n\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: mixedCaseEmail, password: PASSWORD },\n  });\n\n  // Assert: sign-in succeeds and the current user's email is lowercased\n  const body = await expectStatus<{ access_token: string; user: { email: string } }>(response, 200);\n  expect(body.user.email).toBe(USERS.member);\n\n  // Assert the stored outcome, not only the login echo\n  const me = await expectStatus<{ email: string }>(\n    await request.get(\"/api/me\", { headers: { Authorization: `Bearer ${body.access_token}` } }),\n    200,\n  );\n  expect(me.email).toBe(USERS.member);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 121571,
+    "output_tokens": 5705,
+    "cache_read_input_tokens": 116502,
+    "cache_write_input_tokens": 5059,
+    "cost_usd": 0.00503,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 38.10489491606131,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test in e2e/api/generated/LIF-11.spec.ts. It signs in with the seeded member's email in mixed case and the right password, expects 200 and a lowercased user email in the login response, then re-reads the stored user through /api/me to confirm the lowercased email was saved, not just echoed.\n  verify: 1 passed, 0 failed, 2 lint errors\n  repair 1: test_bug: The only failure was lint rule PW-4, which forbids literal account emails in specs. The test never reached a runtime assertion, so no app behavior was observed. The fix builds the mixed-case email from USERS.member and compares against USERS.member, so the spec has no literal address. USERS.member is already lowercase and equals the scenario's expected value.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nLIF-11: passing: every test passes against the real app\n"
+}

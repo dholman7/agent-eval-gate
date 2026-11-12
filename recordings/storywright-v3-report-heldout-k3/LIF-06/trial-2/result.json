@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-06.spec.ts": "// features/lifecycle.feature: Approving the replacement approves a vendor whose other documents were already approved\nimport { expect, expectStatus, test } from \"../../fixtures\";\nimport type { Document, Extraction, Vendor } from \"../../fixtures\";\n\ntest(\n  \"approving the replacement w9 approves a vendor whose other documents were already approved\",\n  { tag: \"@LIF-06\" },\n  async ({ factory, apiAs }) => {\n    // Arrange: other documents approved, w9 sent back, replaced, and the vendor resubmitted\n    const reviewer = await apiAs(\"reviewer\");\n    const member = await apiAs(\"member\");\n    const { vendor, extractions } = await factory.vendorInReview();\n    await expectStatus(\n      await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n        data: { decision: \"approve\" },\n      }),\n      200,\n    );\n    await expectStatus(\n      await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, { data: { decision: \"approve\" } }),\n      200,\n    );\n    await expectStatus(\n      await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n        data: { decision: \"reject\", note: \"Tax ID does not match\" },\n      }),\n      200,\n    );\n    const replacement = await factory.upload(vendor.id, \"w9\");\n    await expect\n      .poll(\n        async () => {\n          const documents = await expectStatus<Document[]>(await member.get(`/api/vendors/${vendor.id}/documents`), 200);\n          return documents.find((d) => d.id === replacement.id)?.status;\n        },\n        { message: \"replacement w9 finishes extraction\", timeout: 30_000 },\n      )\n      .toBe(\"extracted\");\n    await expectStatus<Vendor>(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n    const pending = await factory.extraction(replacement.id);\n    expect(pending.status, \"replacement w9 awaits review\").toBe(\"pending_review\");\n\n    // Act\n    const response = await reviewer.post(`/api/extractions/${pending.id}/decision`, { data: { decision: \"approve\" } });\n\n    // Assert\n    const decided = await expectStatus<Extraction>(response, 200);\n    expect(decided.status).toBe(\"approved\");\n    const stored = await expectStatus<Vendor>(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n    expect(stored.status).toBe(\"approved\");\n    const audit = await expectStatus<{ items: { action: string }[] }>(\n      await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n      200,\n    );\n    expect(audit.items.map((e) => e.action)).toContain(\"vendor.approved\");\n  },\n);\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 75803,
+    "output_tokens": 2066,
+    "cache_read_input_tokens": 68709,
+    "cache_write_input_tokens": 7088,
+    "cost_usd": 0.11179,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 30.710753167048097,
+  "error": null,
+  "log": "  kind: api\n  plan: I set up the state through the factory and the reviewer and member APIs. The reviewer approves the insurance certificate and contract, then rejects the w9. The member uploads a replacement w9, waits for its extraction and resubmits, which leaves the new w9 as the only pending extraction. Then the reviewer approves that w9. The test re-reads the vendor to check its status is \"approved\" and checks the audit trail for a \"vendor.approved\" event.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nLIF-06: passing: every test passes against the real app\n"
+}

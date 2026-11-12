@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"a certificate whose expiry date could not be read cannot be approved\",\n    { tag: \"@LIF-08\" },\n    async ({ apiAs, factory }) => {\n      // Arrange\n      const { documents, extractions } = await factory.vendorInReview({\n        files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n      });\n      const reviewer = await apiAs(\"reviewer\");\n\n      // Act\n      const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert\n      const body = await expectStatus<{ error: { code: string } }>(response, 409);\n      expect(body.error.code).toBe(\"insurance_expiry_missing\");\n      const stored = await factory.extraction(documents.insurance_certificate.id, \"reviewer\");\n      expect(stored.status).toBe(\"pending_review\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 235463,
+    "output_tokens": 3424,
+    "cache_read_input_tokens": 214684,
+    "cache_write_input_tokens": 20761,
+    "cost_usd": 0.008013,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 34.51130666723475,
+  "error": null,
+  "log": "turns: 9; I wrote `e2e/api/generated/LIF-08.spec.ts` with one test for the scenario. It passes, and `npx tsc --noEmit` printed no errors. The exit code shown in the output came from `tail`, not `tsc`, so the clean type-check rests on the empty output.\n\nThe test:\n- **Arrange:** `factory.vendorInReview()` with the insurance certificate swapped for `samples/insurance_certificate_unparseable.txt`, which has the expiry date \"next spring\". Names are unique via the factory's `uniqueName`.\n- **Act:** the reviewer posts `{ decision: \"approve\" }` to `/api/extractions/{id}/decision`.\n- **Assert:** status 409 (checked via `expectStatus`), `error.code` is `insurance_expiry_missing`, and a re-read of the extraction shows it is still `pending_review`.\n\nChoices I made:\n- The error body shape `body.error.code` follows the existing auth spec, not the OpenAPI file, which doesn't document error bodies.\n- The pending-review check re-reads the stored extraction, following the repo's rule to assert stored outcomes.\n\nI changed no other files."
+}

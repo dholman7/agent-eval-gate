@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-09.spec.ts": "// features: Vendor lifecycle, \"A vendor that was sent back can be edited again\"\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"a vendor whose contract extraction was rejected can be renamed\", { tag: \"@LIF-09\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const { vendor, documents, extractions } = await factory.vendorInReview({ as: \"member\" });\n  const reviewer = await apiAs(\"reviewer\");\n  const decision = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n    data: { decision: \"reject\", note: \"Contract page is unreadable\" },\n  });\n  await expectStatus(decision, 200);\n  expect((await factory.extraction(documents.contract.id, \"member\")).status).toBe(\"rejected\");\n\n  const member = await apiAs(\"member\");\n  const newName = uniqueName(\"Renamed Vendor\");\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { name: newName },\n  });\n\n  // Assert\n  const updated = await expectStatus<{ id: string; name: string }>(response, 200);\n  expect(updated.name).toBe(newName);\n\n  const stored = await expectStatus<{ name: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.name).toBe(newName);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 45729,
+    "output_tokens": 2580,
+    "cache_read_input_tokens": 43890,
+    "cache_write_input_tokens": 1835,
+    "cost_usd": 0.002096,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 23.884901541285217,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a submitted vendor whose contract extraction a reviewer rejected, using the factory and the reviewer's decision endpoint. Then the member renames the vendor via PATCH, and the test asserts the 200 response and re-reads the vendor to confirm the new name was stored.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The test passes the wrong ID to the factory. `factory.extraction(documentId, as)` takes a document ID and calls GET /api/documents/{id}/extraction. The test passed `extractions.contract.id`, which is the extraction's own ID, so the app correctly answered 404 document_not_found. The app is behaving correctly. The fix is to pass the contract document's ID, which `vendorInReview` also returns as `documents.contract`. The decision POST already uses the extraction ID correctly, so only the status re-read changes. No assertion, status code, or expected value changes.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-09: passing: every test passes against the real app\n"
+}

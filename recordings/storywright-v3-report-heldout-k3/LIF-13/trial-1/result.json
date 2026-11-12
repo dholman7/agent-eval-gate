@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "// features/lifecycle.feature: Search ignores case and matches part of a name\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ninterface VendorPage {\n  items: { id: string; name: string }[];\n  total: number;\n}\n\ntest(\"search ignores case and matches part of a name\", { tag: \"@LIF-13\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const vendor = await factory.vendor({ as: \"member\", name: uniqueName(\"Zephyrine Cold Storage\") });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(\"/api/vendors\", { params: { q: \"COLD stor\", limit: 100 } });\n\n  // Assert\n  const page = await expectStatus<VendorPage>(response, 200);\n  expect(page.items.map((v) => v.id)).toContain(vendor.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22464,
+    "output_tokens": 686,
+    "cache_read_input_tokens": 22103,
+    "cache_write_input_tokens": 359,
+    "cost_usd": 0.021021,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 15.761133375111967,
+  "error": null,
+  "log": "  kind: api\n  plan: The factory creates a member vendor with a unique name that starts \"Zephyrine Cold Storage\". The test then lists vendors as the member with q=\"COLD stor\" and checks that the vendor's id is in the results. It sets limit=100 so vendors created by tests running in parallel don't push this one off the first page.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-13: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"approving the replacement approves a vendor whose other documents were already approved\", { tag: \"@LIF-06\" }, async ({ factory, apiAs }) => {\n  // Arrange: a vendor in review; approve insurance and contract, reject the W-9 (vendor becomes rejected).\n  const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n  const reviewer = await apiAs(\"reviewer\");\n  const member = await apiAs(\"member\");\n\n  expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n      data: { decision: \"approve\" },\n    }),\n    200,\n  );\n  expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n      data: { decision: \"approve\" },\n    }),\n    200,\n  );\n  expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n      data: { decision: \"reject\", note: \"Legal name does not match\" },\n    }),\n    200,\n  );\n\n  // Arrange: the member replaces the W-9, waits for extraction, and resubmits.\n  const replacement = await factory.upload(vendor.id, \"w9\", \"w9.txt\", \"member\");\n  await expect\n    .poll(async () => (await factory.extraction(replacement.id, \"member\")).status, {\n      message: \"replacement W-9 extraction awaits review\",\n      timeout: 30_000,\n    })\n    .toBe(\"pending_review\");\n  const resubmitted = await expectStatus<{ status: string }>(\n    await member.post(`/api/vendors/${vendor.id}/submit`),\n    200,\n  );\n  expect(resubmitted.status).toBe(\"in_review\");\n\n  // Act: the reviewer approves the replacement W-9.\n  const decided = await expectStatus<{ status: string }>(\n    await reviewer.post(`/api/extractions/${(await factory.extraction(replacement.id, \"member\")).id}/decision`, {\n      data: { decision: \"approve\" },\n    }),\n    200,\n  );\n\n  // Assert: the stored vendor status and audit trail reflect the approval.\n  expect(decided.status).toBe(\"approved\");\n  const stored = await expectStatus<{ status: string }>(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"approved\");\n  const audit = await expectStatus<{ items: { action: string }[] }>(\n    await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n    200,\n  );\n  expect(audit.items.map((e) => e.action)).toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 175856,
+    "output_tokens": 3456,
+    "cache_read_input_tokens": 163709,
+    "cache_write_input_tokens": 12135,
+    "cost_usd": 0.005793,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 29.156537749804556,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor through the factory with all three documents approved except the W-9, which the reviewer rejects (vendor goes rejected). The member uploads a replacement W-9, waits for its extraction, and resubmits. The reviewer then approves only the replacement W-9, and the test asserts the vendor is approved and a vendor.approved audit event exists.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 9\nLIF-06: passing: every test passes against the real app\n"
+}

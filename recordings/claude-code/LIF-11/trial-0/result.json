@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "// Vendor lifecycle, LIF-11: sign-in ignores the case of the email address.\nimport { PASSWORD, expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n    // Arrange\n    const email = \"Member@Northwind.TEST\";\n\n    // Act\n    const login = await request.post(\"/api/auth/login\", {\n      data: { email, password: PASSWORD },\n    });\n\n    // Assert\n    const { access_token: token } = await expectStatus<{ access_token: string }>(login, 200);\n    const me = await request.get(\"/api/me\", {\n      headers: { Authorization: `Bearer ${token}` },\n    });\n    const profile = await expectStatus<{ email: string }>(me, 200);\n    expect(profile.email).toBe(\"member@northwind.test\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 133495,
+    "output_tokens": 1864,
+    "cache_read_input_tokens": 119459,
+    "cache_write_input_tokens": 14024,
+    "cost_usd": 0.004933,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 19.620570291765034,
+  "error": null,
+  "log": "turns: 6; I added `e2e/api/generated/LIF-11.spec.ts` with one test for the sign-in case scenario. The API test passes and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test tagged `@LIF-11` logs in as `Member@Northwind.TEST` with the right password, asserts a 200 from `/api/auth/login`, then calls `/api/me` with the returned token and asserts the `email` field is `member@northwind.test`. I took \"current user's email\" to mean the `email` field of `/api/me`. The existing `auth.spec.ts` only checks `role` and `tenant` on that endpoint, so I didn't confirm the field name against the API source. The passing run is the evidence that it matches."
+}

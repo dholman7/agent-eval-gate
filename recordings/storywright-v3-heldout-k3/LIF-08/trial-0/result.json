@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"an insurance certificate with an unreadable expiry date cannot be approved\", { tag: \"@LIF-08\" }, async ({ factory, apiAs }) => {\n  // Arrange: a vendor in review whose insurance certificate expiry reads \"next spring\"\n  const { documents, extractions } = await factory.vendorInReview({\n    files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n  });\n  const insuranceId = extractions.insurance_certificate.id;\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act: the reviewer tries to approve the insurance certificate extraction\n  const response = await reviewer.post(`/api/extractions/${insuranceId}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert: refused with a 409 and the expiry-missing error code\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expiry_missing\");\n\n  // Assert: the stored extraction is still awaiting review\n  // factory.extraction takes the document ID, not the extraction ID.\n  const stored = await factory.extraction(documents.insurance_certificate.id, \"reviewer\");\n  expect(stored.status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 69211,
+    "output_tokens": 2759,
+    "cache_read_input_tokens": 65901,
+    "cache_write_input_tokens": 3304,
+    "cost_usd": 0.0027,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.846885167062283,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a submitted vendor whose insurance certificate uses the unparseable-expiry sample via the factory's file override, then have a reviewer approve that extraction through the decision endpoint. Assert the 409 with its error code and body, then re-read the stored extraction to confirm it is still pending_review.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failure happens at the final re-read, not at the approval. The 409 and \"insurance_expiry_missing\" assertions already passed, since the error was thrown at the GET on /api/documents/<id>/extraction. The test passed the extraction ID (insuranceId = extractions.insurance_certificate.id) to factory.extraction(), which takes a document ID and builds the path /api/documents/{id}/extraction. The API correctly reports that no document has that ID. The fix is to pass the insurance certificate's document ID, which vendorInReview() returns in `documents`. No assertion or expected value changes.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nLIF-08: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "import { expect, expectStatus, test, uniqueName, type Vendor } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"search ignores case and matches part of a name\", { tag: \"@LIF-13\" }, async ({ apiAs, factory }) => {\n    // Arrange\n    const name = uniqueName(\"Zephyrine Cold Storage\");\n    const vendor = await factory.vendor({ as: \"member\", name });\n    const member = await apiAs(\"member\");\n\n    // Act\n    const response = await member.get(\"/api/vendors\", { params: { q: \"COLD stor\", limit: 100 } });\n\n    // Assert\n    const page = await expectStatus<{ items: Vendor[]; total: number }>(response, 200);\n    expect(page.items.map((v) => v.id)).toContain(vendor.id);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 273601,
+    "output_tokens": 3451,
+    "cache_read_input_tokens": 256842,
+    "cache_write_input_tokens": 16737,
+    "cost_usd": 0.007644,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 30.571703374851495,
+  "error": null,
+  "log": "turns: 11; I added `e2e/api/generated/LIF-13.spec.ts` with one test tagged `@LIF-13`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test creates a vendor named with `uniqueName(\"Zephyrine Cold Storage\")` through the factory, then calls `GET /api/vendors?q=COLD stor&limit=100` as the member persona. It asserts a 200 and that the new vendor's id is in `items`.\n\nTwo choices to review:\n- **`limit: 100`:** the shared database may hold other matching vendors, so I used the maximum page size to keep the new vendor from falling off the first page. The scenario doesn't mention paging.\n- **Scope:** I asserted only what the scenario names (the vendor is in the results). I did not add a check that every returned name contains the search term, ignoring case, which the `vendors.feature` list scenario covers.\n\nThe `e2e/api/generated/` directory did not exist before, so I created it."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-07.spec.ts": "// features/lifecycle.feature: A certificate that expires today can still be approved\nimport { mkdirSync, writeFileSync } from \"node:fs\";\nimport path from \"node:path\";\n\nimport { SAMPLES, } from \"../../fixtures/factory\";\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"a certificate that expires today can still be approved\", { tag: \"@LIF-07\" }, async ({ factory, apiAs }, testInfo) => {\n  // Arrange: an insurance certificate expiring today, in the ISO format extraction parses\n  const today = new Date().toISOString().slice(0, 10);\n  const certificate = testInfo.outputPath(\"insurance_certificate_expires_today.txt\");\n  mkdirSync(path.dirname(certificate), { recursive: true });\n  writeFileSync(\n    certificate,\n    `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${today}\\n`,\n  );\n  const { extractions } = await factory.vendorInReview({\n    files: { insurance_certificate: path.relative(SAMPLES, certificate) },\n  });\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const decided = await expectStatus(response, 200);\n  expect(decided.status).toBe(\"approved\");\n  const stored = await factory.extraction(decided.document_id, \"reviewer\");\n  expect(stored.status).toBe(\"approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 311334,
+    "output_tokens": 2644,
+    "cache_read_input_tokens": 296030,
+    "cache_write_input_tokens": 15284,
+    "cost_usd": 0.234438,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 47.27877770829946,
+  "error": null,
+  "log": "  kind: api\n  plan: Write an insurance certificate whose Expiry Date is today (UTC, ISO format, which the deterministic extractor parses), and pass it to factory.vendorInReview as the certificate file. Then the reviewer approves that extraction; the test checks for 200 and status \"approved\" in the response, then reads the extraction again to confirm \"approved\" was saved.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nLIF-07: passing: every test passes against the real app\n"
+}

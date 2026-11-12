@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"search ignores case and matches part of a name\",\n    { tag: \"@LIF-13\" },\n    async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n      const name = `Zephyrine Cold Storage ${uniqueSuffix}`;\n\n      const created = await member.post(\"/api/vendors\", {\n        data: {\n          name,\n          category: \"logistics\",\n          contact_email: `ops-${uniqueSuffix}@zephyrine.test`,\n        },\n      });\n      const vendor = await expectStatus<{ id: string; name: string }>(created, 201);\n\n      // Act\n      const response = await member.get(\"/api/vendors\", {\n        params: { q: `COLD stor ${uniqueSuffix}`, limit: 100 },\n      });\n\n      // Assert\n      const page = await expectStatus<{\n        items: { id: string; name: string }[];\n        total: number;\n      }>(response, 200);\n      expect(page.items.map((v) => v.id)).toContain(vendor.id);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13746,
+    "output_tokens": 452,
+    "cache_read_input_tokens": 13381,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.000433,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.278083084151149,
+  "error": null,
+  "log": null
+}

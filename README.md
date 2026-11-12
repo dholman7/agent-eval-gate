@@ -129,7 +129,29 @@ Storywright was tuned while v1/v2's held-out scores were visible, so those numbe
   - **Discriminating mutants are drawn for each task.** A mutant counts as discriminating when 1 to 6 tasks (a quarter of 27) catch it. Up to 2 per task are drawn with a fixed seed, giving 23 in [`mutants.yaml`](benchmarks/vendor-intake/v3/mutants.yaml), next to v2's 11 hand-written dev bugs. The full kill matrix is committed.
 - **Validated like the others.** `aeg validate`: 27 references and 71 bug checks, 0 problems. CI runs it.
 
-Results: pending.
+**Held-out results** (15 tasks, 3 trials each, run once after the split froze):
+
+| Agent | Trials succeeded | All 3 trials succeed | Seeded bugs caught | Failing on correct code | Cost per trial* |
+|---|---|---|---|---|---|
+| Storywright, Claude Opus 5.5 | 100% (45/45), CI 92–100% | 100% (15/15) | 95% (108/114), CI 89–98% | 0% (0/45) | $0.093 |
+| Claude Code (`--agent claude-code`), Haiku 5.5 | 100% (45/45), CI 92–100% | 100% (15/15) | 89% (102/114), CI 82–94% | 0% (0/45) | $0.010 |
+| Storywright, Haiku 5.5 | 98% (44/45), CI 88–100% | 93% (14/15) | 86% (98/114), CI 78–91% | 0% (0/44) | $0.003 |
+| One call, no tools, Haiku 5.5 | 16% (7/45), CI 8–29% | 7% (1/15) | 7% (8/114), CI 4–13% | 83% (35/42) | $0.002 |
+
+\* Every run went through headless Claude Code on a Claude subscription (the `claude-code` transports), not the API. Costs are Claude Code's list-price estimates for the same requests, which include its 1-hour cache writes and a short preamble, so they run higher than the API-billed costs above and aren't comparable with them.
+
+Paired by task (`aeg gate`):
+
+- **Storywright and Claude Code are tied on Haiku.** Bug detection differs by 5 points, p = 0.25, and Storywright costs about a third as much per trial.
+- **Opus catches 10 points more bugs than Haiku,** but with 15 tasks that isn't significant (p = 0.125).
+- **Both agents beat the one-call baseline by about 80 points** on every metric (p < 0.001).
+
+So, on tasks no agent had seen: a purpose-built agent matches a general coding agent at a third of the cost, and both are far ahead of one well-prompted call.
+
+What else to know:
+
+- **Storywright's one failed trial** (LIF-11) was a transport error. On a repair, Claude Code ended without returning its structured output.
+- **These runs had a harness bug,** fixed afterwards. Scoring deleted the target's own example tests (`e2e/api/generated/KAN-*`) and didn't restore them, so only trials that started before a run's first scoring saw them. Every agent ran under the same condition, but Storywright's context lists KAN-4 as an example. The v1 and v2 numbers above ran under it too.
 
 ## Use it
 

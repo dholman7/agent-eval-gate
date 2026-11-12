@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-05.spec.ts": "// features/lifecycle.feature: After a replacement, only the new document waits for review\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"after a replacement, only the new document waits for review\", { tag: \"@LIF-05\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n      data: { decision: \"approve\" },\n    }),\n    200,\n  );\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, { data: { decision: \"approve\" } }),\n    200,\n  );\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n      data: { decision: \"reject\", note: \"Wrong TIN, please re-upload\" },\n    }),\n    200,\n  );\n\n  // Act\n  const replacement = await factory.upload(vendor.id, \"w9\");\n  await expect\n    .poll(\n      async () => (await expectStatus(await member.get(`/api/documents/${replacement.id}`), 200)).status,\n      { message: \"the replacement w9 is extracted\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n  const submitted = await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n\n  // Assert\n  expect(submitted.status).toBe(\"in_review\");\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"in_review\");\n  const queue = await expectStatus<\n    { vendor_id: string; extractions: { kind: string; document_id: string; status: string }[] }[]\n  >(await reviewer.get(\"/api/review-queue\"), 200);\n  const items = queue.filter((item) => item.vendor_id === vendor.id);\n  expect(items, \"the vendor is listed once in the review queue\").toHaveLength(1);\n  expect(items[0].extractions).toHaveLength(1);\n  expect(items[0].extractions[0].kind).toBe(\"w9\");\n  expect(items[0].extractions[0].document_id).toBe(replacement.id);\n  expect(items[0].extractions[0].status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 131121,
+    "output_tokens": 1841,
+    "cache_read_input_tokens": 123054,
+    "cache_write_input_tokens": 8057,
+    "cost_usd": 0.125927,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 31.525274334009737,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the factory to put a vendor in review. A reviewer approves insurance_certificate and contract first and then rejects w9, so the vendor goes to rejected. The member then uploads a new w9, polls until it is extracted, and resubmits. The test asserts the stored vendor status and that the review queue shows exactly one pending extraction, for the new w9 document.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nLIF-05: passing: every test passes against the real app\n"
+}

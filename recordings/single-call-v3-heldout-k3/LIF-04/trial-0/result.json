@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-04.spec.ts": "import { randomUUID } from \"node:crypto\";\n\nimport { expect, expectStatus, test, type APIRequestContext } from \"../../fixtures\";\n\ninterface ApiError {\n  error: { code: string; message?: string; [key: string]: unknown };\n}\n\ninterface ExtractionRef {\n  id: string;\n}\n\nconst PDF_BYTES = Buffer.from(\"%PDF-1.4\\n% lifecycle test document\\n%%EOF\\n\");\nconst REQUIRED_KINDS = [\"w9\", \"insurance_certificate\", \"contract\"] as const;\n\nasync function waitForExtraction(api: APIRequestContext, documentId: string): Promise<ExtractionRef> {\n  for (let attempt = 0; attempt < 60; attempt++) {\n    const response = await api.get(`/api/documents/${documentId}/extraction`);\n    if (response.status() === 200) {\n      return await expectStatus<ExtractionRef>(response, 200);\n    }\n    await new Promise((resolve) => setTimeout(resolve, 250));\n  }\n  throw new Error(`extraction for document ${documentId} never became available`);\n}\n\ntest(\"resubmitting without replacing a rejected document is refused\", { tag: \"@LIF-04\" }, async ({ apiAs }) => {\n  // Arrange: a member creates a uniquely named vendor and uploads every required document.\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n\n  const vendor = await expectStatus<{ id: string }>(\n    await member.post(\"/api/vendors\", {\n      data: {\n        name: `Lifecycle Vendor ${randomUUID()}`,\n        category: \"services\",\n        contact_email: `vendor-${randomUUID()}@example.test`,\n      },\n    }),\n    201,\n  );\n\n  const documentsByKind: Record<string, { id: string }> = {};\n  for (const kind of REQUIRED_KINDS) {\n    documentsByKind[kind] = await expectStatus<{ id: string }>(\n      await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind,\n          file: { name: `${kind}-${randomUUID()}.pdf`, mimeType: \"application/pdf\", buffer: PDF_BYTES },\n        },\n      }),\n      201,\n    );\n  }\n\n  // Wait for extraction on the w9, then complete the first submission.\n  const w9Extraction = await waitForExtraction(member, documentsByKind.w9.id);\n  for (const kind of [\"insurance_certificate\", \"contract\"] as const) {\n    await waitForExtraction(member, documentsByKind[kind].id);\n  }\n  await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n\n  // A reviewer rejects the w9 extraction.\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${w9Extraction.id}/decision`, {\n      data: { decision: \"reject\", note: \"W-9 is illegible\" },\n    }),\n    200,\n  );\n\n  // Act: the member resubmits without replacing the rejected w9.\n  const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n  // Assert: refused, and only the w9 is reported as missing.\n  const body = await expectStatus<ApiError>(response, 409);\n  expect(body.error.code).toBe(\"documents_incomplete\");\n\n  const serializedError = JSON.stringify(body.error);\n  expect(serializedError).toContain('\"w9\"');\n  expect(serializedError).not.toContain('\"insurance_certificate\"');\n  expect(serializedError).not.toContain('\"contract\"');\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13778,
+    "output_tokens": 3516,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13776,
+    "cost_usd": 0.004513,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.319079999811947,
+  "error": null,
+  "log": null
+}

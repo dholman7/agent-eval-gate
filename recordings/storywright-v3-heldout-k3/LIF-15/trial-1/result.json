@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"a page past the last vendor is empty but still reports the total\", { tag: \"@LIF-15\" }, async ({ apiAs }) => {\n  // Arrange: the total as seen from the first page. Tests share one database, so the offset\n  // sits well past the total to stay beyond it even if other tests add vendors meanwhile.\n  const member = await apiAs(\"member\");\n  const first = await expectStatus<{ items: unknown[]; total: number }>(\n    await member.get(\"/api/vendors\", { params: { limit: 20, offset: 0 } }),\n    200,\n  );\n  const offset = first.total + 1000;\n\n  // Act\n  const response = await member.get(\"/api/vendors\", { params: { limit: 20, offset } });\n\n  // Assert\n  const page = await expectStatus<{ items: unknown[]; total: number; offset: number }>(response, 200);\n  expect(page.items, await response.text()).toEqual([]);\n  expect(page.total).toBe(first.total);\n  expect(page.offset).toBe(offset);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22469,
+    "output_tokens": 1523,
+    "cache_read_input_tokens": 22109,
+    "cache_write_input_tokens": 358,
+    "cost_usd": 0.001054,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 16.793272166978568,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test as the member persona: read the first page to get the total, request an offset past that total, and assert a 200 with no items and the same total. The offset is well beyond the total so that vendors created by parallel tests are unlikely to bring it back into range.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-15: passing: every test passes against the real app\n"
+}

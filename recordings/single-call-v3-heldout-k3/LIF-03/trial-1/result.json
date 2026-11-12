@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"LIF-03 vendor lifecycle\", () => {\n  test(\n    \"approving a decision on a vendor that was sent back returns 409 vendor_not_in_review\",\n    { tag: \"@LIF-03\" },\n    async ({ apiAs }) => {\n      // Arrange: a unique vendor, two documents, and a submission so the vendor is in review.\n      const member = await apiAs(\"member\");\n      const reviewer = await apiAs(\"reviewer\");\n      const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n      const created = await expectStatus<{ id: string }>(\n        await member.post(\"/api/vendors\", {\n          data: {\n            name: `LIF-03 Vendor ${suffix}`,\n            category: \"services\",\n            contact_email: `ap-${suffix}@lif03.example.test`,\n          },\n        }),\n        201,\n      );\n      const vendorId = created.id;\n\n      const w9 = await expectStatus<{ id: string }>(\n        await member.post(`/api/vendors/${vendorId}/documents`, {\n          multipart: {\n            kind: \"w9\",\n            file: { name: \"w9.pdf\", mimeType: \"application/pdf\", buffer: Buffer.from(\"%PDF-1.4 LIF-03 w9\") },\n          },\n        }),\n        201,\n      );\n\n      const contract = await expectStatus<{ id: string }>(\n        await member.post(`/api/vendors/${vendorId}/documents`, {\n          multipart: {\n            kind: \"contract\",\n            file: { name: \"contract.pdf\", mimeType: \"application/pdf\", buffer: Buffer.from(\"%PDF-1.4 LIF-03 contract\") },\n          },\n        }),\n        201,\n      );\n\n      await expectStatus(await member.post(`/api/vendors/${vendorId}/submit`), 200);\n\n      const w9Extraction = await expectStatus<{ id: string }>(\n        await reviewer.get(`/api/documents/${w9.id}/extraction`),\n        200,\n      );\n      const contractExtraction = await expectStatus<{ id: string }>(\n        await reviewer.get(`/api/documents/${contract.id}/extraction`),\n        200,\n      );\n\n      // Arrange: the reviewer rejects the w9 extraction, sending the vendor back.\n      await expectStatus(\n        await reviewer.post(`/api/extractions/${w9Extraction.id}/decision`, {\n          data: { decision: \"reject\", note: \"LIF-03 w9 sent back\" },\n        }),\n        200,\n      );\n\n      // Act: the reviewer tries to approve the contract extraction on the sent-back vendor.\n      const response = await reviewer.post(`/api/extractions/${contractExtraction.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert\n      const body = await expectStatus<{ error: { code: string } }>(response, 409);\n      expect(body.error.code).toBe(\"vendor_not_in_review\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13771,
+    "output_tokens": 2821,
+    "cache_read_input_tokens": 13406,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.001617,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.359786625020206,
+  "error": null,
+  "log": null
+}

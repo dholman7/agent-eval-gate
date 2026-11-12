@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"a page past the last vendor is empty but still reports the total\", { tag: \"@LIF-15\" }, async ({ apiAs, factory }) => {\n  // Arrange: a unique vendor name, so searching for it gives a total no other test can change\n  const member = await apiAs(\"member\");\n  const name = uniqueName(\"Past End\");\n  await factory.vendor({ name });\n  const query = { q: name, limit: 10 };\n  const firstPage = await expectStatus<{ items: unknown[]; total: number }>(\n    await member.get(\"/api/vendors\", { params: { ...query, offset: 0 } }),\n    200,\n  );\n  expect(firstPage.items.length).toBe(1);\n\n  // Act: an offset far beyond the matching total\n  const response = await member.get(\"/api/vendors\", { params: { ...query, offset: 1000 } });\n\n  // Assert\n  const pastEnd = await expectStatus<{ items: unknown[]; total: number }>(response, 200);\n  expect(pastEnd.items).toEqual([]);\n  expect(pastEnd.total).toBe(firstPage.total);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 167190,
+    "output_tokens": 3473,
+    "cache_read_input_tokens": 149249,
+    "cache_write_input_tokens": 17927,
+    "cost_usd": 0.006816,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 29.496834374964237,
+  "error": null,
+  "log": "turns: 9; I added `e2e/api/generated/LIF-15.spec.ts` with one test, tagged `@LIF-15`. `npx tsc --noEmit` passes, and the Playwright api run passes.\n\nThe test creates a vendor with a unique name, then lists with `q` set to that name and `limit: 10`. It checks the first page has one item, then requests `offset: 1000` and asserts status 200, an empty `items` array, and a `total` equal to the first page's.\n\nI scoped the list to the unique name instead of the whole tenant. The shared database and parallel tests could add vendors between the two requests and change an unfiltered total, which would make the check flaky. The trade-off is that this checks the past-the-end behavior on a filtered list, not on the unfiltered list the scenario literally describes. If you want the unfiltered version, the check is the same but can race with other tests."
+}

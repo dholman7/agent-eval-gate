@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"an admin approves a vendor's W-9 extraction and the vendor stays in the review queue\", { tag: \"@LIF-12\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const { vendor, documents, extractions } = await factory.vendorInReview();\n  const admin = await apiAs(\"admin\");\n\n  // Act\n  const decision = await admin.post(`/api/extractions/${extractions.w9.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n  const queue = await admin.get(\"/api/review-queue\");\n\n  // Assert\n  const approved = await expectStatus(decision, 200);\n  expect(approved.status).toBe(\"approved\");\n  const listed = await expectStatus<{ vendor_id: string }[]>(queue, 200);\n  expect(listed.map((item) => item.vendor_id)).toContain(vendor.id);\n  expect((await factory.extraction(documents.w9.id, \"admin\")).status).toBe(\"approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 300562,
+    "output_tokens": 4502,
+    "cache_read_input_tokens": 277948,
+    "cache_write_input_tokens": 22592,
+    "cost_usd": 0.009551,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 36.20415270887315,
+  "error": null,
+  "log": "turns: 12; I wrote `e2e/api/generated/LIF-12.spec.ts` with one test tagged `@LIF-12`. It passes with `npx playwright test --project=api api/generated/LIF-12.spec.ts`, and `npx tsc --noEmit` exits 0.\n\nThe test arranges a vendor in review through `factory.vendorInReview()`. As `admin`, it approves the W-9 extraction, then opens the review queue. It asserts:\n- the decision returns 200 with status `approved`\n- the queue returns 200 and lists the vendor's id\n- a re-read of the W-9 extraction shows `approved`, so the stored outcome is checked and not just the response\n\nChoices I made:\n- The scenario says \"the response status is 200\" without naming which response, so I asserted 200 on both the decision and the queue requests.\n- The queue is checked after the approval, so the test shows the vendor is still listed while its other two extractions are pending.\n\nThe first run failed because I passed an extraction id where the helper expects a document id. I fixed that and reran the test, and it passed. The run also created `e2e/test-results/` artifacts, which I did not touch."
+}

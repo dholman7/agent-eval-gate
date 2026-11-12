@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-09.spec.ts": "// features: Vendor lifecycle — \"A vendor that was sent back can be edited again\"\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"a vendor sent back for a rejected contract can be renamed\", { tag: \"@LIF-09\" }, async ({ factory, apiAs }) => {\n    // Arrange: a submitted vendor whose contract extraction a reviewer rejects\n    const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n    const reviewer = await apiAs(\"reviewer\");\n    const rejected = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n      data: { decision: \"reject\", note: \"Contract is unsigned\" },\n    });\n    await expectStatus(rejected, 200);\n\n    const member = await apiAs(\"member\");\n    const newName = uniqueName(\"Renamed Vendor\");\n\n    // Act: the member changes the vendor's name\n    const response = await member.patch(`/api/vendors/${vendor.id}`, { data: { name: newName } });\n\n    // Assert: the response is 200 and the stored vendor carries the new name\n    const updated = await expectStatus<{ id: string; name: string }>(response, 200);\n    expect(updated.name).toBe(newName);\n\n    const stored = await expectStatus<{ name: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n    expect(stored.name).toBe(newName);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22469,
+    "output_tokens": 1260,
+    "cache_read_input_tokens": 21610,
+    "cache_write_input_tokens": 857,
+    "cost_usd": 0.001018,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.281127416994423,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a submitted vendor through the factory, have a reviewer reject its contract extraction through the decision endpoint, then have the member PATCH the vendor's name. Assert the 200 status with expectStatus and re-read the vendor to confirm the new name was stored.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-09: passing: every test passes against the real app\n"
+}

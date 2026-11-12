@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"search ignores case and matches part of a name\", { tag: \"@LIF-13\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ name: uniqueName(\"Zephyrine Cold Storage\") });\n\n  // Act\n  const response = await member.get(\"/api/vendors\", { params: { q: \"COLD stor\", limit: 100 } });\n\n  // Assert\n  const page = await expectStatus<{ items: { id: string; name: string }[] }>(response, 200);\n  expect(page.items.map((v) => v.id)).toContain(vendor.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22465,
+    "output_tokens": 1351,
+    "cache_read_input_tokens": 22103,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000969,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.181394041981548,
+  "error": null,
+  "log": "  kind: api\n  plan: A single API test: as a member, create a vendor whose name contains \"Cold Storage\" through the factory, then list vendors with q \"COLD stor\" and assert the new vendor's id is in the results. A uniqueName suffix keeps the vendor unique in the shared database, and limit=100 keeps it on the first page even when other tests create similarly named vendors.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-13: passing: every test passes against the real app\n"
+}

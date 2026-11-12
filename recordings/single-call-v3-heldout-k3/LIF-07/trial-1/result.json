@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-07.spec.ts": "// features/vendor-lifecycle.feature: \"A certificate that expires today can still be approved\"\n// Assumption: the insurance certificate's expiry date is read from the uploaded file's text,\n// so the file body states today's date. If the factory fixture offers a dated-document helper,\n// prefer it.\nimport { expect, expectStatus, test, uniqueName, type APIRequestContext } from \"../../fixtures\";\n\ninterface VendorBody {\n  id: string;\n  status: string;\n}\n\ninterface DocumentBody {\n  id: string;\n  status: string;\n}\n\ninterface ExtractionBody {\n  id: string;\n  status: string;\n}\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"a certificate that expires today can still be approved\",\n    { tag: \"@LIF-07\" },\n    async ({ apiAs }) => {\n      // Arrange: a member creates a vendor and uploads an insurance certificate expiring today.\n      const member: APIRequestContext = await apiAs(\"member\");\n      const reviewer: APIRequestContext = await apiAs(\"reviewer\");\n      const today = new Date().toISOString().slice(0, 10);\n\n      const created = await expectStatus<VendorBody>(\n        await member.post(\"/api/vendors\", {\n          data: {\n            name: uniqueName(\"Expiring Today Co\"),\n            category: \"services\",\n            contact_email: `expiring-${Date.now()}@example.test`,\n          },\n        }),\n        201,\n      );\n\n      const uploaded = await expectStatus<DocumentBody>(\n        await member.post(`/api/vendors/${created.id}/documents`, {\n          multipart: {\n            kind: \"insurance_certificate\",\n            file: {\n              name: \"certificate.txt\",\n              mimeType: \"text/plain\",\n              buffer: Buffer.from(`Certificate of insurance. Expiration date: ${today}\\n`),\n            },\n          },\n        }),\n        201,\n      );\n\n      // Wait for extraction to finish processing the document.\n      await expect\n        .poll(\n          async () => {\n            const doc = await expectStatus<DocumentBody>(\n              await member.get(`/api/documents/${uploaded.id}`),\n              200,\n            );\n            return doc.status;\n          },\n          { timeout: 30_000 },\n        )\n        .toBe(\"extracted\");\n\n      const extraction = await expectStatus<ExtractionBody>(\n        await member.get(`/api/documents/${uploaded.id}/extraction`),\n        200,\n      );\n\n      // Submit the vendor so it is in review.\n      const submitted = await expectStatus<VendorBody>(\n        await member.post(`/api/vendors/${created.id}/submit`),\n        200,\n      );\n      expect(submitted.status).toBe(\"in_review\");\n\n      // Act: the reviewer approves the insurance certificate extraction.\n      const decision = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert\n      const body = await expectStatus<ExtractionBody>(decision, 200);\n      expect(body.status).toBe(\"approved\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13761,
+    "output_tokens": 2325,
+    "cache_read_input_tokens": 13395,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.001369,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 10.125721665564924,
+  "error": null,
+  "log": null
+}

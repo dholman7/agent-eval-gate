@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"a certificate that expires today can still be approved\", { tag: \"@LIF-07\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review whose insurance certificate expires today (local date).\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  await factory.upload(vendor.id, \"w9\");\n  await factory.upload(vendor.id, \"contract\");\n\n  const now = new Date();\n  const today = [\n    now.getFullYear(),\n    String(now.getMonth() + 1).padStart(2, \"0\"),\n    String(now.getDate()).padStart(2, \"0\"),\n  ].join(\"-\");\n  const certificate = `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${today}\\n`;\n  const uploaded = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"insurance_certificate\",\n      file: { name: \"insurance-expires-today.txt\", mimeType: \"text/plain\", buffer: Buffer.from(certificate) },\n    },\n  });\n  const certificateDocument = await expectStatus<{ id: string }>(uploaded, 201);\n\n  await expect\n    .poll(\n      async () => {\n        const documents = await expectStatus<{ status: string }[]>(\n          await member.get(`/api/vendors/${vendor.id}/documents`),\n          200,\n        );\n        return documents.map((d) => d.status).sort();\n      },\n      { message: \"extraction finishes for all three documents\", timeout: 30_000 },\n    )\n    .toEqual([\"extracted\", \"extracted\", \"extracted\"]);\n\n  await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n  const pending = await factory.extraction(certificateDocument.id, \"member\");\n  expect(pending.status, \"insurance certificate extraction awaits review\").toBe(\"pending_review\");\n\n  // Act: the reviewer approves the certificate extraction.\n  const response = await reviewer.post(`/api/extractions/${pending.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert: the response and the stored extraction both show it approved.\n  const body = await expectStatus<{ status: string }>(response, 200);\n  expect(body.status).toBe(\"approved\");\n  const stored = await factory.extraction(certificateDocument.id, \"reviewer\");\n  expect(stored.status).toBe(\"approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 104471,
+    "output_tokens": 4993,
+    "cache_read_input_tokens": 97735,
+    "cache_write_input_tokens": 6728,
+    "cost_usd": 0.00482,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 33.216595417354256,
+  "error": null,
+  "log": "  kind: api\n  plan: The only insurance sample expires in 2027, so the test uploads its own certificate whose expiry is today's date, built inline. It then submits the vendor, checks the extraction is pending review, approves it as a reviewer, and re-reads the stored extraction to confirm the approval was saved. Setup uses the factory where the sample files suffice; the custom certificate is uploaded through apiAs because the factory can only upload named sample files.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nLIF-07: passing: every test passes against the real app\n"
+}

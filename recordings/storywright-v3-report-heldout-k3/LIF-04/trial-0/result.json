@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-04.spec.ts": "// features/lifecycle.feature: Resubmitting without replacing the rejected document is refused\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"resubmitting without replacing the rejected w9 is refused with documents_incomplete\", { tag: \"@LIF-04\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const { vendor, extractions } = await factory.vendorInReview();\n  const reviewer = await apiAs(\"reviewer\");\n  const rejected = await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n      data: { decision: \"reject\", note: \"TIN is unreadable\" },\n    }),\n    200,\n  );\n  expect(rejected.status).toBe(\"rejected\");\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"documents_incomplete\");\n  expect(body.error.missing_kinds).toEqual([\"w9\"]);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 194839,
+    "output_tokens": 1370,
+    "cache_read_input_tokens": 183951,
+    "cache_write_input_tokens": 10874,
+    "cost_usd": 0.151238,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 31.481611667200923,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, have the reviewer reject the w9 extraction (status-checked), then have the member submit again and assert 409, error code documents_incomplete, and missing_kinds equal to [\"w9\"] (the backend's AppError envelope puts missing_kinds under error).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nLIF-04: passing: every test passes against the real app\n"
+}

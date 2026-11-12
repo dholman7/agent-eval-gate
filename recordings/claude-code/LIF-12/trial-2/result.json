@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"an admin approves a vendor's w9 extraction and the vendor stays in the review queue\", { tag: \"@LIF-12\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const { vendor, documents, extractions } = await factory.vendorInReview();\n  const admin = await apiAs(\"admin\");\n\n  // Act\n  const decision = await admin.post(`/api/extractions/${extractions.w9.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n  const queue = await admin.get(\"/api/review-queue\");\n\n  // Assert\n  const approved = await expectStatus<{ id: string; status: string }>(decision, 200);\n  expect(approved.id).toBe(extractions.w9.id);\n  expect(approved.status).toBe(\"approved\");\n  const items = await expectStatus<{ vendor_id: string; vendor_name: string }[]>(queue, 200);\n  expect(items.map((item) => item.vendor_id)).toContain(vendor.id);\n  // Stored outcome, not just the echoed response\n  expect((await factory.extraction(documents.w9.id, \"admin\")).status).toBe(\"approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 362268,
+    "output_tokens": 5757,
+    "cache_read_input_tokens": 333856,
+    "cache_write_input_tokens": 28388,
+    "cost_usd": 0.011897,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 49.51263295812532,
+  "error": null,
+  "log": "turns: 16; The LIF-12 test is written and passes. `npx tsc --noEmit` is clean too.\n\nThe file is `e2e/api/generated/LIF-12.spec.ts`, the only file I changed. It has one test, tagged `@LIF-12`, which follows the scenario:\n\n- **Arrange:** `factory.vendorInReview()` creates a unique vendor in review with three pending extractions, and the test takes an `admin` API client.\n- **Act:** the admin approves the w9 extraction via `POST /api/extractions/{id}/decision`, then reads `GET /api/review-queue`.\n- **Assert:** both responses are 200 through `expectStatus`. The decision echoes the extraction as `approved`, and the queue lists the vendor's id. I also re-read the stored w9 extraction through its document id, which confirms it is `approved`.\n\nI read \"the response status is 200\" as applying to both the approve and the queue calls, so both are asserted.\n\nMy first run failed because I passed an extraction id where `factory.extraction` expects a document id. The app was behaving correctly, and the fix was in the test."
+}

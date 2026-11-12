@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "import { expect, expectStatus, test, uniqueName, type Vendor } from \"../../fixtures\";\n\ntest(\"search and the status filter apply together\", { tag: \"@LIF-14\" }, async ({ apiAs, factory }) => {\n  // Arrange: two vendors sharing one unique word, one draft and one in review\n  const word = uniqueName(\"Lifecycle\").replace(/\\s+/g, \"\");\n  const draft = await factory.vendor({ name: `${word} Draft` });\n  const review = await factory.vendorInReview({ name: `${word} Review` });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(\"/api/vendors\", { params: { q: word, status: \"in_review\" } });\n\n  // Assert\n  const page = await expectStatus<{ items: Vendor[]; total: number }>(response, 200);\n  expect(review.vendor.status).toBe(\"in_review\");\n  expect(page.items.map((v) => v.id)).toEqual([review.vendor.id]);\n  expect(page.items.map((v) => v.id)).not.toContain(draft.id);\n  expect(page.total).toBe(1);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 232030,
+    "output_tokens": 4248,
+    "cache_read_input_tokens": 211583,
+    "cache_write_input_tokens": 20429,
+    "cost_usd": 0.008327,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 35.93553970800713,
+  "error": null,
+  "log": "turns: 11; I added `e2e/api/generated/LIF-14.spec.ts` with one test, tagged `@LIF-14`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test covers the scenario \"Search and the status filter apply together\":\n\n- **Arrange:** It builds a unique search word from `uniqueName`, with spaces stripped so it is one token. It creates a draft vendor named `<word> Draft` and an in-review vendor named `<word> Review` through the `factory`. The in-review vendor is submitted and its extractions are pending review.\n- **Act:** As `member`, it calls `GET /api/vendors` with `q=<word>` and `status=in_review`.\n- **Assert:** The status is 200. `items` holds only the in-review vendor's id, the draft's id is absent, and `total` is 1. I also check that the in-review vendor's status is `in_review`, so the setup is confirmed before the filter is judged.\n\nThe test follows the conventions in `e2e/AGENTS.md`: it imports from `../../fixtures`, uses `expectStatus`, and each step has a comment. I did not run the lint script, which the AGENTS file mentions."
+}
