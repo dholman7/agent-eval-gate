@@ -90,9 +90,14 @@ export async function extractions(api: APIRequestContext, vendorId: string): Pro
   return Object.fromEntries(entries) as Record<string, Extraction>;
 }
 
+/** The audit actions of a vendor this test created, checked to be its own trail: one creation, first. */
 export async function auditActions(api: APIRequestContext, vendorId: string): Promise<string[]> {
   const trail = (await (await api.get(`/api/vendors/${vendorId}/audit`)).json()) as { items: { action: string }[] };
-  return trail.items.map((e) => e.action);
+  const actions = trail.items.map((e) => e.action);
+  // Events carry no vendor id, so a trail mixing in other vendors' events shows as extra creations.
+  expect(actions.filter((a) => a === "vendor.created"), `trail: ${actions.join(", ")}`).toHaveLength(1);
+  expect(actions[0]).toBe("vendor.created");
+  return actions;
 }
 
 export async function vendorStatus(api: APIRequestContext, vendorId: string): Promise<string> {
