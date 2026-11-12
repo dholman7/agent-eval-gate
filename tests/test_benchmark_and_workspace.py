@@ -281,3 +281,28 @@ def test_ui_tasks_need_a_web_app_and_a_ui_suite(tmp_path: Path) -> None:
     assert bench.target.tests.kind("api").generated_dir == "e2e/api/generated"
     with pytest.raises(ValueError, match="no UI tests configured"):
         bench.target.tests.kind("ui")
+
+
+def test_with_tests_puts_back_what_the_directory_held(tmp_path: Path) -> None:
+    examples = tmp_path / "e2e" / "gen"
+    examples.mkdir(parents=True)
+    (examples / "KAN-4.spec.ts").write_text("example")
+    workspace = Workspace(tmp_path)
+
+    with workspace.with_tests("e2e/gen", {"T-1.spec.ts": "agent"}) as directory:
+        assert sorted(p.name for p in directory.iterdir()) == ["T-1.spec.ts"]  # scored alone
+
+    assert sorted(p.name for p in examples.iterdir()) == ["KAN-4.spec.ts"]
+    # A crash mid-block leaves the examples aside; the next call restores them first.
+    examples.rename(examples.with_name("gen.aeg-saved"))
+    with workspace.with_tests("e2e/gen", {"T-2.spec.ts": "agent"}):
+        pass
+    assert (examples / "KAN-4.spec.ts").read_text() == "example"
+
+
+def test_a_second_process_on_the_same_base_fails_fast(tmp_path: Path) -> None:
+    held = workspace_module._lock(tmp_path / "base-abc.lock")
+    with pytest.raises(RuntimeError, match="give each its own --cache-dir"):
+        workspace_module._lock(tmp_path / "base-abc.lock")
+    held.close()
+    workspace_module._lock(tmp_path / "base-abc.lock").close()  # free again once the first lets go

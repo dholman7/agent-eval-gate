@@ -1,6 +1,7 @@
 """A checkout of the target repo at the benchmark's pinned ref, with dependencies installed."""
 
 import difflib
+import fcntl
 import logging
 import shutil
 import subprocess
@@ -8,6 +9,7 @@ import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import IO
 
 from agent_eval_gate.benchmark import Bug, Target
 
@@ -31,11 +33,14 @@ class Workspace:
     def __init__(self, path: Path) -> None:
         # Absolute, so symlinks made into agent copies resolve from any directory.
         self.path = path.resolve()
+        # Held for the process's life by a prepared base checkout (see _lock).
+        self._lock: IO[str] | None = None
 
     @classmethod
     def prepare(cls, target: Target, cache_dir: Path, source: str | None = None) -> "Workspace":
         """Clones `source` (default: the target repo) at the pinned ref once per cache dir."""
         path = cache_dir / f"base-{target.ref[:12]}"
+        lock = _lock(cache_dir / f"base-{target.ref[:12]}.lock")
         marker = path / ".aeg-ready"
         if not marker.exists():
             shutil.rmtree(path, ignore_errors=True)
@@ -48,7 +53,9 @@ class Workspace:
                 logger.info("setup: %s", command)
                 _sh(command, path)
             marker.touch()
-        return cls(path)
+        workspace = cls(path)
+        workspace._lock = lock
+        return workspace
 
     def copy_for_agent(self, destination: Path) -> Path:
         """An isolated copy the agent may modify; scoring always uses the pristine base."""
@@ -110,9 +117,16 @@ class Workspace:
 
     @contextmanager
     def with_tests(self, relative_dir: str, files: dict[str, str]) -> Iterator[Path]:
-        """Writes test files into the repo for the duration of the block."""
+        """Writes test files into the repo for the duration of the block. Whatever the directory
+        held (the repo's own example tests, say) is moved aside and put back afterwards: agents
+        read those as examples, so later trials must see what the first one saw."""
         directory = self.path / relative_dir
-        shutil.rmtree(directory, ignore_errors=True)
+        saved = directory.with_name(directory.name + ".aeg-saved")
+        if saved.exists():  # left by a run that crashed mid-block
+            shutil.rmtree(directory, ignore_errors=True)
+            saved.rename(directory)
+        if directory.exists():
+            directory.rename(saved)
         directory.mkdir(parents=True)
         for name, content in files.items():
             target = (directory / name).resolve()
@@ -124,6 +138,23 @@ class Workspace:
             yield directory
         finally:
             shutil.rmtree(directory, ignore_errors=True)
+            if saved.exists():
+                saved.rename(directory)
+
+
+def _lock(path: Path) -> IO[str]:
+    """An exclusive lock on a base checkout. Scoring applies seeded bugs to the base in place, so
+    two processes sharing one would score each other's bugs; the second fails fast instead."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle = path.open("w")
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        handle.close()
+        raise RuntimeError(
+            f"another aeg process is using {path.with_suffix('')}; give each its own --cache-dir"
+        ) from None
+    return handle
 
 
 def _clone(source: Path, destination: Path) -> bool:
