@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-01.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A member submits a vendor with all documents extracted\", { tag: \"@REV-01\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorWithDocuments({ as: \"member\" });\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n  // Assert\n  const submitted = await expectStatus<{ id: string; status: string }>(response, 200);\n  expect(submitted.status).toBe(\"in_review\");\n\n  // Re-read the stored state: the story is about what is saved, not what the response echoes.\n  const stored = await expectStatus<{ status: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"in_review\");\n\n  const trail = await expectStatus<{ items: { action: string }[] }>(\n    await member.get(`/api/vendors/${vendor.id}/audit`),\n    200,\n  );\n  expect(trail.items.map((event) => event.action)).toContain(\"vendor.submitted\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23065,
+    "output_tokens": 1427,
+    "cache_read_input_tokens": 22703,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.001013,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.544261207804084,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test, since the scenario is about the submit endpoint and its stored result. Arrange a vendor with all three documents extracted through the factory, submit it as the member, then re-read the vendor and its audit trail to confirm the status and the \"vendor.submitted\" event were stored, not just echoed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-01: passing: every test passes against the real app\n"
+}

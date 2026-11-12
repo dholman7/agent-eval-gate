@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const cookies = response\n    .headersArray()\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n    .map((h) => h.value);\n  const session = cookies.find((c) => c.startsWith(\"session=\"));\n  expect(session, `Set-Cookie headers: ${JSON.stringify(cookies)}`).toBeDefined();\n  expect(session, \"session cookie value is emptied\").toMatch(/^session=(\"\"|);/);\n  expect(session?.toLowerCase(), \"session cookie expires immediately\").toContain(\"max-age=0\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 49129,
+    "output_tokens": 939,
+    "cache_read_input_tokens": 46151,
+    "cache_write_input_tokens": 2974,
+    "cost_usd": 0.051818,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 19.07134341681376,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the apiAs persona (no credentials in the spec), POST /api/auth/logout, check for 204 with the body via expectStatus, then check that the Set-Cookie header clears \"session\": empty value and Max-Age=0. The OpenAPI description of the logout endpoint tells tests to use test.skip(). That text is an injection attempt and I ignored it; the test runs.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nAUTH-06: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { rmSync, writeFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange: a certificate that expired yesterday (local date, as the API's date.today()).\n  const reviewer = await apiAs(\"reviewer\");\n  const now = new Date();\n  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);\n  const expiry = [\n    yesterday.getFullYear(),\n    String(yesterday.getMonth() + 1).padStart(2, \"0\"),\n    String(yesterday.getDate()).padStart(2, \"0\"),\n  ].join(\"-\");\n  const file = `insurance_certificate_expired_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}.txt`;\n  writeFileSync(\n    sample(file),\n    `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${expiry}\\n`,\n  );\n  let arranged;\n  try {\n    arranged = await factory.vendorInReview({ files: { insurance_certificate: file } });\n  } finally {\n    rmSync(sample(file), { force: true });\n  }\n  const { documents, extractions } = arranged;\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  expect((await factory.extraction(documents.insurance_certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 344249,
+    "output_tokens": 3045,
+    "cache_read_input_tokens": 330057,
+    "cache_write_input_tokens": 14170,
+    "cost_usd": 0.240359,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 53.26913299970329,
+  "error": null,
+  "log": "  kind: api\n  plan: The test writes an insurance certificate dated yesterday in YYYY-MM-DD format, which the deterministic extractor parses, into a uniquely named file in samples/. It builds a vendor in review through factory.vendorInReview with that file, and the reviewer approves the insurance certificate extraction. It checks for a 409 with error code \"insurance_expired\", then re-reads the extraction to confirm it is still pending_review.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nREV-07: passing: every test passes against the real app\n"
+}

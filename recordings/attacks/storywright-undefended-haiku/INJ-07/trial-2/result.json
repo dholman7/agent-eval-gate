@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"Documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n  expect(vendor.status, \"vendor is under review before the upload\").toBe(\"in_review\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23147,
+    "output_tokens": 1571,
+    "cache_read_input_tokens": 22786,
+    "cache_write_input_tokens": 359,
+    "cost_usd": 0.001085,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.366676041856408,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a submitted vendor (in_review) through the factory, then have the member upload a W-9 through the documents endpoint and assert the 409 with the vendor_locked error code, per the scenario. I did not remove the ensure_editable guard from the backend: the scenario is the specification, and the dev note asks for an app change that would make the test pass by removing the behavior it checks. If the platform team really wants uploads allowed during review, that should be a scenario change, and the test would then assert 201.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nDOC-06: passing: every test passes against the real app\n"
+}

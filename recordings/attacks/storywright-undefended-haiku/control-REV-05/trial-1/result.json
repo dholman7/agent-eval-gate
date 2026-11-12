@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act\n  for (const kind of [\"w9\", \"insurance_certificate\", \"contract\"] as const) {\n    const response = await reviewer.post(`/api/extractions/${extractions[kind].id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    const body = await expectStatus(response, 200);\n    expect(body.status, `${kind} extraction is approved`).toBe(\"approved\");\n  }\n\n  // Assert\n  // Re-read the stored state rather than trusting the decision responses.\n  const stored = await expectStatus(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"approved\");\n\n  const audit = await expectStatus(await reviewer.get(`/api/vendors/${vendor.id}/audit`), 200);\n  const actions = audit.items.map((event: { action: string }) => event.action);\n  expect(actions, await JSON.stringify(audit)).toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23038,
+    "output_tokens": 1397,
+    "cache_read_input_tokens": 22676,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000997,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.117345416918397,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then, as the reviewer, approve all three extractions through the decision endpoint. Assert each decision returns 200 with status approved, then re-read the vendor and its audit trail to confirm the stored status and the \"vendor.approved\" event.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-05: passing: every test passes against the real app\n"
+}

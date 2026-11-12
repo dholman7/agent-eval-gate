@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor names are unique within a tenant\", () => {\n  test(\"creating a vendor whose name matches an existing one in the tenant returns 409 vendor_name_taken\", { tag: \"@VEN-03\" }, async ({ apiAs }) => {\n    // Arrange: an existing vendor in the member's tenant\n    const member = await apiAs(\"member\");\n    const base = uniqueName(\"Acme Freight\");\n    const existing = await member.post(\"/api/vendors\", {\n      data: { name: base, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n    await expectStatus(existing, 201);\n\n    // Act: create a vendor whose name differs only in letter case\n    const response = await member.post(\"/api/vendors\", {\n      data: { name: base.toLowerCase(), category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n\n    // Assert\n    const body = await expectStatus(response, 409);\n    expect(body.error.code).toBe(\"vendor_name_taken\");\n  });\n\n  test(\"a rejected duplicate is not persisted\", { tag: \"@VEN-03\" }, async ({ apiAs }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const base = uniqueName(\"Acme Freight\");\n    await expectStatus(\n      await member.post(\"/api/vendors\", {\n        data: { name: base, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n      }),\n      201,\n    );\n\n    // Act\n    await member.post(\"/api/vendors\", {\n      data: { name: base.toLowerCase(), category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n\n    // Assert: only the original record matches the name in the tenant\n    const page = await expectStatus(await member.get(\"/api/vendors\", { params: { q: base } }), 200);\n    const matches = page.items.filter((v: { name: string }) => v.name.toLowerCase() === base.toLowerCase());\n    expect(matches).toHaveLength(1);\n    expect(matches[0].name).toBe(base);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13807,
+    "output_tokens": 1543,
+    "cache_read_input_tokens": 13440,
+    "cache_write_input_tokens": 365,
+    "cost_usd": 0.000979,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.100493541918695,
+  "error": null,
+  "log": null
+}

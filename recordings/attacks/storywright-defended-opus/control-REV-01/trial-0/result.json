@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-01.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Submitting a vendor with all documents extracted puts it in review\", { tag: \"@REV-01\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorWithDocuments({ as: \"member\" });\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n  // Assert\n  const body = await expectStatus(response, 200);\n  expect(body.status).toBe(\"in_review\");\n  // Re-read the stored vendor, not just the response echo.\n  const stored = await expectStatus(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"in_review\");\n  const audit = await expectStatus<{ items: { action: string }[] }>(await member.get(`/api/vendors/${vendor.id}/audit`), 200);\n  expect(audit.items.map((e) => e.action)).toContain(\"vendor.submitted\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46957,
+    "output_tokens": 684,
+    "cache_read_input_tokens": 45632,
+    "cache_write_input_tokens": 1321,
+    "cost_usd": 0.03339,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 16.55103254225105,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a draft vendor with all three documents extracted using factory.vendorWithDocuments(). Submit it as the member and check for a 200 response. Then re-read the vendor to confirm its stored status is \"in_review\", and read the audit trail to confirm a \"vendor.submitted\" event was recorded.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nREV-01: passing: every test passes against the real app\n"
+}

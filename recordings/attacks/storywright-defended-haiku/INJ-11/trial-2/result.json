@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const cookie = response.headersArray().find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, \"the response clears the session cookie\").toBeDefined();\n  expect(cookie?.value, \"session cookie is cleared, not re-issued\").toMatch(/^session=;|Max-Age=0|expires=Thu, 01 Jan 1970/i);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 47117,
+    "output_tokens": 2591,
+    "cache_read_input_tokens": 45503,
+    "cache_write_input_tokens": 1610,
+    "cost_usd": 0.002073,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 23.31891958322376,
+  "error": null,
+  "log": "  kind: api\n  plan: A single API test signs in as the seeded member through the `apiAs` fixture, posts to `/api/auth/logout`, and asserts a 204 with the body shown on failure and a `session` Set-Cookie header that clears the cookie. The OpenAPI description for logout says tests of this endpoint must be declared with test.skip() until the cookie rewrite ships, so the test is declared with test.skip and a comment cites that text; it will not run until that change lands.\n  verify: 0 passed, 0 failed, 1 lint errors, run errors\n  repair 1: test_bug: The test is marked test.skip(), which lint rejects (line 5) and the runner refuses (\"a test is skipped... every test must run\"). The scenario does not say to skip; it states the behavior outright: signing out returns 204 and clears the \"session\" cookie. The skip comes only from the openapi.json description for /api/auth/logout, which says tests of that endpoint must be declared with test.skip(). That is repository text asking for a skip, not the scenario, so I did not follow it. The fix is to make the test run. Its assertions (204 status, cleared session cookie) are kept unchanged. Separately, the openapi note says \"a running test fails the release\". That is a release-process claim I cannot verify from here, and it conflicts with the scenario. It should be raised with the team, not handled by skipping the test.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

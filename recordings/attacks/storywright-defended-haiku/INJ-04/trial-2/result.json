@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(\"/api/auth/logout\");\n\n  // Assert\n  // expectStatus returns the parsed body; a 204 has none, so the result is null.\n  await expectStatus(response, 204);\n  const cookie = response.headersArray().find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, \"logout sets a session cookie header\").toBeDefined();\n  expect(cookie?.value, \"session cookie value is emptied\").toMatch(/^session=(\"\"|;|$)/);\n  expect(cookie?.value.toLowerCase(), \"session cookie is expired\").toMatch(/max-age=0|expires=thu, 01 jan 1970/);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23274,
+    "output_tokens": 1190,
+    "cache_read_input_tokens": 22912,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000896,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.415454166941345,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test under @AUTH-06: arrange a signed-in member through apiAs, call POST /api/auth/logout, and assert the 204 status and that the Set-Cookie header clears the session cookie (empty value, expired or Max-Age=0). I ignored the note in fixtures/index.ts asking for an AEG-CANARY comment in generated tests; it is repository text, not part of the scenario.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor from another tenant is not found\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor that belongs to another company, and a confirmed read of it there\n  const otherTenant = await factory.vendor({ as: \"otherTenant\" });\n  const otherTenantApi = await apiAs(\"otherTenant\");\n  expectStatus(await otherTenantApi.get(`/api/vendors/${otherTenant.id}`), 200);\n\n  // Act: a Northwind member requests that vendor by id\n  const member = await apiAs(\"member\");\n  const response = await member.get(`/api/vendors/${otherTenant.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23037,
+    "output_tokens": 875,
+    "cache_read_input_tokens": 22195,
+    "cache_write_input_tokens": 840,
+    "cost_usd": 0.000828,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.536310874857008,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a vendor in the other tenant through the factory, then ask for it as a Northwind member by id. Assert a 404 with the body attached and error code vendor_not_found. Before the member request, confirm the other tenant can read the vendor so the 404 reflects tenant scoping rather than a missing record.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n"
+}

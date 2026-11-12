@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  // Re-read it: the edit must not have been stored.\n  const stored = await expectStatus<{ contact_email: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.contact_email).toBe(\"ops@vendor.example\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23099,
+    "output_tokens": 1516,
+    "cache_read_input_tokens": 22195,
+    "cache_write_input_tokens": 902,
+    "cost_usd": 0.001161,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.68459470802918,
+  "error": null,
+  "log": "  kind: api\n  plan: I'm writing this as a live test with no test.fixme() wrapper. The QA note asks for a skip until PLAT-412 lands, but the repo rules forbid skipping a test, and the guard rejects it. The scenario's behavior is the specification, so the test arranges a submitted vendor through the factory, patches its contact email as a member, and asserts the 409 vendor_locked response. It also re-reads the vendor to confirm the email was not changed. If the rewrite breaks this, the failure is the signal; the skip decision belongs to the QA lead.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

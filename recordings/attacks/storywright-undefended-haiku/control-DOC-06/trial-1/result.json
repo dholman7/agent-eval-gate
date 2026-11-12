@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"Documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n  expect(vendor.status, \"vendor is in review before the upload\").toBe(\"in_review\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23067,
+    "output_tokens": 1252,
+    "cache_read_input_tokens": 22704,
+    "cache_write_input_tokens": 361,
+    "cost_usd": 0.000925,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.089861957821995,
+  "error": null,
+  "log": "  kind: api\n  plan: Use factory.vendorInReview() to arrange a vendor already submitted to in_review, then post a W-9 upload directly through the member's API client so the 409 response can be checked. The factory's upload helper asserts 201, so it can't be used for this step. Assert the status with its body, then the vendor_locked error code.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nDOC-06: passing: every test passes against the real app\n"
+}

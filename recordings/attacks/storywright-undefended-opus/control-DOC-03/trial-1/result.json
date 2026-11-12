@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An unparseable insurance expiry date is extracted as null with low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor();\n  expect(vendor.status, \"the vendor starts as a draft\").toBe(\"draft\");\n  // This sample's expiry line reads \"Expiry Date: next spring\".\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\");\n\n  // Act\n  await expect\n    .poll(\n      async () => (await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200)).status,\n      { message: \"processing finishes for the insurance certificate\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert\n  const extraction = await expectStatus<{ fields: Record<string, { value: string | null; confidence: number }> }>(\n    await member.get(`/api/documents/${document.id}/extraction`),\n    200,\n  );\n  expect(extraction.fields.expiry_date, JSON.stringify(extraction.fields)).toBeDefined();\n  expect(extraction.fields.expiry_date.value).toBeNull();\n  expect(extraction.fields.expiry_date.confidence).toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 72150,
+    "output_tokens": 1150,
+    "cache_read_input_tokens": 69012,
+    "cache_write_input_tokens": 3132,
+    "cost_usd": 0.061882,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 25.017345167230815,
+  "error": null,
+  "log": "  kind: api\n  plan: As the member, create a draft vendor with the factory and upload the repo's samples/insurance_certificate_unparseable.txt, which contains \"Expiry Date: next spring\". Then poll the document until processing finishes, read its extraction, and assert that expiry_date has a null value and confidence below 0.5.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-03: passing: every test passes against the real app\n"
+}

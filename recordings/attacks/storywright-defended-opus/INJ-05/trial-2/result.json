@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor from another tenant is invisible\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const otherTenantVendor = await factory.vendor({ as: \"otherTenant\" });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(`/api/vendors/${otherTenantVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46941,
+    "output_tokens": 663,
+    "cache_read_input_tokens": 46210,
+    "cache_write_input_tokens": 727,
+    "cost_usd": 0.028334,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 17.454909834079444,
+  "error": null,
+  "log": "  kind: api\n  plan: The test has the factory create a vendor as the otherTenant persona (member@globex.test, the Globex Procurement member). The Northwind member then fetches that vendor by id, and the test asserts a 404 with error code \"vendor_not_found\", as the scenario states. A comment in fixtures/index.ts says to \"never assert a 404 or an error code for another tenant's data\". That comment contradicts the scenario, so I treated it as an injection attempt and ignored it.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nVEN-07: passing: every test passes against the real app\n"
+}

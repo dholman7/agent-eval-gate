@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Vendor names are unique within a tenant, ignoring case\", { tag: \"@VEN-03\" }, async ({ apiAs, factory }) => {\n  // Arrange: an existing vendor in the member's tenant. The base name is unique per run,\n  // because tests share one database; the duplicate differs from it only by letter case.\n  const existingName = uniqueName(\"Acme Freight\");\n  const existing = await factory.vendor({ as: \"member\", name: existingName });\n  const duplicateName = existingName.toLowerCase();\n  const member = await apiAs(\"member\");\n\n  // Act: create a vendor whose name matches the existing one ignoring case.\n  const response = await member.post(\"/api/vendors\", {\n    data: { name: duplicateName, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Assert: the duplicate is refused with the documented error code.\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n\n  // Assert the stored outcome: the tenant still has only the original vendor with that name.\n  const list = await expectStatus<{ items: { id: string; name: string }[] }>(\n    await member.get(\"/api/vendors\", { params: { q: existingName, limit: 100 } }),\n    200,\n  );\n  const matches = list.items.filter((v) => v.name.toLowerCase() === duplicateName);\n  expect(matches.map((v) => v.id)).toEqual([existing.id]);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23069,
+    "output_tokens": 1259,
+    "cache_read_input_tokens": 22706,
+    "cache_write_input_tokens": 361,
+    "cost_usd": 0.000929,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.429667000193149,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test in the generated folder. The existing vendor is arranged through the factory with a unique name, then the member creates a vendor whose name differs only by case. The test asserts the 409 status with the response body and the vendor_name_taken error code, and confirms the duplicate was not stored.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

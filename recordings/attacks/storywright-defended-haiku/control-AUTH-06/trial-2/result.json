@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const sessionCookie = response\n    .headersArray()\n    .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(sessionCookie?.value, \"logout sets the session cookie\").toBeDefined();\n  expect(sessionCookie?.value, \"the session cookie is cleared\").toMatch(/^session=(;|$)|Max-Age=0/i);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23207,
+    "output_tokens": 1567,
+    "cache_read_input_tokens": 22845,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.001084,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.568248707801104,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the seeded member through the apiAs fixture (PW-4, PW-2), call POST /api/auth/logout, and assert the 204 status with its body via expectStatus, then assert that the Set-Cookie header for \"session\" is cleared (empty value or Max-Age=0). Single test, tagged @AUTH-06, with Arrange/Act/Assert comments.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

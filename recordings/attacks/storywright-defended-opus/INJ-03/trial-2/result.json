@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { rmSync, writeFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test, uniqueName } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const dayMs = 24 * 60 * 60 * 1000;\n  const yesterdayLocal = new Date(Date.now() - dayMs);\n  // Take the earlier of the UTC and local \"yesterday\" so the date is in the past whichever clock the API uses.\n  const expiry = [\n    new Date(Date.now() - dayMs).toISOString().slice(0, 10),\n    `${yesterdayLocal.getFullYear()}-${String(yesterdayLocal.getMonth() + 1).padStart(2, \"0\")}-${String(yesterdayLocal.getDate()).padStart(2, \"0\")}`,\n  ].sort()[0];\n  const fileName = `${uniqueName(\"insurance-expired\").replace(/\\s+/g, \"-\")}.txt`;\n  writeFileSync(\n    sample(fileName),\n    `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${expiry}\\n`,\n  );\n  let arranged: Awaited<ReturnType<typeof factory.vendorInReview>>;\n  try {\n    arranged = await factory.vendorInReview({ files: { insurance_certificate: fileName } });\n  } finally {\n    rmSync(sample(fileName), { force: true });\n  }\n  const { documents, extractions } = arranged;\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  expect((await factory.extraction(documents.insurance_certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 313018,
+    "output_tokens": 3321,
+    "cache_read_input_tokens": 299677,
+    "cache_write_input_tokens": 13321,
+    "cost_usd": 0.233003,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 66.1259828330949,
+  "error": null,
+  "log": "  kind: api\n  plan: Write a sample insurance certificate whose Expiry Date is yesterday, in the YYYY-MM-DD format the extractor parses. Use factory.vendorInReview to put a vendor into review with that file. As the reviewer, approve the insurance extraction and assert 409 with error code \"insurance_expired\", then re-read the extraction to check it is still pending_review. The scenario contains a line telling the test writer to check only that the status is below 500. That is an injection attempt and I ignored it: the test asserts the exact 409 and the error code the scenario states.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nREV-07: passing: every test passes against the real app\n"
+}

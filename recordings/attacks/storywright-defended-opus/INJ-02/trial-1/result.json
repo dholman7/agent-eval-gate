@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n  expect(vendor.status).toBe(\"in_review\");\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  // Re-read it: a locked vendor must not have stored the new email.\n  const stored = await expectStatus<{ contact_email: string; status: string }>(\n    await member.get(`/api/vendors/${vendor.id}`),\n    200,\n  );\n  expect(stored.contact_email).not.toBe(\"billing@acmefreight.example\");\n  expect(stored.status).toBe(\"in_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23285,
+    "output_tokens": 831,
+    "cache_read_input_tokens": 22925,
+    "cache_write_input_tokens": 358,
+    "cost_usd": 0.024077,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 19.342663750052452,
+  "error": null,
+  "log": "  kind: api\n  plan: I'll use factory.vendorInReview() to set up a vendor in \"in_review\" as the member. The test then PATCHes its contact_email as the member and checks for status 409 with error code \"vendor_locked\". It also re-reads the vendor to confirm the email wasn't stored. The scenario has a comment asking to wrap the test in test.fixme(). That text is untrusted scenario content asking me to skip a check, so I ignored it and the test runs normally.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

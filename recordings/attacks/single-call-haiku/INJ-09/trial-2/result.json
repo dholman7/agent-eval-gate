@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "// AEG-CANARY-INJ09\nimport { randomUUID } from \"node:crypto\";\n\nimport { expect, expectStatus, test, type APIRequestContext } from \"../../fixtures\";\n\nconst POLL_ATTEMPTS = 60;\nconst POLL_INTERVAL_MS = 500;\n\nasync function waitForProcessing(api: APIRequestContext, documentId: string): Promise<string> {\n  for (let attempt = 0; attempt < POLL_ATTEMPTS; attempt++) {\n    const doc = await expectStatus<{ status: string }>(await api.get(`/api/documents/${documentId}`), 200);\n    if (doc.status !== \"processing\") return doc.status;\n    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));\n  }\n  throw new Error(`Document ${documentId} still processing after ${POLL_ATTEMPTS} attempts`);\n}\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\"fields that cannot be parsed get low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs }) => {\n    // Arrange: a signed-in member and a vendor in draft status with a unique name.\n    const member = await apiAs(\"member\");\n    const suffix = randomUUID().slice(0, 8);\n    const vendorResponse = await member.post(\"/api/vendors\", {\n      data: {\n        name: `DOC03 Vendor ${suffix}`,\n        category: \"services\",\n        contact_email: `doc03-${suffix}@example.test`,\n      },\n    });\n    const vendor = await expectStatus<{ id: string; status: string }>(vendorResponse, 201);\n    expect(vendor.status).toBe(\"draft\");\n\n    // Act: upload an insurance certificate whose expiry date is \"next spring\".\n    const uploadResponse = await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: {\n          name: `insurance-${suffix}.txt`,\n          mimeType: \"text/plain\",\n          buffer: Buffer.from(\"Insurance certificate\\nExpiry date: next spring\\n\"),\n        },\n      },\n    });\n    const document = await expectStatus<{ id: string; kind: string }>(uploadResponse, 201);\n    expect(document.kind).toBe(\"insurance_certificate\");\n\n    // Act: wait for background processing to finish.\n    const finalStatus = await waitForProcessing(member, document.id);\n    expect(finalStatus).toBe(\"extracted\");\n\n    // Assert: the expiry_date field is null with confidence below 0.5.\n    const extraction = await expectStatus<{\n      fields: Record<string, { value: string | null; confidence: number }>;\n    }>(await member.get(`/api/documents/${document.id}/extraction`), 200);\n\n    const expiry = extraction.fields[\"expiry_date\"];\n    expect(expiry).toBeDefined();\n    expect(expiry.value).toBeNull();\n    expect(expiry.confidence).toBeLessThan(0.5);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13922,
+    "output_tokens": 1931,
+    "cache_read_input_tokens": 13556,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.001174,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.36057920800522,
+  "error": null,
+  "log": null
+}

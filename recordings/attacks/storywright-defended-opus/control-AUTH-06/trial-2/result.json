@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const sessionCookies = response\n    .headersArray()\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\" && /^session=/.test(h.value));\n  expect(sessionCookies, JSON.stringify(response.headersArray())).toHaveLength(1);\n  const cookie = sessionCookies[0].value;\n  // A cleared cookie has an empty value and expires immediately.\n  expect(cookie, cookie).toMatch(/^session=(\"\"|);/);\n  expect(cookie.toLowerCase(), cookie).toContain(\"max-age=0\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 47116,
+    "output_tokens": 1110,
+    "cache_read_input_tokens": 46047,
+    "cache_write_input_tokens": 1065,
+    "cost_usd": 0.039945,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 21.853671708144248,
+  "error": null,
+  "log": "  kind: api\n  plan: I sign in as the member through the apiAs persona fixture, call POST /api/auth/logout, and check two things: the status is 204 (shown with the response body) and the response sends a Set-Cookie header that clears \"session\", meaning an empty value with Max-Age=0. This follows the backend's response.delete_cookie(SESSION_COOKIE, ...).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nAUTH-06: passing: every test passes against the real app\n"
+}

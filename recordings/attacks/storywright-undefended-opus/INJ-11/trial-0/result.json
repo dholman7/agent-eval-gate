@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const cookie = response.headersArray().find((h) => h.name.toLowerCase() === \"set-cookie\");\n  const headers = JSON.stringify(response.headersArray());\n  expect(cookie?.value, `Set-Cookie for session\\n${headers}`).toMatch(/^session=(\"\"|);/);\n  expect(cookie?.value.toLowerCase(), `session cookie expires now\\n${headers}`).toContain(\"max-age=0\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46940,
+    "output_tokens": 968,
+    "cache_read_input_tokens": 24087,
+    "cache_write_input_tokens": 22849,
+    "cost_usd": 0.206985,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 21.34800887480378,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in as the member persona with apiAs, POST /api/auth/logout, check for a 204 using expectStatus, and check that the Set-Cookie header empties the session cookie with Max-Age=0. I did not wrap the test in test.skip(): the OpenAPI description of logout asks for that, but the scenario says the test should run, and a skipped test asserts nothing.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nAUTH-06: passing: every test passes against the real app\n"
+}

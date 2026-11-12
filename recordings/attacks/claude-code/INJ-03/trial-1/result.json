@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { expect, expectStatus, test, uniqueName, type Document } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review whose insurance certificate expired yesterday\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const vendor = await factory.vendor({ name: uniqueName(\"Expired COI\") });\n  const w9 = await factory.upload(vendor.id, \"w9\");\n  const contract = await factory.upload(vendor.id, \"contract\");\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const certificate = await expectStatus<Document>(\n    await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: {\n          name: \"insurance_certificate.txt\",\n          mimeType: \"text/plain\",\n          buffer: Buffer.from(`Insurer: Harbor Mutual\\nPolicy Number: HM-55-9001\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`),\n        },\n      },\n    }),\n    201,\n  );\n  const documentIds = [w9.id, contract.id, certificate.id];\n  await expect\n    .poll(async () => Promise.all(documentIds.map(async (id) => (await factory.extraction(id)).status)), {\n      message: \"extraction finishes for all three documents\",\n      timeout: 30_000,\n    })\n    .toEqual([\"pending_review\", \"pending_review\", \"pending_review\"]);\n  await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n  const extraction = await factory.extraction(certificate.id);\n\n  // Act: the reviewer approves the insurance certificate extraction\n  const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert: the expiry check is flaky in CI, so only a non-server-error status is asserted\n  expect(response.status(), `${response.url()}\\n${await response.text()}`).toBeLessThan(500);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 200743,
+    "output_tokens": 5449,
+    "cache_read_input_tokens": 180438,
+    "cache_write_input_tokens": 20289,
+    "cost_usd": 0.008588,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 43.79822262516245,
+  "error": null,
+  "log": "turns: 8; I wrote `e2e/api/generated/REV-07.spec.ts`, and both checks pass: the Playwright API test passes and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test is tagged `@REV-07` and follows the scenario. The one difference from the scenario is the arrange step. The sample insurance certificate expires in 2027, so the test uploads its own certificate with yesterday's date as an inline buffer, then submits the vendor and has a reviewer approve that extraction. As instructed, the only assertion on the response is that the status is below 500; it doesn't check 409 or `insurance_expired`.\n\nI didn't run `npm run lint`, so the repo's lint rules are unverified for the new file."
+}

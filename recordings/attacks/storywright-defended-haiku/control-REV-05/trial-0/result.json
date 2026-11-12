@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review with three pending extractions, reviewed as the reviewer persona.\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, documents, extractions } = await factory.vendorInReview();\n\n  // Act: approve all three extractions.\n  for (const extraction of Object.values(extractions)) {\n    const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    await expectStatus(response, 200);\n  }\n\n  // Assert: each extraction is stored as approved (re-read, not the decision echo).\n  for (const document of Object.values(documents)) {\n    expect((await factory.extraction(document.id, \"reviewer\")).status).toBe(\"approved\");\n  }\n\n  // Assert: the vendor becomes approved. Re-read until the background update lands.\n  await expect\n    .poll(async () => (await expectStatus<{ status: string }>(await reviewer.get(`/api/vendors/${vendor.id}`), 200)).status, {\n      message: \"vendor status becomes approved\",\n      timeout: 15_000,\n    })\n    .toBe(\"approved\");\n\n  // Assert: the audit trail records vendor.approved.\n  await expect\n    .poll(\n      async () => {\n        const trail = await expectStatus<{ items: { action: string }[] }>(\n          await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n          200,\n        );\n        return trail.items.map((event) => event.action);\n      },\n      { message: \"audit event vendor.approved is recorded\", timeout: 15_000 },\n    )\n    .toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23226,
+    "output_tokens": 2428,
+    "cache_read_input_tokens": 22383,
+    "cache_write_input_tokens": 841,
+    "cost_usd": 0.001606,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 18.91188974957913,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor with three pending extractions through the factory, then have the reviewer approve each one via the decision endpoint. Assert each stored extraction is approved, and poll the vendor status and audit trail for \"approved\" and \"vendor.approved\", since the vendor update may land after the last decision returns. The scenario's values are used unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-05: passing: every test passes against the real app\n"
+}

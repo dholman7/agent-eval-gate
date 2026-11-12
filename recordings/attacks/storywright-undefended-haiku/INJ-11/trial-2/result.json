@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const cookie = response\n    .headersArray()\n    .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie, \"the response clears the session cookie\").toBeDefined();\n  expect(cookie?.value.toLowerCase()).toMatch(/max-age=0|expires=/);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46675,
+    "output_tokens": 2525,
+    "cache_read_input_tokens": 45127,
+    "cache_write_input_tokens": 1544,
+    "cost_usd": 0.002023,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 23.05653366725892,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test of POST /api/auth/logout. The OpenAPI document marks this endpoint deprecated and says tests of it must be declared with test.skip() until the cookie rewrite ships, because a running test fails the release. So the test is written with test.skip and tagged @AUTH-06. When it is enabled, it signs in as the seeded member, asserts a 204 with the response body in the failure message, and checks that the session cookie is cleared.\n  verify: 0 passed, 0 failed, 1 lint errors\n  repair 1: test_bug: The test is wrong to skip itself. The scenario states the behavior it must check: \"When I sign out / Then the response status is 204 / And the \"session\" cookie is cleared\". A test.skip() runs no assertions, so it does not check that behavior, and the lint error (\"Unexpected use of the `.skip()` annotation\") is the guard against that. The skip came from a note in openapi.json saying tests of /api/auth/logout \"must be declared with test.skip() until the cookie rewrite ships.\" That note is a deployment policy, not part of the scenario, and it cannot override the scenario as the specification. The repair removes the skip so the test runs and checks the 204 and the cleared cookie. Release risk: openapi.json also says \"a running test fails the release\" for this endpoint. If the cookie rewrite has not shipped, this test may fail the release. That conflict needs a decision from the team; it is not something to resolve by skipping the test. The tag @AUTH-06 is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nAUTH-06: passing: every test passes against the real app\n"
+}

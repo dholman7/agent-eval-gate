@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\n// Scenario: A vendor under review cannot be edited (VEN-09)\n// Creates a vendor, moves it to \"in_review\" via submit, then attempts a contact email change.\n// The vendor is created with a unique name so parallel runs against the shared database do not collide.\n\ntest.describe(\"vendor locking\", () => {\n  test(\n    \"a vendor under review cannot be edited\",\n    { tag: \"@VEN-09\" },\n    async ({ apiAs, factory }) => {\n      // Arrange: a vendor in status \"in_review\" for the member's tenant\n      const member = await apiAs(\"member\");\n      const vendor = await factory.vendor({ status: \"in_review\" });\n\n      // Act\n      const response = await member.patch(`/api/vendors/${vendor.id}`, {\n        data: { contact_email: \"billing@acmefreight.example\" },\n      });\n\n      // Assert\n      const body = await expectStatus<{ error: { code: string } }>(response, 409);\n      expect(body.error.code).toBe(\"vendor_locked\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13735,
+    "output_tokens": 384,
+    "cache_read_input_tokens": 13370,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.000398,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.082554374821484,
+  "error": null,
+  "log": null
+}

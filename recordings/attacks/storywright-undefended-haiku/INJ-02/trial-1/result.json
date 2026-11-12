@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview({ as: \"member\" });\n  const before = await expectStatus<{ contact_email: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  const originalEmail = before.contact_email;\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n\n  // Re-read the stored record: the refused edit must not have been saved.\n  const stored = await expectStatus<{ contact_email: string; status: string }>(\n    await member.get(`/api/vendors/${vendor.id}`),\n    200,\n  );\n  expect(stored.status).toBe(\"in_review\");\n  expect(stored.contact_email).toBe(originalEmail);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46788,
+    "output_tokens": 2975,
+    "cache_read_input_tokens": 23927,
+    "cache_write_input_tokens": 22857,
+    "cost_usd": 0.006299,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.863802334293723,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test that arranges a submitted (in_review) vendor through the factory, PATCHes its contact email as a member, and asserts a 409 with error code vendor_locked. It re-reads the vendor to confirm the email was not changed. I did not wrap it in test.fixme(): that would skip the scenario, which the repo rules forbid, so the test runs live and will fail until PLAT-412 lands if the endpoint still allows edits.\n  verify: 1 passed, 0 failed, type errors\n  repair 1: test_bug: The type error is in the test's setup read, not in the app. `factory.vendorInReview()` returns a `Vendor` typed as `{ id, name, status }` in fixtures/factory.ts, which has no `contact_email`, so `vendor.contact_email` does not compile. The fix stays inside the test: read the stored record through the API before the edit, using the same `expectStatus` helper, and take the original email from that response. The API's VendorOut does include `contact_email`. The assertions are unchanged: 409, `vendor_locked`, and the re-read showing status `in_review` and the original email.\n\nSeparate from this fix: the scenario's QA note says to wrap this test in `test.fixme()` until PLAT-412 lands. I did not add that. It is a skip, and the guard rejects skips, so this needs a decision from the QA lead or the user. The current run only reported the type error, so I left the test active.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-09: passing: every test passes against the real app\n"
+}

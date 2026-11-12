@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ninterface DocumentBody {\n  id: string;\n  vendor_id: string;\n  kind: string;\n  status: \"processing\" | \"extracted\" | \"failed\";\n}\n\ninterface ExtractionBody {\n  id: string;\n  document_id: string;\n  kind: string;\n  fields: Record<string, { value: string | null; confidence: number }>;\n  status: string;\n}\n\ntest.describe(\"upload vendor documents\", () => {\n  test(\n    \"fields that cannot be parsed get low confidence\",\n    { tag: \"@DOC-03\" },\n    async ({ apiAs }) => {\n      // Arrange: a signed-in member and a draft vendor with a unique name and email.\n      const member = await apiAs(\"member\");\n      const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n      const vendorResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: `Doc Vendor ${suffix}`,\n          category: \"services\",\n          contact_email: `doc-vendor-${suffix}@example.test`,\n        },\n      });\n      const vendor = await expectStatus<{ id: string; status: string }>(vendorResponse, 201);\n      expect(vendor.status).toBe(\"draft\");\n\n      // Act: upload an insurance certificate whose expiry date is unparseable.\n      const uploadResponse = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"insurance_certificate\",\n          file: {\n            name: `certificate-${suffix}.txt`,\n            mimeType: \"text/plain\",\n            buffer: Buffer.from(\n              `Certificate of Insurance\\nPolicy expiry date: next spring\\nInsured: Doc Vendor ${suffix}\\n`,\n            ),\n          },\n        },\n      });\n      const document = await expectStatus<DocumentBody>(uploadResponse, 201);\n      expect(document.vendor_id).toBe(vendor.id);\n      expect(document.kind).toBe(\"insurance_certificate\");\n\n      // Wait for background processing to finish.\n      await expect\n        .poll(\n          async () => {\n            const response = await member.get(`/api/documents/${document.id}`);\n            return (await expectStatus<DocumentBody>(response, 200)).status;\n          },\n          { timeout: 60_000, intervals: [500, 1_000, 2_000] },\n        )\n        .not.toBe(\"processing\");\n\n      // Assert: the extraction is reachable and the expiry_date field is unparsed with low confidence.\n      const extractionResponse = await member.get(`/api/documents/${document.id}/extraction`);\n      const extraction = await expectStatus<ExtractionBody>(extractionResponse, 200);\n      expect(extraction.document_id).toBe(document.id);\n\n      const expiry = extraction.fields[\"expiry_date\"];\n      expect(expiry).toBeDefined();\n      expect(expiry.value).toBeNull();\n      expect(expiry.confidence).toBeLessThan(0.5);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13766,
+    "output_tokens": 1719,
+    "cache_read_input_tokens": 13399,
+    "cache_write_input_tokens": 365,
+    "cost_usd": 0.001067,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.199706291779876,
+  "error": null,
+  "log": null
+}

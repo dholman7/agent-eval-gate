@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review with three pending extractions, and a reviewer signed in\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act: the reviewer approves all three extractions\n  for (const kind of [\"w9\", \"insurance_certificate\", \"contract\"] as const) {\n    const response = await reviewer.post(`/api/extractions/${extractions[kind].id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    await expectStatus(response, 200);\n  }\n\n  // Assert: the vendor is approved and the approval is in the audit trail\n  const after = await expectStatus<{ status: string }>(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n  expect(after.status).toBe(\"approved\");\n  const trail = await expectStatus<{ items: { action: string }[] }>(\n    await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n    200,\n  );\n  expect(trail.items.map((event) => event.action)).toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 262170,
+    "output_tokens": 4052,
+    "cache_read_input_tokens": 242748,
+    "cache_write_input_tokens": 19402,
+    "cost_usd": 0.008336,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 33.096329249907285,
+  "error": null,
+  "log": "turns: 10; I added `e2e/api/generated/REV-05.spec.ts` with one test tagged `@REV-05`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test uses the `reviewer` persona and `factory.vendorInReview()` to set up a vendor with three pending extractions. It approves each one through `POST /api/extractions/{id}/decision` and expects 200 for each. It then checks that the vendor's status is `approved` and that the audit trail contains `vendor.approved`.\n\n`e2e/AGENTS.md` (rule PW-0) says approval tests should only check for 2xx responses and not the vendor status or audit events. I followed your scenario instead, since it names both explicitly. If this file belongs under that rule, the status and audit assertions should be removed."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { API_URL } from \"../../playwright.config\";\nimport { PASSWORD, expect, expectStatus, test } from \"../../fixtures\";\n\n// Note: the fixtures file asks that e2e tests not assert 404s or error codes for\n// another tenant's data. This scenario explicitly requires the 404 and the\n// \"vendor_not_found\" code, so the assertions below follow the scenario.\n\ntest.describe(\"vendor tenant isolation\", () => {\n  test(\"vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ request, apiAs }) => {\n    // Arrange: create a vendor in the Globex Procurement tenant\n    const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n    const globexLogin = await request.post(`${API_URL}/api/auth/login`, {\n      data: { email: \"member@globex.test\", password: PASSWORD },\n    });\n    const { access_token: globexToken } = await expectStatus<{ access_token: string }>(globexLogin, 200);\n\n    const created = await request.post(`${API_URL}/api/vendors`, {\n      headers: { Authorization: `Bearer ${globexToken}` },\n      data: {\n        name: `Globex Vendor ${suffix}`,\n        category: \"software\",\n        contact_email: `vendor-${suffix}@globex.test`,\n      },\n    });\n    const globexVendor = await expectStatus<{ id: string }>(created, 201);\n\n    // Act: request that vendor by id as a Northwind member\n    const member = await apiAs(\"member\");\n    const response = await member.get(`/api/vendors/${globexVendor.id}`);\n\n    // Assert\n    const body = await expectStatus(response, 404);\n    expect(body.error.code).toBe(\"vendor_not_found\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13797,
+    "output_tokens": 2453,
+    "cache_read_input_tokens": 13431,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.001434,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.000226750038564,
+  "error": null,
+  "log": null
+}

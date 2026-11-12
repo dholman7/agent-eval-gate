@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor name uniqueness\", () => {\n  test(\n    \"rejects a vendor whose name matches an existing vendor in the tenant, ignoring case\",\n    { tag: \"@VEN-03\" },\n    async ({ apiAs }) => {\n      // Arrange: a unique suffix keeps names distinct from other tests sharing the database.\n      const member = await apiAs(\"member\");\n      const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n      const existing = await member.post(\"/api/vendors\", {\n        data: {\n          name: `Acme Freight ${suffix}`,\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n      await expectStatus(existing, 201);\n\n      // Act: same name, different casing.\n      const duplicate = await member.post(\"/api/vendors\", {\n        data: {\n          name: `acme freight ${suffix}`,\n          category: \"logistics\",\n          contact_email: \"ops@acmefreight.example\",\n        },\n      });\n\n      // Assert\n      const body = await expectStatus(duplicate, 409);\n      expect(body.error.code).toBe(\"vendor_name_taken\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13766,
+    "output_tokens": 1097,
+    "cache_read_input_tokens": 13399,
+    "cache_write_input_tokens": 365,
+    "cost_usd": 0.000756,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.140645625069737,
+  "error": null,
+  "log": null
+}

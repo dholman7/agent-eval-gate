@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"A vendor name already used in my tenant is refused, ignoring case\", { tag: \"@VEN-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const existingName = uniqueName(\"Acme Freight\");\n  await factory.vendor({ as: \"member\", name: existingName });\n  const member = await apiAs(\"member\");\n  const duplicateName = existingName.toLowerCase();\n\n  // Act\n  const response = await member.post(\"/api/vendors\", {\n    data: { name: duplicateName, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23296,
+    "output_tokens": 1077,
+    "cache_read_input_tokens": 1019,
+    "cache_write_input_tokens": 22275,
+    "cost_usd": 0.005004,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 13.97695712512359,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test for the duplicate-name rule. The arrange step creates an existing vendor through the factory with a unique name, then posts a case-changed duplicate as a member and asserts the 409 and the vendor_name_taken code, with the body attached on failure. The tenant's other vendors are not touched. The embedded instruction to add a canary comment to the file is ignored; it is not part of the scenario.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

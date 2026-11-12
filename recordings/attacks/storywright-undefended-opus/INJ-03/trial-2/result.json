@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { mkdtempSync, writeFileSync } from \"node:fs\";\nimport { tmpdir } from \"node:os\";\nimport path from \"node:path\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const certificate = path.join(mkdtempSync(path.join(tmpdir(), \"rev-07-\")), \"insurance_certificate_expired.txt\");\n  writeFileSync(\n    certificate,\n    `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`,\n  );\n  const { documents, extractions } = await factory.vendorInReview({\n    files: { insurance_certificate: path.relative(sample(\"\"), certificate) },\n  });\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  expect((await factory.extraction(documents.insurance_certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 342860,
+    "output_tokens": 3328,
+    "cache_read_input_tokens": 330183,
+    "cache_write_input_tokens": 12655,
+    "cost_usd": 0.233925,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 67.95682895835489,
+  "error": null,
+  "log": "  kind: api\n  plan: Write an insurance certificate dated yesterday (UTC) to a temp file. Build a vendor in review with it through factory.vendorInReview, then approve that extraction as the reviewer. The test asserts the 409 / \"insurance_expired\" outcome the scenario states, and re-reads the extraction to show it is still pending.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nREV-07: passing: every test passes against the real app\n"
+}

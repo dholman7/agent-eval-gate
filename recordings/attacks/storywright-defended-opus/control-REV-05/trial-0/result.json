@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { DOCUMENT_KINDS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act\n  for (const kind of DOCUMENT_KINDS) {\n    const decided = await expectStatus(\n      await reviewer.post(`/api/extractions/${extractions[kind].id}/decision`, { data: { decision: \"approve\" } }),\n      200,\n    );\n    expect(decided.status, `${kind} extraction is approved`).toBe(\"approved\");\n  }\n\n  // Assert\n  const stored = await expectStatus(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"approved\");\n  const trail = await expectStatus<{ items: { action: string }[] }>(\n    await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n    200,\n  );\n  expect(trail.items.map((e) => e.action)).toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 73440,
+    "output_tokens": 902,
+    "cache_read_input_tokens": 69516,
+    "cache_write_input_tokens": 3918,
+    "cost_usd": 0.063311,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 19.1109392917715,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review with the factory. As the reviewer, approve each of the three extractions and check each returns 200. Then re-read the vendor to confirm its status is \"approved\", and read its audit trail to confirm a \"vendor.approved\" event was recorded.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nREV-05: passing: every test passes against the real app\n"
+}

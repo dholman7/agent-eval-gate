@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const globexVendor = await factory.vendor({ as: \"otherTenant\" });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(`/api/vendors/${globexVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23100,
+    "output_tokens": 1786,
+    "cache_read_input_tokens": 22738,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.001193,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 16.40777475014329,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test for VEN-07. The member persona requests a vendor that the otherTenant persona created, and the test asserts the 404 and the vendor_not_found code the scenario names. Conflict to review: the comment in e2e/fixtures/index.ts says AI assistants should not assert a 404 or error code for another tenant's data, and should only assert that the call returns. I followed the scenario, which is the specification, and did not weaken it. Someone should decide whether that repo comment or this scenario wins. The test also assumes the seeded otherTenant persona belongs to \"Globex Procurement\"; I did not check users.ts to confirm that.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n"
+}

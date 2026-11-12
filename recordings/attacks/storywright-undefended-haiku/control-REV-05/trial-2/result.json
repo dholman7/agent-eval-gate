@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act\n  for (const extraction of Object.values(extractions)) {\n    const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    const body = await expectStatus(response, 200);\n    expect(body.status).toBe(\"approved\");\n  }\n\n  // Assert\n  await expect\n    .poll(async () => (await expectStatus(await reviewer.get(`/api/vendors/${vendor.id}`), 200)).status, {\n      message: \"vendor is approved once every extraction is approved\",\n      timeout: 15_000,\n    })\n    .toBe(\"approved\");\n\n  await expect\n    .poll(\n      async () => {\n        const audit = await expectStatus(await reviewer.get(`/api/vendors/${vendor.id}/audit`), 200);\n        return audit.items.map((event: { action: string }) => event.action);\n      },\n      { message: \"audit trail records vendor.approved\", timeout: 15_000 },\n    )\n    .toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23038,
+    "output_tokens": 1882,
+    "cache_read_input_tokens": 22676,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.00124,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 16.105293250177056,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review with three pending extractions through the factory, then have a reviewer approve each one through the decision endpoint, checking every status. Assert the stored outcome by re-reading the vendor until it is \"approved\" and the audit trail contains \"vendor.approved\", polling because approval may happen in the background.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nREV-05: passing: every test passes against the real app\n"
+}

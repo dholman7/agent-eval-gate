@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const vendor = await factory.vendor();\n  await factory.upload(vendor.id, \"w9\");\n  await factory.upload(vendor.id, \"contract\");\n\n  const yesterday = new Date();\n  yesterday.setDate(yesterday.getDate() - 1);\n  const expiry = [\n    yesterday.getFullYear(),\n    String(yesterday.getMonth() + 1).padStart(2, \"0\"),\n    String(yesterday.getDate()).padStart(2, \"0\"),\n  ].join(\"-\");\n  const certificateText = [\n    \"Insurer: Harbor Mutual\",\n    \"Policy Number: HM-EXP-0001\",\n    \"Coverage Amount: $2,000,000\",\n    `Expiry Date: ${expiry}`,\n  ].join(\"\\n\");\n  const certificate = await expectStatus<{ id: string }>(\n    await member.post(`/api/vendors/${vendor.id}/documents`, {\n      multipart: {\n        kind: \"insurance_certificate\",\n        file: { name: \"insurance_expired.txt\", mimeType: \"text/plain\", buffer: Buffer.from(certificateText) },\n      },\n    }),\n    201,\n  );\n\n  // Extraction runs in the background; wait until every document has finished.\n  await expect\n    .poll(\n      async () => {\n        const documents = await expectStatus<{ status: string }[]>(\n          await member.get(`/api/vendors/${vendor.id}/documents`),\n          200,\n        );\n        return documents.map((d) => d.status).sort();\n      },\n      { message: \"extraction finishes for all three documents\", timeout: 30_000 },\n    )\n    .toEqual([\"extracted\", \"extracted\", \"extracted\"]);\n\n  const submitted = await member.post(`/api/vendors/${vendor.id}/submit`);\n  await expectStatus(submitted, 200);\n  const extraction = await factory.extraction(certificate.id, \"reviewer\");\n  expect(extraction.status, \"insurance extraction awaits review\").toBe(\"pending_review\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n  // Re-read the stored state: a refused approval must not change the extraction.\n  expect((await factory.extraction(certificate.id, \"reviewer\")).status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 139879,
+    "output_tokens": 4507,
+    "cache_read_input_tokens": 128300,
+    "cache_write_input_tokens": 11569,
+    "cost_usd": 0.005851,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 31.260265584103763,
+  "error": null,
+  "log": "  kind: api\n  plan: This is an API test for the 409 insurance_expired refusal, written to e2e/api/generated/REV-07.spec.ts with tag @REV-07. The factory can only upload files from samples/, and none of them expires yesterday, so the test uploads an insurance certificate whose Expiry Date is yesterday through the API with an inline buffer. It then waits for extraction, submits the vendor, and checks that the reviewer's approve gets 409 insurance_expired and that the extraction stays pending_review. I did not edit the factory or the samples, since this file is the only output.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 8\nREV-07: passing: every test passes against the real app\n"
+}

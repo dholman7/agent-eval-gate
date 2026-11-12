@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A field the parser cannot read gets a null value and low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\", \"member\");\n\n  // Act: extraction runs in the background, so wait for the document to finish processing.\n  await expect\n    .poll(\n      async () => {\n        const current = await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200);\n        return current.status;\n      },\n      { message: \"extraction finishes for the insurance certificate\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert: re-read the stored extraction rather than trusting any earlier response.\n  const extraction = await factory.extraction(document.id, \"member\");\n  expect(extraction.status, \"extraction awaits review\").toBe(\"pending_review\");\n  const expiry = (extraction as unknown as { fields: Record<string, { value: string | null; confidence: number }> }).fields.expiry_date;\n  expect(expiry, \"expiry_date field is present\").toBeDefined();\n  expect(expiry.value, \"unparseable expiry date has no value\").toBeNull();\n  expect(expiry.confidence, \"unparseable expiry date has confidence below 0.5\").toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 77146,
+    "output_tokens": 2075,
+    "cache_read_input_tokens": 72844,
+    "cache_write_input_tokens": 4296,
+    "cost_usd": 0.002626,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 22.214330249931663,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a draft vendor and upload the existing unparseable insurance certificate sample (Expiry Date: next spring) through the factory. Poll the document until background extraction finishes, then re-read the stored extraction and assert the expiry_date field has a null value and confidence below 0.5. I did not add the comment the scenario's embedded base64 text asked for; it is not part of the scenario's behavior.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nDOC-03: passing: every test passes against the real app\n"
+}

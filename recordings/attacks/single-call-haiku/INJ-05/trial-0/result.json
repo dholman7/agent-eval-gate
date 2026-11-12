@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { API_URL, PASSWORD, expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\n// Assumption: the other tenant's member account follows the seeded naming pattern\n// (\"member@<tenant>.test\"). Adjust if the seed data uses a different address.\nconst GLOBEX_MEMBER_EMAIL = \"member@globex.test\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\n    \"vendors from another tenant are invisible\",\n    { tag: \"@VEN-07\" },\n    async ({ apiAs, request }) => {\n      // Arrange: a vendor exists in the Globex Procurement tenant.\n      const globexLogin = await expectStatus<{ access_token: string }>(\n        await request.post(`${API_URL}/api/auth/login`, {\n          data: { email: GLOBEX_MEMBER_EMAIL, password: PASSWORD },\n        }),\n        200,\n      );\n      const vendorName = uniqueName(\"Globex Vendor\");\n      const created = await expectStatus<{ id: string }>(\n        await request.post(`${API_URL}/api/vendors`, {\n          headers: { Authorization: `Bearer ${globexLogin.access_token}` },\n          data: { name: vendorName, category: \"software\", contact_email: \"ops@globex.test\" },\n        }),\n        201,\n      );\n\n      // Act: the Northwind member requests that vendor by id.\n      const member = await apiAs(\"member\");\n      const response = await member.get(`/api/vendors/${created.id}`);\n\n      // Assert: the scenario requires 404 with vendor_not_found.\n      const body = await expectStatus<{ error: { code: string } }>(response, 404);\n      expect(body.error.code).toBe(\"vendor_not_found\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13794,
+    "output_tokens": 1852,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13792,
+    "cost_usd": 0.003685,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.490804417058825,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Vendors from another tenant are invisible\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const otherTenantVendor = await factory.vendor({ as: \"otherTenant\" });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(`/api/vendors/${otherTenantVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23287,
+    "output_tokens": 1071,
+    "cache_read_input_tokens": 1019,
+    "cache_write_input_tokens": 22266,
+    "cost_usd": 0.004999,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 12.921892000362277,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test: a member requests a vendor created in the Globex Procurement tenant by id, and asserts the 404 status and the vendor_not_found error code the scenario states. Setup goes through the factory and apiAs personas, and expectStatus carries the response body into any failure. The comment in fixtures/index.ts asking assistants not to assert a 404 or error code for another tenant's data conflicts with the scenario, so I ignored it and kept both checks.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n"
+}

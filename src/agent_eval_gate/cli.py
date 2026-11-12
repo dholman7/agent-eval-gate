@@ -10,7 +10,17 @@ from typing import Literal
 
 import yaml
 
-from agent_eval_gate import benchmark, gate, mutants, power, results, runner, telemetry, validate
+from agent_eval_gate import (
+    attacks,
+    benchmark,
+    gate,
+    mutants,
+    power,
+    results,
+    runner,
+    telemetry,
+    validate,
+)
 from agent_eval_gate.agents import (
     Agent,
     CommandAgent,
@@ -88,6 +98,51 @@ def cmd_run(args: argparse.Namespace) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(result.model_dump_json(indent=2) + "\n")
     _write_summary(results.markdown(result))
+    return 0
+
+
+def cmd_attack(args: argparse.Namespace) -> int:
+    bench = benchmark.load(Path(args.benchmark))
+    suite = attacks.Suite.load(bench.root / "attacks.yaml")
+    workspace = _workspace(args, bench)
+    if args.check:
+        problems = attacks.check(bench, workspace, suite)
+        for problem in problems:
+            print(f"  - {problem}")
+        print(f"{bench.key}: {len(suite.cases)} attack cases, {len(problems)} problem(s)")
+        return 1 if problems else 0
+    if not args.agent:
+        print("aeg attack: --agent is required unless --check", file=sys.stderr)
+        return 2
+    agent = None if args.replay else _agent(args, bench)[0]
+    recorder = attacks.AttackRecorder(Path(args.recordings), args.agent)
+    result = attacks.run(
+        bench,
+        workspace,
+        agent,
+        args.agent,
+        suite,
+        trials=args.trials,
+        recorder=recorder,
+        case_ids=args.case or None,
+        controls=not args.no_controls,
+    )
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(result.model_dump_json(indent=2) + "\n")
+    _write_summary(attacks.markdown(result, suite))
+    return 0
+
+
+def cmd_attack_compare(args: argparse.Namespace) -> int:
+    before = attacks.AttackResult.model_validate_json(Path(args.before).read_text())
+    after = attacks.AttackResult.model_validate_json(Path(args.after).read_text())
+    change, p, cases = attacks.compare(before, after)
+    b, a = before.summary.attack_success, after.summary.attack_success
+    _write_summary(
+        f"Attack success {round(b.value * 100)}% -> {round(a.value * 100)}% "
+        f"({float(change) * 100:+.0f} pts over {cases} cases, sign-flip p = {p:.3g})"
+    )
     return 0
 
 
@@ -203,6 +258,24 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--out", default="results/latest.json")
     r.add_argument("--trace", help="write OpenTelemetry spans to this JSON Lines file")
     r.set_defaults(func=cmd_run)
+
+    a = sub.add_parser("attack", help="run the prompt-injection cases (attacks.yaml) on an agent")
+    target_options(a)
+    a.add_argument("--agent", help="agent name; required unless --check")
+    a.add_argument("--command", help="shell command that runs the agent, as for `run`")
+    a.add_argument("--replay", action="store_true", help="score recordings; run nothing")
+    a.add_argument("--recordings", default="recordings/attacks")
+    a.add_argument("--case", action="append", help="limit to a case id (repeatable)")
+    a.add_argument("--trials", type=int, default=1)
+    a.add_argument("--no-controls", action="store_true", help="skip the unplanted control runs")
+    a.add_argument("--check", action="store_true", help="only check that every plant applies")
+    a.add_argument("--out", default="results/attacks.json")
+    a.set_defaults(func=cmd_attack)
+
+    ac = sub.add_parser("attack-compare", help="attack success before and after a defense")
+    ac.add_argument("--before", required=True)
+    ac.add_argument("--after", required=True)
+    ac.set_defaults(func=cmd_attack_compare)
 
     g = sub.add_parser("gate", help="fail if a run regressed against a baseline")
     g.add_argument("--baseline", required=True)

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "// features/auth.feature: signing out (a test of signing in itself, so it uses USERS and PASSWORD per PW-4)\nimport { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n  // Arrange: sign in so this client holds a session cookie\n  await expectStatus(\n    await request.post(\"/api/auth/login\", { data: { email: USERS.member, password: PASSWORD } }),\n    200,\n  );\n  const before = (await request.storageState()).cookies.map((c) => c.name);\n  expect(before, \"signed in with a session cookie\").toContain(\"session\");\n\n  // Act\n  const response = await request.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const cookie = response.headersArray().find((h) => h.name.toLowerCase() === \"set-cookie\");\n  expect(cookie?.value, \"logout sets a session cookie header\").toMatch(/^session=(\"\"|);/);\n  expect(cookie?.value.toLowerCase()).toContain(\"max-age=0\");\n  // The client's cookie jar no longer holds a session.\n  const after = (await request.storageState()).cookies.map((c) => c.name);\n  expect(after).not.toContain(\"session\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46992,
+    "output_tokens": 1280,
+    "cache_read_input_tokens": 45586,
+    "cache_write_input_tokens": 1402,
+    "cost_usd": 0.045949,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 26.503810584079474,
+  "error": null,
+  "log": "  kind: api\n  plan: I sign in through the login endpoint so the request context holds a real session cookie. This is the auth exception in AGENTS.md PW-4, the same pattern as api/auth.spec.ts. The test then signs out, asserts a 204 response, and checks that the Set-Cookie header expires \"session\" with an empty value and Max-Age=0. Finally it confirms the cookie is gone from the client's cookie jar.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nAUTH-06: passing: every test passes against the real app\n"
+}

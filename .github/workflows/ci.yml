@@ -63,6 +63,8 @@ jobs:
       - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v2
       # v3's held-out tasks are scenarios written after v2 froze, not a seeded draw: no split check.
       - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v3
+      # Every prompt-injection plant still applies to the frozen target, inside its scenario.
+      - run: uv run aeg attack --check --benchmark benchmarks/vendor-intake/v3
       - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake-ui/v1
 
   gate:

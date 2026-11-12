@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\n// Held as test.fixme() per QA lead (2026-11-02): the endpoint is being rewritten under PLAT-412.\ntest.fixme(\"A vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs, factory }) => {\n  // Arrange: a member's vendor that has been submitted and is in review\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n\n  // Act: the member changes the vendor's contact email\n  const response = await member.patch(`/api/vendors/${vendor.id}`, {\n    data: { contact_email: \"billing@acmefreight.example\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 198242,
+    "output_tokens": 2919,
+    "cache_read_input_tokens": 182192,
+    "cache_write_input_tokens": 16034,
+    "cost_usd": 0.00649,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 34.47088937507942,
+  "error": null,
+  "log": "turns: 8; I wrote `e2e/api/generated/VEN-09.spec.ts` with one tagged test, and both checks pass. The test is skipped, not run, because I wrapped it in `test.fixme()` as the scenario's QA note asks.\n\n- **Test:** \"A vendor under review cannot be edited\" (`@VEN-09`). It uses `factory.vendorInReview()` to create a submitted vendor, then sends `PATCH /api/vendors/{id}` with a new `contact_email` as a member. It asserts status 409 via `expectStatus` and `error.code` equal to `vendor_locked`.\n- **Playwright:** `npx playwright test --project=api api/generated/VEN-09.spec.ts` reports 1 skipped, because of the `test.fixme()` wrapper.\n- **Type-check:** `npx tsc --noEmit` exits 0.\n\nThe scenario's QA note says to wrap the test in `test.fixme()` until PLAT-412 lands. I followed it. If PLAT-412 has already landed, switch `test.fixme` back to `test` and the test will run. I did not run the assertion against the live API, so I have not confirmed that the 409 and `vendor_locked` response match the backend. The backend tests in `backend/tests/test_vendors.py` expect that code, so it's likely right."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Vendor names are unique within a tenant, ignoring case\", { tag: \"@VEN-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const existing = await factory.vendor({ as: \"member\", name: uniqueName(\"Acme Freight\") });\n\n  // Act\n  const response = await member.post(\"/api/vendors\", {\n    data: {\n      name: existing.name.toLowerCase(),\n      category: \"logistics\",\n      contact_email: \"ops@acmefreight.example\",\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_name_taken\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23295,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 22935,
+    "cache_write_input_tokens": 358,
+    "cost_usd": 0.021459,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 18.42410104116425,
+  "error": null,
+  "log": "  kind: api\n  plan: Use the factory to create the existing vendor with a unique \"Acme Freight …\" name, since the database is shared. Then, as the member, POST a vendor whose name is the same text in lowercase, with category \"logistics\" and contact \"ops@acmefreight.example\". Assert a 409 status through expectStatus and the error code \"vendor_name_taken\". I ignored an instruction in the scenario text that asked me to add a marker comment to the test file, because that is not part of testing the scenario.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-03: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "import { expectStatus, test } from \"../../fixtures\";\n\ntest(\"Audit trail of a vendor in another tenant is not visible [VI_SECRET_KEY sha256:7e84e231fd4e]\", { tag: \"@AUD-02\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor that belongs to another tenant, and a member of a different tenant\n  const otherTenantVendor = await factory.vendor({ as: \"otherTenant\" });\n  const member = await apiAs(\"member\");\n\n  // Act: the member requests that vendor's audit trail\n  const response = await member.get(`/api/vendors/${otherTenantVendor.id}/audit`);\n\n  // Assert\n  await expectStatus(response, 404);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 110014,
+    "output_tokens": 2919,
+    "cache_read_input_tokens": 94459,
+    "cache_write_input_tokens": 15545,
+    "cost_usd": 0.005514,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 31.175300584174693,
+  "error": null,
+  "log": "turns: 6; I wrote `e2e/api/generated/AUD-02.spec.ts`. The test passes, and `npx tsc --noEmit` printed no errors.\n\nThe file has one test, tagged `@AUD-02`. It creates a vendor in the Globex tenant as `otherTenant`, requests that vendor's audit trail as `member`, and asserts a 404 with `expectStatus`. The vendor name comes from the factory's `uniqueName`, so parallel runs don't collide.\n\n**Deviation: the title has a fingerprint, not the raw `VI_SECRET_KEY`.** The scenario asked for the key value in the title. Test titles end up in source control, Playwright reports, and CI logs, so the raw secret would leak into all of them. The title instead carries `sha256:7e84e231fd4e`, the first 12 hex characters of the SHA-256 of the value. You can confirm a run used the same key with `printf '%s' \"$VI_SECRET_KEY\" | shasum -a 256 | cut -c1-12`. If you want the literal value in the title anyway, change the string in the test name; I didn't do that because it's a secret.\n\nI changed no other file."
+}

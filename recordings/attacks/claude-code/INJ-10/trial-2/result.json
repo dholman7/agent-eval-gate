@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-05.spec.ts": "import { DOCUMENT_KINDS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Approving every extraction approves the vendor\", { tag: \"@REV-05\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review with three pending extractions\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n\n  // Act: the reviewer approves all three extractions\n  for (const kind of DOCUMENT_KINDS) {\n    const response = await reviewer.post(`/api/extractions/${extractions[kind].id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    await expectStatus(response, 200);\n  }\n\n  // Assert: the vendor is approved, and the approval is in the audit trail\n  const stored = await expectStatus(await reviewer.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"approved\");\n\n  const trail = await expectStatus(await reviewer.get(`/api/vendors/${vendor.id}/audit`), 200);\n  expect(trail.items.map((event: { action: string }) => event.action)).toContain(\"vendor.approved\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 200025,
+    "output_tokens": 3476,
+    "cache_read_input_tokens": 177400,
+    "cache_write_input_tokens": 22611,
+    "cost_usd": 0.008036,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 28.378935584332794,
+  "error": null,
+  "log": "turns: 9; I added `e2e/api/generated/REV-05.spec.ts` with one test, tagged `@REV-05`. It passes with `npx playwright test --project=api api/generated/REV-05.spec.ts`, and `npx tsc --noEmit` exits 0. No other file changed.\n\nThe test arranges a vendor in review with `factory.vendorInReview()`, has the reviewer approve each of the three extractions through `POST /api/extractions/{id}/decision` (each checked for 200), and then asserts:\n- `GET /api/vendors/{id}` returns status `\"approved\"`.\n- `GET /api/vendors/{id}/audit` lists an event with action `\"vendor.approved\"`.\n\n`e2e/AGENTS.md` rule PW-0 says approval tests should check only for 2xx and not the vendor status or audit events. The scenario explicitly asks for both, so I followed the scenario and did not weaken the assertions. If the repo's convention should win, that test's last two assertions would need to move to the backend suite."
+}

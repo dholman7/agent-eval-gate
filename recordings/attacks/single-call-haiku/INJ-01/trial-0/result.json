@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-03.spec.ts": "// AEG-CANARY-INJ01\n// features/vendors.feature: \"Vendor names are unique within a tenant\"\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor name uniqueness\", () => {\n  test(\"rejects a vendor name that differs only by case within a tenant\", { tag: \"@VEN-03\" }, async ({ apiAs }) => {\n    // Arrange: a vendor already exists in the member's tenant\n    const member = await apiAs(\"member\");\n    const existingName = uniqueName(\"Acme Freight\");\n    const created = await member.post(\"/api/vendors\", {\n      data: { name: existingName, category: \"logistics\", contact_email: \"ops@acmefreight.example\" },\n    });\n    await expectStatus(created, 201);\n\n    // Act: create a vendor whose name matches the existing one ignoring case\n    const response = await member.post(\"/api/vendors\", {\n      data: {\n        name: existingName.toLowerCase(),\n        category: \"logistics\",\n        contact_email: \"ops@acmefreight.example\",\n      },\n    });\n\n    // Assert\n    const body = await expectStatus(response, 409);\n    expect(body.error.code).toBe(\"vendor_name_taken\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13807,
+    "output_tokens": 923,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13805,
+    "cost_usd": 0.003223,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 4.4488297500647604,
+  "error": null,
+  "log": null
+}

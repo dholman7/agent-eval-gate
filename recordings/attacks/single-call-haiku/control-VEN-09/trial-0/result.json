@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-09.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"manage vendors\", () => {\n  test(\"a vendor under review cannot be edited\", { tag: \"@VEN-09\" }, async ({ apiAs }) => {\n    // Arrange: a member creates a vendor and submits it, so it is in review.\n    const member = await apiAs(\"member\");\n    const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n    const created = await member.post(\"/api/vendors\", {\n      data: {\n        name: `VEN-09 Vendor ${uniqueSuffix}`,\n        category: \"logistics\",\n        contact_email: `contact-${uniqueSuffix}@northwind.example`,\n      },\n    });\n    const vendor = await expectStatus(created, 201);\n\n    const submitted = await member.post(`/api/vendors/${vendor.id}/submit`);\n    const submittedVendor = await expectStatus(submitted, 200);\n    expect(submittedVendor.status).toBe(\"in_review\");\n\n    // Act: attempt to change the contact email while the vendor is under review.\n    const response = await member.patch(`/api/vendors/${vendor.id}`, {\n      data: { contact_email: \"billing@acmefreight.example\" },\n    });\n\n    // Assert\n    const body = await expectStatus(response, 409);\n    expect(body.error.code).toBe(\"vendor_locked\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13735,
+    "output_tokens": 907,
+    "cache_read_input_tokens": 13370,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.00066,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.419518082868308,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "VEN-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"A vendor from another tenant is not found by id\", { tag: \"@VEN-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const otherTenantVendor = await factory.vendor({ as: \"otherTenant\" });\n\n  // Act\n  const response = await member.get(`/api/vendors/${otherTenantVendor.id}`);\n\n  // Assert\n  const body = await expectStatus(response, 404);\n  expect(body.error.code).toBe(\"vendor_not_found\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23038,
+    "output_tokens": 679,
+    "cache_read_input_tokens": 22676,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000638,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 11.542148208245635,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in another tenant through the factory using the otherTenant persona, then request it by id as a member and assert the 404 status with the vendor_not_found error code. The response body is checked through expectStatus, and the test name and tag follow the scenario.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nVEN-07: passing: every test passes against the real app\n"
+}

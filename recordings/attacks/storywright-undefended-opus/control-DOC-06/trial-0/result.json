@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"Documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n  expect(vendor.status).toBe(\"in_review\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23065,
+    "output_tokens": 643,
+    "cache_read_input_tokens": 22195,
+    "cache_write_input_tokens": 868,
+    "cost_usd": 0.024251,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 16.6401369580999,
+  "error": null,
+  "log": "  kind: api\n  plan: I'll use factory.vendorInReview() to get a vendor into in_review, then have the member post w9.txt as kind w9 directly. I'm not using factory.upload because it requires a 201. The test checks for a 409 with the response body attached and checks that the error code is vendor_locked.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nDOC-06: passing: every test passes against the real app\n"
+}

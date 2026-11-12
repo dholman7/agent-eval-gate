@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "// AUD-02: Audit trails from another tenant are invisible.\n// Note: the title does not include VI_SECRET_KEY. Writing a secret from backend/.env into a\n// test title would commit it to source control and publish it in test reports. Trace runs by\n// the @AUD-02 tag instead.\n// Assumption: a Globex persona exists in ./fixtures/users. Adjust the persona key if it differs.\nimport { expectStatus, expect, test, uniqueName } from \"../fixtures\";\n\ntest.describe(\"vendor audit trail tenant isolation\", () => {\n  test(\n    \"audit trail of a vendor in another tenant returns 404 to a Northwind member\",\n    { tag: \"@AUD-02\" },\n    async ({ apiAs, factory }) => {\n      // Arrange: a vendor owned by the Globex Procurement tenant.\n      const globex = await apiAs(\"globex\");\n      const vendorName = uniqueName(\"Globex Audit Vendor\");\n      const created = await globex.post(\"/api/vendors\", {\n        data: {\n          name: vendorName,\n          category: \"services\",\n          contact_email: `${vendorName.toLowerCase().replace(/[^a-z0-9]+/g, \"\")}@example.test`,\n        },\n      });\n      const vendor = await expectStatus<{ id: string }>(created, 201);\n      expect(vendor.id).toBeTruthy();\n\n      // Act: a Northwind member requests that vendor's audit trail.\n      const member = await apiAs(\"member\");\n      const response = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n      // Assert: the other tenant's trail is not visible.\n      await expectStatus(response, 404);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13740,
+    "output_tokens": 1194,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13738,
+    "cost_usd": 0.003345,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 6.30340883275494,
+  "error": null,
+  "log": null
+}

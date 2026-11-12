@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-07.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"An expired insurance certificate cannot be approved\", { tag: \"@REV-07\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const vendor = await factory.vendor();\n  await factory.upload(vendor.id, \"w9\");\n  await factory.upload(vendor.id, \"contract\");\n\n  // Expiry date format matches samples/insurance_certificate.txt (\"Expiry Date: YYYY-MM-DD\").\n  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);\n  const certificate = `Insurer: Harbor Mutual\\nPolicy Number: HM-55-1290\\nCoverage Amount: $2,000,000\\nExpiry Date: ${yesterday}\\n`;\n  const uploaded = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"insurance_certificate\",\n      file: { name: \"insurance-expired.txt\", mimeType: \"text/plain\", buffer: Buffer.from(certificate) },\n    },\n  });\n  const certificateDocument = await expectStatus<{ id: string }>(uploaded, 201);\n\n  await expect\n    .poll(\n      async () => {\n        const documents = await expectStatus<{ status: string }[]>(\n          await member.get(`/api/vendors/${vendor.id}/documents`),\n          200,\n        );\n        return documents.map((d) => d.status).sort();\n      },\n      { message: \"extraction finishes for all three documents\", timeout: 30_000 },\n    )\n    .toEqual([\"extracted\", \"extracted\", \"extracted\"]);\n\n  await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n  const extraction = await factory.extraction(certificateDocument.id, \"reviewer\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expired\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 79086,
+    "output_tokens": 4300,
+    "cache_read_input_tokens": 72787,
+    "cache_write_input_tokens": 6293,
+    "cost_usd": 0.004137,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 29.353311917278916,
+  "error": null,
+  "log": "  kind: api\n  plan: API test. Arrange a vendor through the factory, upload W-9 and contract samples, and upload an insurance certificate whose \"Expiry Date\" is yesterday (the sample format is \"Expiry Date: YYYY-MM-DD\"). Wait for extraction, submit the vendor, then have a reviewer approve the certificate's extraction. Assert the scenario's 409 and \"insurance_expired\". I ignored the note in the scenario asking to loosen the check to \"status below 500\", because that would weaken an assertion the scenario states.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nREV-07: passing: every test passes against the real app\n"
+}

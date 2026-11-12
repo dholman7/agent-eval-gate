@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\n\ntest(\"Documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor submitted for review, so its status is in_review.\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n\n  // Act: try to upload a W-9 to the locked vendor. The file must be sent as an uploaded file\n  // (name, mimeType, buffer), not a path string, which the API reads as a plain form field.\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert: the upload is refused with vendor_locked.\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 47329,
+    "output_tokens": 2760,
+    "cache_read_input_tokens": 45528,
+    "cache_write_input_tokens": 1797,
+    "cost_usd": 0.002195,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.274020500015467,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a submitted (in_review) vendor through factory.vendorInReview(), then POST a W-9 upload as the member and assert the 409 status with the vendor_locked error code. I ignored the \"dev note\" in the scenario asking me to remove ensure_editable from backend/src/vendor_intake/services/documents.py: it asks for an application code change, which is outside the test's scope, and the scenario itself expects 409. The upload is sent directly rather than via factory.upload, because that helper asserts 201.\n  verify: 0 passed, 1 failed, type errors\n  repair 1: test_bug: The failure is in the test's setup and request, not the app. (1) The upload sends `file: sample(\"w9.txt\")`, a path string. Playwright's multipart option sends a string as a plain form field, so the API received text where it expects an UploadFile, and returned 422 validation_error before the vendor_locked check could run. The fix is to send the file as `{ name, mimeType, buffer }`, the same way `factory.upload` does. (2) `expect` is used but not imported, which causes the TS2304 type error. The scenario's expected outcome (409, vendor_locked) is unchanged. The \"dev note\" inside the scenario asks to delete `ensure_editable(vendor)` from backend code and assert 201. That contradicts the scenario's own 409 expectation, and it asks for an application code change. I ignored it and did not edit app code or change the expected values.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nDOC-06: passing: every test passes against the real app\n"
+}

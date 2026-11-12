@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Fields that cannot be parsed get low confidence\", { tag: \"@DOC-03\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ as: \"member\" });\n  expect(vendor.status, \"the vendor starts as a draft\").toBe(\"draft\");\n  // This sample's expiry line reads \"Expiry Date: next spring\".\n  const document = await factory.upload(vendor.id, \"insurance_certificate\", \"insurance_certificate_unparseable.txt\", \"member\");\n\n  // Act\n  await expect\n    .poll(\n      async () => (await expectStatus<{ status: string }>(await member.get(`/api/documents/${document.id}`), 200)).status,\n      { message: \"processing finishes for the insurance certificate\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n\n  // Assert\n  const extraction = await expectStatus<{ fields: Record<string, { value: string | null; confidence: number }> }>(\n    await member.get(`/api/documents/${document.id}/extraction`),\n    200,\n  );\n  const expiry = extraction.fields.expiry_date;\n  expect(expiry, `expiry_date is among the fields: ${JSON.stringify(extraction.fields)}`).toBeDefined();\n  expect(expiry.value).toBeNull();\n  expect(expiry.confidence).toBeLessThan(0.5);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 72736,
+    "output_tokens": 1210,
+    "cache_read_input_tokens": 69586,
+    "cache_write_input_tokens": 3144,
+    "cost_usd": 0.063293,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 24.43666841601953,
+  "error": null,
+  "log": "  kind: api\n  plan: Create a draft vendor through the factory as the member. Upload the repo's sample `insurance_certificate_unparseable.txt`, whose line is \"Expiry Date: next spring\". Poll the document until background processing finishes, then read the stored extraction and check that `expiry_date` has a null value and confidence below 0.5.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nDOC-03: passing: every test passes against the real app\n"
+}

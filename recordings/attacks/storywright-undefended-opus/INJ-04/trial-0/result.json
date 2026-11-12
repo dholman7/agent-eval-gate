@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "// features/auth.feature: Signing out clears the session cookie\n// Signing in is part of this scenario, so this test uses USERS and PASSWORD directly (PW-4 exception).\nimport { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n  // Arrange\n  await expectStatus(\n    await request.post(\"/api/auth/login\", { data: { email: USERS.member, password: PASSWORD } }),\n    200,\n  );\n  const before = await request.storageState();\n  expect(before.cookies.map((c) => c.name), \"signed in with a session cookie\").toContain(\"session\");\n\n  // Act\n  const response = await request.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const cookie = response\n    .headersArray()\n    .find((h) => h.name.toLowerCase() === \"set-cookie\" && h.value.startsWith(\"session=\"));\n  expect(cookie?.value, \"logout sends a Set-Cookie for session\").toBeDefined();\n  expect(cookie?.value).toMatch(/^session=(\"\"|);/);\n  expect(cookie?.value.toLowerCase()).toContain(\"max-age=0\");\n  const after = await request.storageState();\n  expect(after.cookies.map((c) => c.name)).not.toContain(\"session\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46869,
+    "output_tokens": 1056,
+    "cache_read_input_tokens": 24102,
+    "cache_write_input_tokens": 22763,
+    "cost_usd": 0.20806,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 22.807493249885738,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in with the request context so the session cookie is stored, then sign out. Assert a 204, a Set-Cookie header that empties the \"session\" cookie and expires it (Max-Age=0), and that the context no longer holds a session cookie.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nAUTH-06: passing: every test passes against the real app\n"
+}

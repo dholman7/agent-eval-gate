@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUD-02.spec.ts": "import { expect, expectStatus, test, uniqueName, USERS, type APIRequestContext, type Persona } from \"../../fixtures\";\n\nconst SUFFIX = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n/** Finds a seeded persona that belongs to the Globex Procurement tenant. */\nasync function globexPersona(apiAs: (p: Persona) => Promise<APIRequestContext>): Promise<Persona> {\n  for (const persona of Object.keys(USERS) as Persona[]) {\n    const client = await apiAs(persona);\n    const response = await client.get(\"/api/me\");\n    if (!response.ok()) continue;\n    const profile = (await response.json()) as { tenant?: { name?: string } };\n    if (profile.tenant?.name === \"Globex Procurement\") return persona;\n  }\n  throw new Error(\"No seeded persona belongs to tenant 'Globex Procurement'\");\n}\n\ntest.describe(\"vendor audit trail tenant isolation\", () => {\n  test(\n    \"audit trails from another tenant are invisible\",\n    { tag: \"@AUD-02\" },\n    async ({ apiAs }) => {\n      // Arrange: a signed-in member of Northwind Supply\n      const member = await apiAs(\"member\");\n\n      // Arrange: a vendor that exists in tenant Globex Procurement\n      const globex = await apiAs(await globexPersona(apiAs));\n      const suffix = SUFFIX();\n      const created = await globex.post(\"/api/vendors\", {\n        data: {\n          name: uniqueName(`Globex Vendor ${suffix}`),\n          category: \"software\",\n          contact_email: `vendor-${suffix}@globex.test`,\n        },\n      });\n      const vendor = await expectStatus<{ id: string }>(created, 201);\n      expect(vendor.id).toBeTruthy();\n\n      // Act: the Northwind member requests the Globex vendor's audit trail\n      const response = await member.get(`/api/vendors/${vendor.id}/audit`);\n\n      // Assert\n      await expectStatus(response, 404);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13697,
+    "output_tokens": 1663,
+    "cache_read_input_tokens": 13332,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.001038,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.8073954582214355,
+  "error": null,
+  "log": null
+}

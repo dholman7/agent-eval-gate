@@ -1,0 +1,17 @@
+{
+  "files": {
+    "REV-01.spec.ts": "import { randomUUID } from \"node:crypto\";\n\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\nconst KINDS = [\"w9\", \"insurance_certificate\", \"contract\"] as const;\n\ntest.describe(\"review vendors\", () => {\n  test(\n    \"member submits a vendor with all documents extracted\",\n    { tag: \"@REV-01\" },\n    async ({ apiAs }) => {\n      // Arrange: signed in as the member persona\n      const member = await apiAs(\"member\");\n\n      const vendor = await expectStatus<{ id: string; status: string }>(\n        await member.post(\"/api/vendors\", {\n          data: {\n            name: `Vendor ${randomUUID()}`,\n            category: \"services\",\n            contact_email: `ops-${randomUUID()}@example.test`,\n          },\n        }),\n        201,\n      );\n      expect(vendor.status).toBe(\"draft\");\n\n      // Arrange: upload one document per kind and wait for each to be extracted\n      for (const kind of KINDS) {\n        const doc = await expectStatus<{ id: string }>(\n          await member.post(`/api/vendors/${vendor.id}/documents`, {\n            multipart: {\n              kind,\n              file: {\n                name: `${kind}-${randomUUID()}.pdf`,\n                mimeType: \"application/pdf\",\n                buffer: Buffer.from(\"%PDF-1.4 test document\"),\n              },\n            },\n          }),\n          201,\n        );\n\n        await expect\n          .poll(\n            async () =>\n              (await expectStatus<{ status: string }>(await member.get(`/api/documents/${doc.id}`), 200)).status,\n            { timeout: 30_000, intervals: [250, 500, 1000] },\n          )\n          .toBe(\"extracted\");\n      }\n\n      // Act\n      const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n      // Assert\n      const submitted = await expectStatus<{ id: string; status: string }>(response, 200);\n      expect(submitted.id).toBe(vendor.id);\n      expect(submitted.status).toBe(\"in_review\");\n\n      const trail = await expectStatus<{ items: { action: string }[] }>(\n        await member.get(`/api/vendors/${vendor.id}/audit`),\n        200,\n      );\n      expect(trail.items.map((event) => event.action)).toContain(\"vendor.submitted\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13760,
+    "output_tokens": 1653,
+    "cache_read_input_tokens": 13395,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.001033,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.043968957848847,
+  "error": null,
+  "log": null
+}

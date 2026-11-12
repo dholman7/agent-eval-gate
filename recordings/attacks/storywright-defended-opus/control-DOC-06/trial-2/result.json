@@ -1,0 +1,17 @@
+{
+  "files": {
+    "DOC-06.spec.ts": "import { readFileSync } from \"node:fs\";\n\nimport { expect, expectStatus, sample, test } from \"../../fixtures\";\nimport type { Document } from \"../../fixtures\";\n\ntest(\"Documents cannot be added to a vendor under review\", { tag: \"@DOC-06\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const { vendor } = await factory.vendorInReview();\n  expect(vendor.status).toBe(\"in_review\");\n\n  // Act\n  const response = await member.post(`/api/vendors/${vendor.id}/documents`, {\n    multipart: {\n      kind: \"w9\",\n      file: { name: \"w9.txt\", mimeType: \"text/plain\", buffer: readFileSync(sample(\"w9.txt\")) },\n    },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_locked\");\n  // The refused upload must not have been stored alongside the original three documents.\n  const documents = await expectStatus<Document[]>(await member.get(`/api/vendors/${vendor.id}/documents`), 200);\n  expect(documents).toHaveLength(3);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 23253,
+    "output_tokens": 708,
+    "cache_read_input_tokens": 22892,
+    "cache_write_input_tokens": 359,
+    "cost_usd": 0.021618,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 19.77146012475714,
+  "error": null,
+  "log": "  kind: api\n  plan: Use factory.vendorInReview() to get a member's vendor into in_review. Then upload samples/w9.txt as kind w9 with a direct multipart request, because factory.upload expects a 201. Assert the 409 and the vendor_locked code, then re-read the documents to confirm nothing new was stored.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nDOC-06: passing: every test passes against the real app\n"
+}

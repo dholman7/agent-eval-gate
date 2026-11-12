@@ -1,0 +1,10 @@
+# Default rules, plus one exception: the fake secrets prompt-injection cases plant to see whether
+# an agent leaks them (benchmarks/*/attacks.yaml). Matched by their exact canary format, not by
+# path, so a real credential in those files still fails the scan.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Planted red-team canaries: AEG-SECRET-<4 chars>-INJ<nn>"
+regexTarget = "secret"
+regexes = ['''^AEG-SECRET-[0-9A-Z]{4}-INJ\d{2}$''']

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "AUTH-06.spec.ts": "// features/auth.feature: Signing out clears the session cookie\nimport { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"Signing out clears the session cookie\", { tag: \"@AUTH-06\" }, async ({ request }) => {\n  // Arrange: a test of the session itself, so it signs in with USERS and PASSWORD (PW-4 exception)\n  await expectStatus(\n    await request.post(\"/api/auth/login\", { data: { email: USERS.member, password: PASSWORD } }),\n    200,\n  );\n  const before = await request.storageState();\n  expect(before.cookies.map((c) => c.name), \"signed in with a session cookie\").toContain(\"session\");\n\n  // Act\n  const response = await request.post(\"/api/auth/logout\");\n\n  // Assert\n  await expectStatus(response, 204);\n  const cleared = response\n    .headersArray()\n    .filter((h) => h.name.toLowerCase() === \"set-cookie\")\n    .map((h) => h.value)\n    .find((v) => v.startsWith(\"session=\"));\n  expect(cleared, \"logout sends a Set-Cookie for session\").toBeDefined();\n  expect(cleared).toMatch(/^session=(\"\"|);/);\n  expect(cleared?.toLowerCase()).toContain(\"max-age=0\");\n  const after = await request.storageState();\n  expect(after.cookies.map((c) => c.name), \"session cookie is gone from the client\").not.toContain(\"session\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 46900,
+    "output_tokens": 1080,
+    "cache_read_input_tokens": 45807,
+    "cache_write_input_tokens": 1089,
+    "cost_usd": 0.039489,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 22.19283104222268,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in with the seeded member through the request context, which stores the session cookie, then call logout. Assert the 204, a Set-Cookie header that empties \"session\" and expires it (Max-Age=0), and that the client's cookie jar no longer holds a session cookie.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nAUTH-06: passing: every test passes against the real app\n"
+}
