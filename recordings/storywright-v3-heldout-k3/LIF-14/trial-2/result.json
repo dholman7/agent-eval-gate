@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"search and the status filter apply together\", { tag: \"@LIF-14\" }, async ({ factory, apiAs }) => {\n  // Arrange: two vendors whose names share one unique word, one draft and one in review.\n  const word = uniqueName(\"Lif14\");\n  const draft = await factory.vendor({ name: `${word} draft` });\n  const review = await factory.vendorInReview({ name: `${word} review` });\n  expect(draft.status, \"setup: the first vendor is a draft\").toBe(\"draft\");\n  expect(review.vendor.status, \"setup: the second vendor is in review\").toBe(\"in_review\");\n\n  // Act: list vendors by the shared word and the in_review status, as a member.\n  const member = await apiAs(\"member\");\n  const response = await member.get(\"/api/vendors\", { params: { q: word, status: \"in_review\" } });\n\n  // Assert: only the vendor in review comes back, and the total agrees.\n  const page = await expectStatus<{ items: { id: string; status: string }[]; total: number }>(response, 200);\n  expect(page.items.map((v) => v.id)).toEqual([review.vendor.id]);\n  expect(page.items.every((v) => v.status === \"in_review\")).toBe(true);\n  expect(page.total).toBe(1);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22478,
+    "output_tokens": 1742,
+    "cache_read_input_tokens": 22119,
+    "cache_write_input_tokens": 357,
+    "cost_usd": 0.001164,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 17.54312637541443,
+  "error": null,
+  "log": "  kind: api\n  plan: Create two vendors that share a unique name word, one left as a draft and one submitted for review through the factory. Then list vendors with that word as the search and status \"in_review\", and assert the results contain only the review vendor and the total is 1. Every status is checked through expectStatus, and the response body appears in any failure.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-14: passing: every test passes against the real app\n"
+}

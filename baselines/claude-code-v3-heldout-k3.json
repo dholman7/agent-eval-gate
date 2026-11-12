@@ -1,0 +1,1501 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v3",
+    "target_ref": "8bca46706f95b091bd869c974500097fcfbfdb8f",
+    "agent": "claude-code",
+    "mode": "live",
+    "split": "heldout",
+    "trials": 3,
+    "harness_version": "0.1.0",
+    "started_at": "2026-11-11T21:41:24+00:00",
+    "model": "claude-haiku-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "LIF-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 13; `e2e/api/generated/LIF-01.spec.ts` is written. `npx tsc --noEmit` passes, and `npx playwright test --project=api api/generated/LIF-01.spec.ts` reports 1 passed.\n\nThe test is one journey across two roles, as the scenario describes. The member creates a draft vendor, uploads the insurance certificate and contract, and then uploads two W-9s with different legal names, waiting for extraction after each. The member submits, and the reviewer reads `/api/review-queue`. It asserts that the vendor's `w9` extraction shows `legal_name` \"Second Name LLC\", and that `/api/vendors/{id}/documents` lists the four uploads in order: insurance, contract, first W-9, second W-9.\n\nChoices I made:\n- **Inline W-9 bodies.** The factory only accepts files from `samples/`, and I was limited to one file, so the two W-9s are built as buffers inside the test. The vendor name comes from `factory.vendor()`, which already uses a unique name.\n- **Stored state, not just responses.** The queue and document list are re-read after submit, not taken from the submit response.\n- **Tag.** The test carries `{ tag: \"@LIF-01\" }`.\n\nI did not run `npm run lint`, which the repo's rules also cover. The spec avoids the patterns those rules flag as far as I can tell by reading them, but that is unverified.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 445088,
+        "output_tokens": 8440,
+        "cache_read_input_tokens": 402516,
+        "cache_write_input_tokens": 42548,
+        "cost_usd": 0.016757,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 54.43053637491539
+    },
+    {
+      "task_id": "LIF-01",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 13; I added `e2e/api/generated/LIF-01.spec.ts` with one tagged test, `@LIF-01`. It passes with `npx playwright test --project=api api/generated/LIF-01.spec.ts`, and `npx tsc --noEmit` exits 0. ESLint also reports nothing on the file. No other file was changed.\n\nThe scenario is one journey across two roles, so I wrote it as one test rather than splitting it. It follows AGENTS.md's journey exception and has a comment saying so.\n\nWhat the test does:\n- **Arrange:** as `member`, it creates a uniquely named draft vendor, uploads an insurance certificate and a contract, then uploads two W9s whose legal names are \"First Name LLC\" and then \"Second Name LLC\". It polls until all four documents are `extracted`.\n- **Act:** it submits the vendor as `member`, then fetches `/api/review-queue` as `reviewer`.\n- **Assert:** the vendor's `w9` extraction in the queue has `fields.legal_name.value` equal to \"Second Name LLC\". The vendor's W9 documents, in order, are exactly the first and second upload IDs.\n\nChoices I made:\n- The existing `factory.upload` only accepts the fixed sample files, and I couldn't change the fixtures. So the two legal-name W9s are posted inline in the test, using the same text layout as `samples/w9.txt`.\n- The test polls for extraction with `expect.poll`, not a fixed wait, matching how the factory does it.\n\nNothing in the run was flaky, but the custom W9 text depends on the app's extractor reading \"Legal Name:\" from that layout. It passed here, so it does.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 407734,
+        "output_tokens": 8094,
+        "cache_read_input_tokens": 378516,
+        "cache_write_input_tokens": 29192,
+        "cost_usd": 0.013673,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 64.05371954105794
+    },
+    {
+      "task_id": "LIF-01",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 11; ote `e2e/api/generated/LIF-01.spec.ts` with one test for the scenario, and both `npx tsc --noEmit` and `npx playwright test --project=api api/generated/LIF-01.spec.ts` pass (1 passed). I didn't change any other file.\n\nThe test is tagged `@LIF-01` and runs through the API only:\n\n- **Setup:** a unique draft vendor with the sample insurance certificate and contract, both extracted. Then two W9 uploads, \"First Name LLC\" and then \"Second Name LLC\", each waited on until extracted.\n- **Submit:** the vendor is submitted and comes back `in_review`.\n- **Queue:** the reviewer's `/api/review-queue` item for this vendor has exactly one W9 extraction. It points at the second upload and its `legal_name` is \"Second Name LLC\".\n- **Documents:** the vendor's document list has four entries (two W9s, insurance, contract). The W9s appear in upload order and `created_at` is non-decreasing across the list.\n\nChoices I made:\n\n- **W9 content:** I upload my own W9 text instead of the sample file, because `samples/w9.txt` says \"Harborline Logistics LLC\" and the scenario needs the two names above.\n- **Literal legal names:** \"First Name LLC\" and \"Second Name LLC\" are used as written in the scenario. They aren't made unique, because the assertions are scoped to this test's own vendor and document ids. If you want them suffixed for the unique-name rule, that's a one-line change.\n- **Insurance and contract:** these come from `factory.upload` with the default sample files, so the fixtures file stays untouched.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 235705,
+        "output_tokens": 9600,
+        "cache_read_input_tokens": 207944,
+        "cache_write_input_tokens": 27745,
+        "cost_usd": 0.01243,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 53.674521916080266
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 10; I wrote `e2e/api/generated/LIF-02.spec.ts` with two API tests, both tagged `@LIF-02`. Both pass and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe two tests cover the scenario's two outcomes:\n\n- **Vendor status:** the reviewer rejects the contract extraction with the note \"Wrong counterparty\". The decision response has status `rejected` and the stored note, and `GET /api/vendors/{id}` returns `rejected`.\n- **Audit trail:** `GET /api/vendors/{id}/audit` contains `extraction.rejected` followed by `vendor.rejected`. The first event's details carry the extraction id, `contract` kind and note.\n\nEach test builds its own vendor with `factory.vendorInReview()`, so the parallel runs don't share data.\n\nI filter the audit trail to exactly those two actions. A broader filter would also pick up `vendor.submitted`, which the scenario doesn't name.\n\nI did not run `npm run lint` on the new file.",
+      "typechecks": true,
+      "clean_passed": 2,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 226650,
+        "output_tokens": 4940,
+        "cache_read_input_tokens": 198342,
+        "cache_write_input_tokens": 28294,
+        "cost_usd": 0.010114,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 34.20321737462655
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 11; I wrote `e2e/api/generated/LIF-02.spec.ts` with three tests, all tagged `@LIF-02`. All three pass with `npx playwright test --project=api api/generated/LIF-02.spec.ts`, and `npx tsc --noEmit` exits clean. No other file was changed.\n\nThe tests cover the scenario through the HTTP API:\n\n- **Rejected extraction keeps the note:** the reviewer rejects the \"contract\" extraction with \"Wrong counterparty\". The response is `rejected`, and a re-read of the stored extraction shows the same status and note.\n- **Vendor status:** `GET /api/vendors/{id}` returns `rejected` after the rejection.\n- **Audit order:** the vendor's audit trail has `extraction.rejected` immediately followed by `vendor.rejected`. The `extraction.rejected` event's `extraction_id` matches the contract extraction.\n\nEach test builds its own vendor through `factory.vendorInReview()`, so nothing is shared between tests in parallel runs.\n\nI did not run `npm run lint`, so the spec's conformance to the lint rules in `e2e/AGENTS.md` is unchecked.",
+      "typechecks": true,
+      "clean_passed": 3,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 309668,
+        "output_tokens": 5694,
+        "cache_read_input_tokens": 278872,
+        "cache_write_input_tokens": 30776,
+        "cost_usd": 0.011793,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 40.05965662514791
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 11; I wrote `e2e/api/generated/LIF-02.spec.ts` with two tests, both tagged `@LIF-02`. Both pass, and `npx tsc --noEmit` exits 0. No other file was changed.\n\n- **Rejecting one document sends the whole vendor back:** arranges a vendor in review with `factory.vendorInReview()`, has the reviewer reject the contract extraction with \"Wrong counterparty\" (expects 200), then checks that the vendor's status is `rejected` and that the audit trail ends with `extraction.rejected` then `vendor.rejected`.\n- **The rejected extraction stores the reviewer's note:** checks that the stored extraction's `review_note` is \"Wrong counterparty\". The scenario doesn't name this, but the repo's standard (PW-12) asks for stored outcomes to be re-read, so I added it as a second test.\n\nThe endpoints and audit shape come from the backend's `test_review.py` and `conftest.py`, not from the OpenAPI spec. The decision endpoint is `POST /api/extractions/{id}/decision`, and the audit list is `items[].action`.\n\nOnly the first run failed: the second test passed the extraction ID to the extraction-read endpoint, which expects the document ID. I fixed that and both tests then passed.",
+      "typechecks": true,
+      "clean_passed": 2,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": false,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 313527,
+        "output_tokens": 4778,
+        "cache_read_input_tokens": 284417,
+        "cache_write_input_tokens": 29090,
+        "cost_usd": 0.011053,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 40.57835479080677
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 10; I wrote `e2e/api/generated/LIF-03.spec.ts` with two tests, both tagged `@LIF-03`. Both pass with `npx playwright test --project=api api/generated/LIF-03.spec.ts`, and `npx tsc --noEmit` exits 0. No other file was changed.\n\n- **Main test:** a vendor in review gets its `w9` extraction rejected, which sends the vendor back. Approving the `contract` extraction then returns 409 with error code `vendor_not_in_review`, as the scenario specifies.\n- **Extra test:** after that refused approval, the `contract` extraction is still `pending_review`. The scenario doesn't state this, so drop it if you want only the scenario's assertions.\n\nBoth tests use the `factory.vendorInReview()` fixture, so each one creates its own uniquely named vendor and doesn't share data. The reject and approve calls go through `POST /api/extractions/{id}/decision` as the reviewer, based on `openapi.json`. The 409 error code is read from `body.error.code`, matching the existing auth tests.",
+      "typechecks": true,
+      "clean_passed": 2,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-120-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 263875,
+        "output_tokens": 4435,
+        "cache_read_input_tokens": 242659,
+        "cache_write_input_tokens": 21196,
+        "cost_usd": 0.008885,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 37.78121833270416
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 11; I wrote `e2e/api/generated/LIF-03.spec.ts` with one test, tagged `@LIF-03`. It passes with `npx playwright test --project=api api/generated/LIF-03.spec.ts`, and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test uses the `factory` fixture to build a vendor in review, then has the reviewer reject the `w9` extraction with a note. It then approves the `contract` extraction and asserts a 409 with error code `vendor_not_in_review`, as the scenario specifies.\n\nI also added one check the scenario doesn't name: after the refused approval, the `contract` extraction is still `pending_review`. That follows the repo's rule to assert the stored outcome, and it doesn't weaken the scenario's assertions. Say if you want it removed.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-120-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 283177,
+        "output_tokens": 4398,
+        "cache_read_input_tokens": 256654,
+        "cache_write_input_tokens": 26505,
+        "cost_usd": 0.010068,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 40.96263700025156
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 14; I wrote `e2e/api/generated/LIF-03.spec.ts` with one test tagged `@LIF-03`. It passes with `npx playwright test --project=api api/generated/LIF-03.spec.ts`, and `npx tsc --noEmit` exits 0.\n\nThe test follows the scenario:\n- **Arrange:** `factory.vendorInReview()` builds a vendor in review with all three extractions pending. As `reviewer`, it rejects the `w9` extraction with a note, which moves the vendor out of review.\n- **Act:** As `reviewer`, it approves the `contract` extraction.\n- **Assert:** The response is 409 with error code `vendor_not_in_review`. It also re-reads the contract document's extraction and checks it is still `pending_review`, so the rejected state wasn't changed by the failed approval.\n\nMy first run failed because I passed an extraction id to `factory.extraction()`, which takes a document id. I fixed that and reran. No other files were changed. I created the `api/generated/` directory, which didn't exist before.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-120-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 331387,
+        "output_tokens": 4695,
+        "cache_read_input_tokens": 308193,
+        "cache_write_input_tokens": 23170,
+        "cost_usd": 0.010066,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 40.26343220798299
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 13; I added `e2e/api/generated/LIF-04.spec.ts` with one test tagged `@LIF-04`. It passes with `npx playwright test --project=api api/generated/LIF-04.spec.ts`, and `npx tsc --noEmit` printed no errors. No other files changed.\n\nThe test arranges an in-review vendor through `factory.vendorInReview()`, then has a reviewer reject its w9 extraction with a note. The member then resubmits, and the test asserts a 409 with `error.code` of `documents_incomplete` and `error.missing_kinds` equal to `[\"w9\"]`.\n\nTwo choices to check:\n- **Rejection is the setup step.** The scenario says only that a reviewer rejected the w9, so I did the rejection through `POST /api/extractions/{id}/decision` as a reviewer. The API requires a note on rejection, so I supplied one.\n- **Only the scenario's assertions.** I didn't add a check that the vendor stays in `rejected` status after the refused resubmit, since the scenario doesn't name it.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-59-12": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 355535,
+        "output_tokens": 4474,
+        "cache_read_input_tokens": 329598,
+        "cache_write_input_tokens": 25913,
+        "cost_usd": 0.010718,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 37.18747704196721
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 10; I wrote `e2e/api/generated/LIF-04.spec.ts` with one test tagged `@LIF-04`. It passes against the running app, and `npx tsc --noEmit` exits 0. I also ran `eslint` on the file and it is clean. No other files changed.\n\nThe test follows the scenario:\n- **Arrange:** the factory builds a vendor with all three documents, submitted and in review. A reviewer then rejects the `w9` extraction with a note, via `POST /api/extractions/{id}/decision`.\n- **Act:** the member submits the vendor again.\n- **Assert:** the status is 409, `error.code` is `documents_incomplete`, and `error.missing_kinds` equals `[\"w9\"]`.\n\nThe vendor name comes from `uniqueName`, so parallel runs don't collide.\n\nI used `missing_kinds` as the field name because that is what the backend's own review tests check. The scenario's wording, \"lists missing kind\", was not a field name.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-59-12": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 261272,
+        "output_tokens": 3572,
+        "cache_read_input_tokens": 241042,
+        "cache_write_input_tokens": 20210,
+        "cost_usd": 0.00824,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 37.31976895779371
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 10; I added `e2e/api/generated/LIF-04.spec.ts` with one test tagged `@LIF-04`. It passes, and `npx tsc --noEmit` produced no errors. No other file changed.\n\nThe test arranges a vendor in review through the factory, has a reviewer reject the w9 extraction through `POST /api/extractions/{id}/decision`, then has the member submit. It asserts a 409, error code `documents_incomplete`, and `missing_kinds` equal to `[\"w9\"]`.\n\nI took the scenario's \"error lists missing kind 'w9' only\" to mean the exact list `[\"w9\"]`, not a containment check. I didn't add a check that the vendor stays rejected after the refused submit, since the scenario doesn't name it.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-59-12": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 235291,
+        "output_tokens": 4238,
+        "cache_read_input_tokens": 210138,
+        "cache_write_input_tokens": 25137,
+        "cost_usd": 0.009249,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 36.03743674978614
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 10; I added `e2e/api/generated/LIF-05.spec.ts` with one test, tagged `@LIF-05`. `npx tsc --noEmit` passes, and `npx playwright test --project=api api/generated/LIF-05.spec.ts` passes (1 test, 418 ms). I didn't run `npm run lint`, which the repo's `AGENTS.md` mentions, so that check is still open. No other file was changed.\n\nThe test follows the scenario in four steps:\n- **Arrange:** the member's vendor goes through `factory.vendorInReview`. The reviewer approves the insurance certificate and the contract, then rejects the w9.\n- **Act:** the member uploads a new w9 and polls until it is `extracted`, then resubmits the vendor.\n- **Assert:** the submit response and a re-read both show `in_review`. The reviewer's queue lists the vendor with exactly one pending extraction, and its kind is `w9`.\n\nTwo choices to check:\n- The queue assertion filters to `pending_review` extractions before comparing. The scenario only specifies the pending ones, so I didn't assert anything about the approved or rejected extractions in the queue.\n- The reviewer decisions are posted inline in the spec, because `factory` has no decision helper and I was limited to one file. If you'd rather keep that in `fixtures/factory.ts`, it's a small move.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 266194,
+        "output_tokens": 7889,
+        "cache_read_input_tokens": 241462,
+        "cache_write_input_tokens": 24712,
+        "cost_usd": 0.011304,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 51.06791624985635
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 11; I wrote `e2e/api/generated/LIF-05.spec.ts` with one test, tagged `@LIF-05`. `npx tsc --noEmit` passes, and `npx playwright test --project=api api/generated/LIF-05.spec.ts` passes (1 passed). ESLint on the file also passes. No other file was changed.\n\nThe test runs through the API only:\n\n- **Arrange:** `factory.vendorInReview` builds a vendor with all three documents submitted. As a reviewer, the test approves the insurance certificate and contract and rejects the W-9.\n- **Act:** the member uploads a new `w9.txt` through `factory.upload`, polls the document list until it is `extracted`, and submits the vendor.\n- **Assert:**\n  - The submit response is `in_review`, and re-reading the vendor also returns `in_review`.\n  - The review queue has a card for this vendor whose extractions are exactly `[{ kind: \"w9\", status: \"pending_review\" }]`.\n\nThe vendor is created with a unique name through the factory, so parallel tests don't collide.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 312264,
+        "output_tokens": 8300,
+        "cache_read_input_tokens": 283636,
+        "cache_write_input_tokens": 28608,
+        "cost_usd": 0.01271,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 52.73082816693932
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 12; I wrote `e2e/api/generated/LIF-05.spec.ts` with one test tagged `@LIF-05`. `npx tsc --noEmit` passes, and the API test passes against the running app. ESLint also passes on the file. No other file was changed.\n\nThe test follows the scenario's steps:\n\n- **Arrange:** `factory.vendorInReview()` creates a vendor with all three documents extracted and submitted. A reviewer approves the `insurance_certificate` and `contract` extractions and rejects the `w9`.\n- **Act:** the member uploads a new `w9` through `factory.upload`, polls the document until it is `extracted`, and submits the vendor.\n- **Assert:**\n  - Re-reading the vendor shows `status` is `in_review`.\n  - The review queue has an entry for this vendor whose `extractions` is exactly one item, of kind `w9`, with status `pending_review`.\n\nThe vendor name is unique because the factory generates it. The test asserts through the HTTP API only.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 360537,
+        "output_tokens": 5941,
+        "cache_read_input_tokens": 333578,
+        "cache_write_input_tokens": 26935,
+        "cost_usd": 0.011696,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 48.796369292307645
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 11; I added `e2e/api/generated/LIF-06.spec.ts` with one test tagged `@LIF-06`. `npx tsc --noEmit` passes, and `npx playwright test --project=api api/generated/LIF-06.spec.ts` passes (1 test). No other files changed.\n\nThe test builds the scenario through the API:\n\n- **Arrange:** A vendor goes into review through the factory. The reviewer approves the insurance certificate and contract, then rejects the w9. The member uploads a replacement w9, waits for extraction to finish, and resubmits. The test checks that the vendor is `in_review` and the replacement extraction is `pending_review`.\n- **Act:** The reviewer approves the replacement w9's extraction.\n- **Assert:** The vendor status is `approved`. The replacement extraction is stored as `approved`. The vendor's audit trail contains `vendor.approved`.\n\nThe vendor name comes from the factory's `uniqueName`, so parallel runs don't collide.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": false,
+        "mut-backend_src_vendor_intake_services_review-81-11": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 290583,
+        "output_tokens": 6425,
+        "cache_read_input_tokens": 258239,
+        "cache_write_input_tokens": 32326,
+        "cost_usd": 0.012262,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 45.04221491608769
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 12; I wrote `e2e/api/generated/LIF-06.spec.ts` with one test tagged `@LIF-06`. Both `npx playwright test --project=api api/generated/LIF-06.spec.ts` and `npx tsc --noEmit` exit 0. I changed no other file.\n\nThe test drives the scenario through the API:\n\n- **Arrange:** `factory.vendorInReview()` creates a vendor with three pending extractions. The reviewer approves the insurance certificate and the contract, then rejects the W-9 with a note. The member uploads a replacement `w9.txt`, polls until it is extracted, and resubmits. The test checks that the replacement's extraction is `pending_review`.\n- **Act:** the reviewer approves the replacement W-9's extraction.\n- **Assert:** the decision returns `approved`, the vendor reads back as `approved`, and the vendor's audit trail contains `vendor.approved`.\n\nChoices I made:\n- The vendor name uses `uniqueName`, since tests share one database.\n- The replacement-upload poll is inline in the test, not a new factory method, because I was limited to one file.\n- The approvals and the rejection are arrangement steps, so the test's own assertions cover only the approval of the replacement.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": false,
+        "mut-backend_src_vendor_intake_services_review-81-11": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 443984,
+        "output_tokens": 7991,
+        "cache_read_input_tokens": 401985,
+        "cache_write_input_tokens": 41977,
+        "cost_usd": 0.016413,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 52.32381987478584
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 12; I added `e2e/api/generated/LIF-06.spec.ts` with one test, tagged `@LIF-06`. It passes, and `npx tsc --noEmit` exits 0. No other file changed.\n\nThe test follows the scenario through the API:\n\n- **Setup:** A vendor is submitted with all three documents extracted. The reviewer approves the insurance certificate and the contract and rejects the w9, which sends the vendor back. The member uploads a replacement w9, waits for its extraction to finish, and resubmits. The vendor is `in_review`, and the replacement's extraction is `pending_review`.\n- **Act:** The reviewer approves the replacement w9's extraction.\n- **Assert:** The extraction is `approved`, the vendor is `approved` on a fresh read, and the vendor's audit trail includes `vendor.approved`.\n\nThe test name is \"approving the replacement w9 approves a vendor whose other documents were already approved.\" I used only the existing `factory` methods and `expectStatus`, so the fixtures are untouched. ESLint printed no output for the file, which I read as a clean run; I didn't check its exit code.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": false,
+        "mut-backend_src_vendor_intake_services_review-81-11": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 352100,
+        "output_tokens": 7682,
+        "cache_read_input_tokens": 322877,
+        "cache_write_input_tokens": 29201,
+        "cost_usd": 0.012912,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 52.243970832787454
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 18; I wrote `e2e/api/generated/LIF-07.spec.ts` with one test, tagged `@LIF-07`. It passes against the running app, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test covers the scenario \"A certificate that expires today can still be approved\":\n\n- **Arrange:** A member creates a vendor and uploads a W-9 and a contract from the samples. It uploads an insurance certificate whose `Expiry Date` is today's date. It waits for all three extractions, then submits the vendor, which puts it in review.\n- **Act:** A reviewer approves the insurance extraction via `POST /api/extractions/{id}/decision` with `{ decision: \"approve\" }`.\n- **Assert:** The response is 200 with `status: \"approved\"`. A re-read of the extraction also shows `approved`.\n\nChoices I made:\n\n- **Expiry date:** The sample certificate has a fixed 2027 expiry, so the test builds its own certificate with today's date. The server's \"today\" is the UTC date, so the test uses the UTC date too. A run that starts just before UTC midnight could compare against a different day than the test expects.\n- **Upload:** `factory.upload` only reads files from `samples/`, so the custom certificate is uploaded directly in the spec. The spec file holds only the test, per the lint rule against file-level helpers.\n- **Extra checks:** The test also asserts that the vendor is `in_review` after submit and the extraction is `pending_review` before the decision. These are setup checks, not part of the scenario.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-99-14": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 524069,
+        "output_tokens": 10261,
+        "cache_read_input_tokens": 487604,
+        "cache_write_input_tokens": 36435,
+        "cost_usd": 0.017297,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 63.981771083083004
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 14; I wrote `e2e/api/generated/LIF-07.spec.ts` with one test, tagged `@LIF-07`. It passes against the running app, and `npx tsc --noEmit` is clean. ESLint on the new file is also clean, since CI runs the lint rules.\n\nThe test arranges a vendor with a W-9 and contract from the factory. It uploads its own insurance certificate with an expiry of today's date, since the factory only uploads fixed sample files. It then waits for extraction, submits the vendor, and checks the extraction is `pending_review`. As the reviewer, it approves the insurance extraction. It asserts a 200 with `status: \"approved\"`, then re-reads the extraction to confirm the stored status.\n\nChoices I made:\n- **\"Today\" is the UTC date.** The backend builds its clock from `utcnow().date()`, so the test uses `new Date().toISOString().slice(0, 10)`. Near midnight, a local-time clock could disagree with the server.\n- **The certificate is uploaded inline in the spec.** `fixtures/factory.ts` can't take custom file contents, and you asked me to change only the one file. A small helper in the fixtures would be cleaner if more tests need custom documents.\n- **I used a type assertion for the insurance document lookup.** The lint rule against conditionals in tests rejected an `if` guard, so the test asserts the certificate exists and then casts the lookup.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-99-14": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 484223,
+        "output_tokens": 7790,
+        "cache_read_input_tokens": 453272,
+        "cache_write_input_tokens": 30923,
+        "cost_usd": 0.014615,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 53.51413833303377
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 11; Added `e2e/api/generated/LIF-07.spec.ts` with one test tagged `@LIF-07`. `npx tsc --noEmit` passes, and `npx playwright test --project=api api/generated/LIF-07.spec.ts` reports 1 passed.\n\nThe test uploads an insurance certificate whose expiry is today's UTC date, submits the vendor, and approves the extraction as `reviewer@northwind.test`. It expects status 200 and `status: \"approved\"`, then re-reads the stored extraction to confirm it.\n\nDecisions to check:\n\n- **Custom certificate instead of the sample.** The shared `insurance_certificate.txt` expires 2027-03-31, so it can't exercise the boundary. The server takes \"today\" from `utcnow().date()` and `start-api.sh` doesn't pin it, so the test writes today's UTC date into the certificate inline. It doesn't use `factory.vendorInReview()`, which only takes sample files.\n- **Possible flake at UTC midnight.** If the test runs across a UTC day boundary, the server's date can move past the expiry and the approval would return 409 `insurance_expired`. The window is small, but it is there.\n- **Helper data inline.** The vendor and documents are created inside the test, not in a file-level helper, to follow the repo's spec-file rule.\n\nI did not run `npm run lint`, since it wasn't in the requested checks.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-99-14": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 309529,
+        "output_tokens": 7587,
+        "cache_read_input_tokens": 279068,
+        "cache_write_input_tokens": 30443,
+        "cost_usd": 0.012675,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 44.33023970806971
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 9; I wrote `e2e/api/generated/LIF-08.spec.ts` with one test for the scenario. It passes, and `npx tsc --noEmit` printed no errors. The exit code shown in the output came from `tail`, not `tsc`, so the clean type-check rests on the empty output.\n\nThe test:\n- **Arrange:** `factory.vendorInReview()` with the insurance certificate swapped for `samples/insurance_certificate_unparseable.txt`, which has the expiry date \"next spring\". Names are unique via the factory's `uniqueName`.\n- **Act:** the reviewer posts `{ decision: \"approve\" }` to `/api/extractions/{id}/decision`.\n- **Assert:** status 409 (checked via `expectStatus`), `error.code` is `insurance_expiry_missing`, and a re-read of the extraction shows it is still `pending_review`.\n\nChoices I made:\n- The error body shape `body.error.code` follows the existing auth spec, not the OpenAPI file, which doesn't document error bodies.\n- The pending-review check re-reads the stored extraction, following the repo's rule to assert stored outcomes.\n\nI changed no other files.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-98-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 235463,
+        "output_tokens": 3424,
+        "cache_read_input_tokens": 214684,
+        "cache_write_input_tokens": 20761,
+        "cost_usd": 0.008013,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 34.51130666723475
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 10; I wrote `e2e/api/generated/LIF-08.spec.ts` with one test tagged `@LIF-08`. Both checks pass: the Playwright run shows 1 passed, and `npx tsc --noEmit` exits 0.\n\nThe test:\n- **Arrange:** `factory.vendorInReview()` with the insurance certificate swapped for `samples/insurance_certificate_unparseable.txt`, whose expiry line reads \"next spring\". The name is unique through the factory.\n- **Act:** the reviewer posts `{ decision: \"approve\" }` to `/api/extractions/{id}/decision`.\n- **Assert:** status 409 with `error.code === \"insurance_expiry_missing\"`. The extraction is then re-read and still `pending_review`, so the stored outcome is checked, not only the response.\n\nI took the endpoint and error shape from `openapi.json` and the existing auth test, not from the backend code, which isn't in this checkout. I didn't test the negative case of an approvable certificate, since the scenario doesn't cover it.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-98-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 261685,
+        "output_tokens": 3548,
+        "cache_read_input_tokens": 242497,
+        "cache_write_input_tokens": 19168,
+        "cost_usd": 0.008035,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 29.385520666837692
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 12; I wrote `e2e/api/generated/LIF-08.spec.ts` with one test tagged `@LIF-08`. The API test passes, and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test arranges a vendor in review through `factory.vendorInReview`, using the existing `insurance_certificate_unparseable.txt` sample (expiry \"next spring\"). It then has the reviewer POST an approve decision and asserts a 409 with `insurance_expiry_missing`. Finally it re-reads the document's extraction and asserts it is still `pending_review`.\n\nMy first run failed because I passed the extraction ID to `factory.extraction`, which takes a document ID. The fix was to use `documents.insurance_certificate.id`.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-98-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 264397,
+        "output_tokens": 4214,
+        "cache_read_input_tokens": 242780,
+        "cache_write_input_tokens": 21597,
+        "cost_usd": 0.008856,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 36.43503187503666
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 10; I wrote `e2e/api/generated/LIF-09.spec.ts` with one test for the scenario \"A vendor that was sent back can be edited again\". It passes, and `npx tsc --noEmit` printed no errors. I changed no other file.\n\nThe test:\n- **Arrange:** creates a vendor in review through the `factory`, then has a reviewer reject its contract extraction with a note. That sends the vendor to `rejected`.\n- **Act:** the member sends `PATCH /api/vendors/{id}` with a unique new name.\n- **Assert:** the response is 200 and carries the new name. It also re-reads the vendor with `GET` and checks the stored name, following the rule that a response alone isn't enough.\n\nThe test is tagged `@LIF-09`, and its name is generated with `uniqueName` so it doesn't clash with other tests sharing the database.\n\nI did not commit anything.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 303170,
+        "output_tokens": 4043,
+        "cache_read_input_tokens": 274841,
+        "cache_write_input_tokens": 28309,
+        "cost_usd": 0.010434,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 34.3598540420644
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 10; I wrote `e2e/api/generated/LIF-09.spec.ts` with one test tagged `@LIF-09`. It passes with `npx playwright test --project=api api/generated/LIF-09.spec.ts`, and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test does the following:\n- **Arrange:** Builds a member's vendor in review through `factory.vendorInReview`. A reviewer then rejects the contract extraction with a note, which sends the vendor back.\n- **Act:** The member sends `PATCH /api/vendors/{id}` with a unique new name.\n- **Assert:** The response is 200 with the new name. A follow-up `GET` returns the same name, so the rename is confirmed as stored.\n\nTwo choices I made:\n- The scenario says \"a reviewer rejected\" the contract extraction. I read that as the reviewer posting a `reject` decision with a note, which the backend turns into a rejected vendor.\n- I asserted only what the scenario names: status 200 and the new name. I did not add a check on the vendor's status after the rename.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 293020,
+        "output_tokens": 3757,
+        "cache_read_input_tokens": 267193,
+        "cache_write_input_tokens": 25807,
+        "cost_usd": 0.009714,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 30.866238499991596
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 14; I added `e2e/api/generated/LIF-09.spec.ts` with one test, tagged `@LIF-09`. It passes with `npx playwright test --project=api api/generated/LIF-09.spec.ts`, and `npx tsc --noEmit` printed no errors.\n\nThe test builds a vendor in review through the factory. A reviewer rejects its `contract` extraction with a note. The member then PATCHes the vendor's name to a unique name. It asserts a 200 response with the new name, and re-reads the vendor with GET to confirm the name was stored.\n\nI did not add an assertion on the vendor's status after the rename, because the scenario doesn't name one. No other file was changed.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 357102,
+        "output_tokens": 6137,
+        "cache_read_input_tokens": 328866,
+        "cache_write_input_tokens": 28212,
+        "cost_usd": 0.012002,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 42.02776870876551
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 11; I added `e2e/api/generated/LIF-10.spec.ts` with one test tagged `@LIF-10`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test creates two draft vendors, \"Atlas Freight\" and \"Borealis Freight\", each with a `uniqueName` suffix so parallel runs don't collide. It then sends `PATCH /api/vendors/{id}` to rename Borealis to the Atlas name in upper case. It asserts a 409 with `error.code` of `vendor_name_taken`, then re-reads Borealis and checks its name is unchanged.\n\nI took the endpoint and body shape from `openapi.json`, which lists `PATCH /api/vendors/{vendor_id}` with a `name` field. The error code comes from the existing backend test for the same rule.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42": true,
+        "mut-backend_src_vendor_intake_services_vendors-31-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 294167,
+        "output_tokens": 3480,
+        "cache_read_input_tokens": 273388,
+        "cache_write_input_tokens": 20757,
+        "cost_usd": 0.008627,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 34.801304041873664
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 9; I added `e2e/api/generated/LIF-10.spec.ts`, which has one test tagged `@LIF-10`. It passes, and `npx tsc --noEmit` exits 0. No other files were changed.\n\nThe test follows the scenario:\n\n- **Arrange:** As `member`, it creates two draft vendors through the factory. Their names are made unique with `uniqueName`, so parallel runs don't collide. The clashing name is the first vendor's name in upper case, which exercises the case-insensitive check.\n- **Act:** It sends `PATCH /api/vendors/{id}` with the clashing name to the second vendor. I took the rename endpoint from the existing backend tests, which use the same route.\n- **Assert:** The status is 409 with the error code `vendor_name_taken`. A follow-up `GET` confirms the second vendor still has its original name, so the test checks the stored outcome and not only the response.\n\nThe scenario's table-free layout means there's one test, with no need to split by outcome.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42": true,
+        "mut-backend_src_vendor_intake_services_vendors-31-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 226597,
+        "output_tokens": 3019,
+        "cache_read_input_tokens": 209536,
+        "cache_write_input_tokens": 17043,
+        "cost_usd": 0.007015,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 30.474926291964948
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 11; I wrote `e2e/api/generated/LIF-10.spec.ts` with one test for the rename scenario. It passes, `npx tsc --noEmit` exits 0, and eslint is clean on the new file. No other file was changed.\n\nThe test is tagged `@LIF-10` and does the following:\n- **Arrange:** creates two draft vendors through the factory, \"Atlas Freight\" and \"Borealis Freight\", each with a `uniqueName` suffix so parallel runs don't collide.\n- **Act:** sends `PATCH /api/vendors/{id}` with `{ name }` to rename Borealis to the uppercased Atlas name.\n- **Assert:** expects status 409 with `error.code` of `vendor_name_taken`, then re-reads Borealis and checks it still has its original name.\n\nI took the endpoint and body shape from `openapi.json` and checked the uniqueness rule (per tenant, ignoring case) against `backend/tests/test_vendors.py`. I did not read the rename handler itself.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42": true,
+        "mut-backend_src_vendor_intake_services_vendors-31-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 316473,
+        "output_tokens": 4377,
+        "cache_read_input_tokens": 291944,
+        "cache_write_input_tokens": 24507,
+        "cost_usd": 0.010012,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 39.11782633373514
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 6; I added `e2e/api/generated/LIF-11.spec.ts` with one test for the sign-in case scenario. The API test passes and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test tagged `@LIF-11` logs in as `Member@Northwind.TEST` with the right password, asserts a 200 from `/api/auth/login`, then calls `/api/me` with the returned token and asserts the `email` field is `member@northwind.test`. I took \"current user's email\" to mean the `email` field of `/api/me`. The existing `auth.spec.ts` only checks `role` and `tenant` on that endpoint, so I didn't confirm the field name against the API source. The passing run is the evidence that it matches.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_users-12-65": true,
+        "mut-backend_src_vendor_intake_repositories_users-16-39": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 133495,
+        "output_tokens": 1864,
+        "cache_read_input_tokens": 119459,
+        "cache_write_input_tokens": 14024,
+        "cost_usd": 0.004933,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 19.620570291765034
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 9; I wrote `e2e/api/generated/LIF-11.spec.ts` with one test, tagged `@LIF-11`. It passes against the running API, and `npx tsc --noEmit` reports no errors. No other file was changed.\n\nThe test signs in as `Member@Northwind.TEST` with the correct password and expects a 200. It then calls `/api/me` with the returned token and expects `email` to equal the seeded member address. The expected value comes from `USERS.member`, so the spec has no lowercase account-email literal for the PW-4 lint rule to flag. I didn't run `npm run lint`.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_users-12-65": true,
+        "mut-backend_src_vendor_intake_repositories_users-16-39": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 256873,
+        "output_tokens": 3787,
+        "cache_read_input_tokens": 233756,
+        "cache_write_input_tokens": 23099,
+        "cost_usd": 0.008853,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 30.27465770812705
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 6; I added `e2e/api/generated/LIF-11.spec.ts` with one test, tagged `@LIF-11`. It passes, and `npx tsc --noEmit` printed no errors.\n\nThe test signs in as `Member@Northwind.TEST` with the seeded password and expects a 200. It then calls `GET /api/me` with the returned token and expects the email to be `member@northwind.test`.\n\nTwo things to check:\n- **`/api/me` returning `email`:** I assumed the profile response has an `email` field, since the existing auth spec only reads `role` and `tenant`. The test passed, so the field is there.\n- **Scope:** The scenario file has only this one sign-in scenario, so that is all I generated. The rest of the vendor lifecycle (document replacement, reviews, boundary dates, renames, search and paging) is not in the scenario text and is not covered.\n\nI changed no other files.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_users-12-65": true,
+        "mut-backend_src_vendor_intake_repositories_users-16-39": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 127820,
+        "output_tokens": 2210,
+        "cache_read_input_tokens": 116025,
+        "cache_write_input_tokens": 11783,
+        "cost_usd": 0.004623,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 20.647950625047088
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 12; I wrote `e2e/api/generated/LIF-12.spec.ts` with one test tagged `@LIF-12`. It passes with `npx playwright test --project=api api/generated/LIF-12.spec.ts`, and `npx tsc --noEmit` exits 0.\n\nThe test arranges a vendor in review through `factory.vendorInReview()`. As `admin`, it approves the W-9 extraction, then opens the review queue. It asserts:\n- the decision returns 200 with status `approved`\n- the queue returns 200 and lists the vendor's id\n- a re-read of the W-9 extraction shows `approved`, so the stored outcome is checked and not just the response\n\nChoices I made:\n- The scenario says \"the response status is 200\" without naming which response, so I asserted 200 on both the decision and the queue requests.\n- The queue is checked after the approval, so the test shows the vendor is still listed while its other two extractions are pending.\n\nThe first run failed because I passed an extraction id where the helper expects a document id. I fixed that and reran the test, and it passed. The run also created `e2e/test-results/` artifacts, which I did not touch.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": false,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 300562,
+        "output_tokens": 4502,
+        "cache_read_input_tokens": 277948,
+        "cache_write_input_tokens": 22592,
+        "cost_usd": 0.009551,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 36.20415270887315
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 15; I wrote `e2e/api/generated/LIF-12.spec.ts` with one test tagged `@LIF-12`. It passes, and `npx tsc --noEmit` exits 0. No other file changed.\n\nThe test follows the scenario as an admin journey:\n- **Arrange:** `factory.vendorInReview()` builds a vendor with three pending extractions. The admin client comes from `apiAs(\"admin\")`.\n- **Act:** the admin opens `GET /api/review-queue` and checks the vendor is listed. Then the admin approves the w9 extraction with `POST /api/extractions/{id}/decision`.\n- **Assert:** the decision returns 200. The stored w9 extraction reads back as `approved`, since the scenario's outcome has to be stored, not just echoed. The queue still lists the vendor, which has two extractions left to decide.\n\nThe first run failed because I passed an extraction ID to `factory.extraction()`, which takes a document ID. I switched it to the w9 document ID that `vendorInReview` also returns. I didn't run `npm run lint`.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 405785,
+        "output_tokens": 5779,
+        "cache_read_input_tokens": 378822,
+        "cache_write_input_tokens": 26937,
+        "cost_usd": 0.012068,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 50.25536704203114
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 16; The LIF-12 test is written and passes. `npx tsc --noEmit` is clean too.\n\nThe file is `e2e/api/generated/LIF-12.spec.ts`, the only file I changed. It has one test, tagged `@LIF-12`, which follows the scenario:\n\n- **Arrange:** `factory.vendorInReview()` creates a unique vendor in review with three pending extractions, and the test takes an `admin` API client.\n- **Act:** the admin approves the w9 extraction via `POST /api/extractions/{id}/decision`, then reads `GET /api/review-queue`.\n- **Assert:** both responses are 200 through `expectStatus`. The decision echoes the extraction as `approved`, and the queue lists the vendor's id. I also re-read the stored w9 extraction through its document id, which confirms it is `approved`.\n\nI read \"the response status is 200\" as applying to both the approve and the queue calls, so both are asserted.\n\nMy first run failed because I passed an extraction id where `factory.extraction` expects a document id. The app was behaving correctly, and the fix was in the test.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": false,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 362268,
+        "output_tokens": 5757,
+        "cache_read_input_tokens": 333856,
+        "cache_write_input_tokens": 28388,
+        "cost_usd": 0.011897,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 49.51263295812532
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 9; I added `e2e/api/generated/LIF-13.spec.ts` with one test for the search scenario. The API test passes and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test is tagged `@LIF-13` and does the following:\n- Creates a vendor named `Zephyrine Cold Storage` with a unique suffix, so parallel runs and the shared database don't collide.\n- Calls `GET /api/vendors` as `member` with `q: \"COLD stor\"`.\n- Asserts a 200 response and that the created vendor's id is in `items`, with the same name.\n\nThe search parameter is `q`, taken from the backend's existing vendor-list test. I didn't read the route handler itself, so the case-insensitive, partial-match behavior comes from that test's assertions rather than from the implementation.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 214205,
+        "output_tokens": 2848,
+        "cache_read_input_tokens": 197905,
+        "cache_write_input_tokens": 16282,
+        "cost_usd": 0.006661,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 25.90276495879516
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 10; I added `e2e/api/generated/LIF-13.spec.ts` with one test tagged `@LIF-13`. It passes, and `npx tsc --noEmit` exits 0. No other file changed.\n\nThe test creates a vendor named \"Zephyrine Cold Storage\" plus a unique suffix, then calls `GET /api/vendors?q=COLD stor` as the member. It asserts a 200 and that the new vendor's id is in `items`.\n\nChoices I made:\n- **Page size:** I passed `limit=100`, the maximum. Other tests share the database and may create matching vendors, so a single default page of 20 could push this one off the results.\n- **Assertion scope:** I checked only the id in `items`, as the scenario says. I did not assert on `total`.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 209136,
+        "output_tokens": 2985,
+        "cache_read_input_tokens": 190542,
+        "cache_write_input_tokens": 18578,
+        "cost_usd": 0.007115,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 27.21702970797196
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 11; I added `e2e/api/generated/LIF-13.spec.ts` with one test tagged `@LIF-13`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test creates a vendor named with `uniqueName(\"Zephyrine Cold Storage\")` through the factory, then calls `GET /api/vendors?q=COLD stor&limit=100` as the member persona. It asserts a 200 and that the new vendor's id is in `items`.\n\nTwo choices to review:\n- **`limit: 100`:** the shared database may hold other matching vendors, so I used the maximum page size to keep the new vendor from falling off the first page. The scenario doesn't mention paging.\n- **Scope:** I asserted only what the scenario names (the vendor is in the results). I did not add a check that every returned name contains the search term, ignoring case, which the `vendors.feature` list scenario covers.\n\nThe `e2e/api/generated/` directory did not exist before, so I created it.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 273601,
+        "output_tokens": 3451,
+        "cache_read_input_tokens": 256842,
+        "cache_write_input_tokens": 16737,
+        "cost_usd": 0.007644,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 30.571703374851495
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 11; I added `e2e/api/generated/LIF-14.spec.ts` with one test, tagged `@LIF-14`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test covers the scenario \"Search and the status filter apply together\":\n\n- **Arrange:** It builds a unique search word from `uniqueName`, with spaces stripped so it is one token. It creates a draft vendor named `<word> Draft` and an in-review vendor named `<word> Review` through the `factory`. The in-review vendor is submitted and its extractions are pending review.\n- **Act:** As `member`, it calls `GET /api/vendors` with `q=<word>` and `status=in_review`.\n- **Assert:** The status is 200. `items` holds only the in-review vendor's id, the draft's id is absent, and `total` is 1. I also check that the in-review vendor's status is `in_review`, so the setup is confirmed before the filter is judged.\n\nThe test follows the conventions in `e2e/AGENTS.md`: it imports from `../../fixtures`, uses `expectStatus`, and each step has a comment. I did not run the lint script, which the AGENTS file mentions.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 232030,
+        "output_tokens": 4248,
+        "cache_read_input_tokens": 211583,
+        "cache_write_input_tokens": 20429,
+        "cost_usd": 0.008327,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 35.93553970800713
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 11; I added `e2e/api/generated/LIF-14.spec.ts` with one test tagged `@LIF-14`. It passes, and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test creates two vendors whose names share a unique one-word token: one draft, one submitted for review. It then calls `GET /api/vendors?q=<token>&status=in_review` as the member persona. It asserts a 200, that the only item is the review vendor with status `in_review`, and that `total` is 1.\n\nChoices I made:\n- **Unique word:** built with `uniqueName` and stripped of spaces, so the search term is a single token.\n- **Setup:** the review vendor is built with `factory.vendorInReview()`, which uploads, extracts, and submits it. The draft comes from `factory.vendor()`.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 285558,
+        "output_tokens": 3993,
+        "cache_read_input_tokens": 266205,
+        "cache_write_input_tokens": 19331,
+        "cost_usd": 0.008527,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 33.450009332969785
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 9; I added `e2e/api/generated/LIF-14.spec.ts` with one test tagged `@LIF-14`. It passes, and `npx tsc --noEmit` exits 0. No other file changed.\n\nThe test covers the scenario \"Search and the status filter apply together\":\n\n- **Arrange:** It makes a unique lowercase word, then creates a draft vendor named `<word> draft` and an in-review vendor named `<word> review` through `factory`. Both are created as `member`.\n- **Act:** It calls `GET /api/vendors` as `member` with `q` set to the word and `status=in_review`.\n- **Assert:** The response is 200. The item IDs are exactly the in-review vendor's ID, and the draft is absent. That vendor's status is `in_review`, and `total` is 1.\n\nI read the `VendorPage` shape and the `q` and `status` parameters from `openapi.json`. I did not check the backend source, so the search matching behaviour is inferred from the spec.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 224189,
+        "output_tokens": 3527,
+        "cache_read_input_tokens": 206899,
+        "cache_write_input_tokens": 17272,
+        "cost_usd": 0.007289,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 30.113739582709968
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "turns: 8; I wrote `e2e/api/generated/LIF-15.spec.ts` with one test, and it passes. `npx tsc --noEmit` also produced no errors. I didn't change any other file.\n\nThe test is tagged `@LIF-15`. It creates a vendor, reads the first page to get `total`, then requests a page at `total + 100`. It asserts a 200, empty `items`, and that `total` matches the first page. It uses the `member` persona and the `factory` and `expectStatus` helpers from `../../fixtures`.\n\nOne thing to know: the total is unfiltered and the tests share one database, so a parallel test creating a vendor between the two requests would make the totals differ and the test flaky. I kept it unfiltered to match the scenario's wording. If that flakiness shows up, the fix is to scope the list with a unique search term.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": false,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 202266,
+        "output_tokens": 3453,
+        "cache_read_input_tokens": 182600,
+        "cache_write_input_tokens": 19650,
+        "cost_usd": 0.007484,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 30.1361966249533
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "turns: 9; I added `e2e/api/generated/LIF-15.spec.ts` with one test, tagged `@LIF-15`. `npx tsc --noEmit` passes, and the Playwright api run passes.\n\nThe test creates a vendor with a unique name, then lists with `q` set to that name and `limit: 10`. It checks the first page has one item, then requests `offset: 1000` and asserts status 200, an empty `items` array, and a `total` equal to the first page's.\n\nI scoped the list to the unique name instead of the whole tenant. The shared database and parallel tests could add vendors between the two requests and change an unfiltered total, which would make the check flaky. The trade-off is that this checks the past-the-end behavior on a filtered list, not on the unfiltered list the scenario literally describes. If you want the unfiltered version, the check is the same but can race with other tests.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 167190,
+        "output_tokens": 3473,
+        "cache_read_input_tokens": 149249,
+        "cache_write_input_tokens": 17927,
+        "cost_usd": 0.006816,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 29.496834374964237
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "turns: 10; I wrote `e2e/api/generated/LIF-15.spec.ts` with one test tagged `@LIF-15`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test signs in as the member, creates one vendor so the tenant isn't empty, and reads the first page's `total`. It then requests a page at `offset = total + 1000` and asserts:\n- status 200\n- `items` is an empty array\n- `total` equals the first page's total\n- `offset` is echoed back\n\nChoices I made:\n- **Offset:** I used `total + 1000` rather than `total + 1` so that vendors created by parallel tests between the two requests can't bring the offset back into range.\n- **Persona:** I used `apiAs(\"member\")`, which signs in as `member@northwind.test`, as the scenario requires.\n- **Unique name:** the vendor is created with the factory's `uniqueName`, so it doesn't collide with parallel tests.",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 201289,
+        "output_tokens": 3330,
+        "cache_read_input_tokens": 184458,
+        "cache_write_input_tokens": 16815,
+        "cost_usd": 0.006874,
+        "model": "claude-haiku-5-5"
+      },
+      "duration_s": 28.70173087529838
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 1.0,
+      "low": 0.9213484012671117,
+      "high": 1.0,
+      "n": 45,
+      "successes": 45
+    },
+    "pass_all_k": {
+      "value": 1.0,
+      "low": 0.7961166989641515,
+      "high": 1.0,
+      "n": 15,
+      "successes": 15
+    },
+    "bug_detection": {
+      "value": 0.8947368421052632,
+      "low": 0.8249848769106366,
+      "high": 0.9387531224376463,
+      "n": 114,
+      "successes": 102
+    },
+    "false_failure": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.07865159873288836,
+      "n": 45,
+      "successes": 0
+    },
+    "cost_usd": {
+      "value": 0.01014,
+      "low": 0.009332555555555556,
+      "high": 0.010998644444444445,
+      "n": 45,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 39.34675338604591,
+      "low": 36.50110923970739,
+      "high": 42.47461031574963,
+      "n": 45,
+      "successes": null
+    },
+    "by_category": {
+      "mutant:!= -> ==": {
+        "value": 1.0,
+        "low": 0.7008549515804559,
+        "high": 1.0,
+        "n": 9,
+        "successes": 9
+      },
+      "mutant:< -> <=": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "mutant:== -> !=": {
+        "value": 0.8541666666666666,
+        "low": 0.7283282347525372,
+        "high": 0.9275175067339628,
+        "n": 48,
+        "successes": 41
+      },
+      "mutant:drop not": {
+        "value": 0.9,
+        "low": 0.7437891742081593,
+        "high": 0.9654001112526658,
+        "n": 30,
+        "successes": 27
+      },
+      "mutant:or -> and": {
+        "value": 0.8333333333333334,
+        "low": 0.5519691377470266,
+        "high": 0.9530348578161463,
+        "n": 12,
+        "successes": 10
+      },
+      "mutant:status 409 -> 400": {
+        "value": 1.0,
+        "low": 0.7575059933447592,
+        "high": 1.0,
+        "n": 12,
+        "successes": 12
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-02.spec.ts": "import { expect, expectStatus, test, type Extraction, type Vendor } from \"../../fixtures\";\n\ntest(\"rejecting one document sends the whole vendor back\", { tag: \"@LIF-02\" }, async ({ factory, apiAs }) => {\n  // Arrange: a vendor submitted for review with three pending extractions.\n  const { vendor, documents, extractions } = await factory.vendorInReview();\n  const reviewer = await apiAs(\"reviewer\");\n  const member = await apiAs(\"member\");\n\n  // Act: the reviewer rejects the contract extraction with a note.\n  const decision = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n    data: { decision: \"reject\", note: \"Wrong counterparty\" },\n  });\n\n  // Assert: the decision response reports the rejection.\n  const returned = await expectStatus<Extraction>(decision, 200);\n  expect(returned.status).toBe(\"rejected\");\n  expect(returned.review_note).toBe(\"Wrong counterparty\");\n\n  // Assert: the stored extraction and vendor reflect the rejection.\n  const stored = await factory.extraction(documents.contract.id, \"reviewer\");\n  expect(stored.status).toBe(\"rejected\");\n  expect(stored.review_note).toBe(\"Wrong counterparty\");\n\n  const current = await expectStatus<Vendor>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(current.status).toBe(\"rejected\");\n\n  // Assert: the audit trail records extraction.rejected, then vendor.rejected.\n  const trail = await expectStatus<{ items: { action: string }[] }>(\n    await member.get(`/api/vendors/${vendor.id}/audit`),\n    200,\n  );\n  const actions = trail.items\n    .map((event) => event.action)\n    .filter((action) => action === \"extraction.rejected\" || action === \"vendor.rejected\");\n  expect(actions).toEqual([\"extraction.rejected\", \"vendor.rejected\"]);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 45987,
+    "output_tokens": 3236,
+    "cache_read_input_tokens": 43391,
+    "cache_write_input_tokens": 2592,
+    "cost_usd": 0.002571,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.956410416867584,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then have a reviewer reject the contract extraction via the decision endpoint. Assert the decision response, re-read the stored extraction and vendor status, and check the audit trail records extraction.rejected followed by vendor.rejected.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing call is `factory.extraction(extractions.contract.id, \"reviewer\")`. `Factory.extraction` takes a document ID and calls GET /api/documents/{document_id}/extraction, but the test passed the extraction's ID. The API correctly answers 404 document_not_found, because no document has that ID. The app is behaving correctly. The fix is to pass the contract document's ID, which `vendorInReview()` already returns as `documents.contract.id`. The decision POST correctly uses the extraction ID, so it stays as it is. No expected value changes, so no evidence quote is needed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-02: passing: every test passes against the real app\n"
+}

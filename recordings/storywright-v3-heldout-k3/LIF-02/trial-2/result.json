@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-02.spec.ts": "import { DOCUMENT_KINDS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"rejecting one document sends the whole vendor back\", { tag: \"@LIF-02\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const { vendor, documents } = await factory.vendorInReview();\n  const contract = await factory.extraction(documents.contract.id, \"reviewer\");\n  expect(contract.status, \"contract extraction starts pending review\").toBe(\"pending_review\");\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act\n  const decision = await reviewer.post(`/api/extractions/${contract.id}/decision`, {\n    data: { decision: \"reject\", note: \"Wrong counterparty\" },\n  });\n\n  // Assert\n  const decided = await expectStatus(decision, 200);\n  expect(decided.status).toBe(\"rejected\");\n\n  // PW-12: re-read what was stored, not only the response.\n  const storedExtraction = await factory.extraction(documents.contract.id, \"reviewer\");\n  expect(storedExtraction.status).toBe(\"rejected\");\n  expect(storedExtraction.review_note).toBe(\"Wrong counterparty\");\n\n  const storedVendor = await expectStatus<{ status: string }>(\n    await reviewer.get(`/api/vendors/${vendor.id}`),\n    200,\n  );\n  expect(storedVendor.status).toBe(\"rejected\");\n\n  const trail = await expectStatus<{ items: { action: string }[] }>(\n    await reviewer.get(`/api/vendors/${vendor.id}/audit`),\n    200,\n  );\n  const actions = trail.items.map((e) => e.action);\n  const extractionRejected = actions.indexOf(\"extraction.rejected\");\n  const vendorRejected = actions.indexOf(\"vendor.rejected\");\n  expect(extractionRejected, `audit actions: ${actions.join(\", \")}`).toBeGreaterThanOrEqual(0);\n  expect(vendorRejected, `audit actions: ${actions.join(\", \")}`).toBeGreaterThan(extractionRejected);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22509,
+    "output_tokens": 1669,
+    "cache_read_input_tokens": 22146,
+    "cache_write_input_tokens": 361,
+    "cost_usd": 0.001128,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.831615542061627,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, have the reviewer reject the contract extraction with a note, then re-read the extraction, the vendor, and the audit trail to confirm the stored status, the rejected vendor, and the order of the two audit events.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-02: passing: every test passes against the real app\n"
+}

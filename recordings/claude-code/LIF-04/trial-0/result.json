@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-04.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"resubmitting without replacing the rejected document is refused\",\n    { tag: \"@LIF-04\" },\n    async ({ apiAs, factory }) => {\n      // Arrange\n      const { vendor, documents } = await factory.vendorInReview();\n      const reviewer = await apiAs(\"reviewer\");\n      const w9 = await factory.extraction(documents.w9.id);\n      const rejected = await reviewer.post(`/api/extractions/${w9.id}/decision`, {\n        data: { decision: \"reject\", note: \"W-9 is unsigned\" },\n      });\n      await expectStatus(rejected, 200);\n      const member = await apiAs(\"member\");\n\n      // Act\n      const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n      // Assert\n      const body = await expectStatus<{ error: { code: string; missing_kinds: string[] } }>(response, 409);\n      expect(body.error.code).toBe(\"documents_incomplete\");\n      expect(body.error.missing_kinds).toEqual([\"w9\"]);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 355535,
+    "output_tokens": 4474,
+    "cache_read_input_tokens": 329598,
+    "cache_write_input_tokens": 25913,
+    "cost_usd": 0.010718,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 37.18747704196721,
+  "error": null,
+  "log": "turns: 13; I added `e2e/api/generated/LIF-04.spec.ts` with one test tagged `@LIF-04`. It passes with `npx playwright test --project=api api/generated/LIF-04.spec.ts`, and `npx tsc --noEmit` printed no errors. No other files changed.\n\nThe test arranges an in-review vendor through `factory.vendorInReview()`, then has a reviewer reject its w9 extraction with a note. The member then resubmits, and the test asserts a 409 with `error.code` of `documents_incomplete` and `error.missing_kinds` equal to `[\"w9\"]`.\n\nTwo choices to check:\n- **Rejection is the setup step.** The scenario says only that a reviewer rejected the w9, so I did the rejection through `POST /api/extractions/{id}/decision` as a reviewer. The API requires a note on rejection, so I supplied one.\n- **Only the scenario's assertions.** I didn't add a check that the vendor stays in `rejected` status after the refused resubmit, since the scenario doesn't name it."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"LIF-14 vendor lifecycle\", () => {\n  test(\n    \"search and the status filter apply together\",\n    { tag: \"@LIF-14\" },\n    async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const word = `lif14q${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;\n      const draftName = `${word} Draft Co`;\n      const reviewName = `${word} Review Co`;\n\n      const draftResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: draftName,\n          category: \"software\",\n          contact_email: `draft.${word}@example.test`,\n        },\n      });\n      const draft = await expectStatus<{ id: string; status: string }>(draftResponse, 201);\n      expect(draft.status).toBe(\"draft\");\n\n      const reviewResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: reviewName,\n          category: \"services\",\n          contact_email: `review.${word}@example.test`,\n        },\n      });\n      const toReview = await expectStatus<{ id: string; status: string }>(reviewResponse, 201);\n\n      const submitResponse = await member.post(`/api/vendors/${toReview.id}/submit`);\n      const submitted = await expectStatus<{ id: string; status: string }>(submitResponse, 200);\n      expect(submitted.status).toBe(\"in_review\");\n\n      // Act\n      const listResponse = await member.get(\"/api/vendors\", {\n        params: { q: word, status: \"in_review\" },\n      });\n\n      // Assert\n      const page = await expectStatus<{\n        items: Array<{ id: string; name: string; status: string }>;\n        total: number;\n      }>(listResponse, 200);\n\n      expect(page.items).toHaveLength(1);\n      expect(page.items[0].id).toBe(toReview.id);\n      expect(page.items[0].name).toBe(reviewName);\n      expect(page.items[0].status).toBe(\"in_review\");\n      expect(page.items.some((v) => v.id === draft.id)).toBe(false);\n      expect(page.total).toBe(1);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13761,
+    "output_tokens": 1166,
+    "cache_read_input_tokens": 13397,
+    "cache_write_input_tokens": 362,
+    "cost_usd": 0.00079,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 5.54821224976331,
+  "error": null,
+  "log": null
+}

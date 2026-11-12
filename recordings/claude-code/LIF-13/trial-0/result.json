@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor search\", () => {\n  test(\"search ignores case and matches part of a name\", { tag: \"@LIF-13\" }, async ({ apiAs, factory }) => {\n    // Arrange\n    const member = await apiAs(\"member\");\n    const vendor = await factory.vendor({ as: \"member\", name: uniqueName(\"Zephyrine Cold Storage\") });\n\n    // Act\n    const response = await member.get(\"/api/vendors\", { params: { q: \"COLD stor\" } });\n\n    // Assert\n    const page = await expectStatus<{ items: { id: string; name: string }[]; total: number }>(response, 200);\n    expect(page.items.map((v) => v.id)).toContain(vendor.id);\n    expect(page.items.find((v) => v.id === vendor.id)?.name).toBe(vendor.name);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 214205,
+    "output_tokens": 2848,
+    "cache_read_input_tokens": 197905,
+    "cache_write_input_tokens": 16282,
+    "cost_usd": 0.006661,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.90276495879516,
+  "error": null,
+  "log": "turns: 9; I added `e2e/api/generated/LIF-13.spec.ts` with one test for the search scenario. The API test passes and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test is tagged `@LIF-13` and does the following:\n- Creates a vendor named `Zephyrine Cold Storage` with a unique suffix, so parallel runs and the shared database don't collide.\n- Calls `GET /api/vendors` as `member` with `q: \"COLD stor\"`.\n- Asserts a 200 response and that the created vendor's id is in `items`, with the same name.\n\nThe search parameter is `q`, taken from the backend's existing vendor-list test. I didn't read the route handler itself, so the case-insensitive, partial-match behavior comes from that test's assertions rather than from the implementation."
+}

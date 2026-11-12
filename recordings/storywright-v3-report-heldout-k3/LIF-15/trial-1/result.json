@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "// features/lifecycle.feature: A page past the last vendor is empty but still reports the total\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"a page past the last vendor is empty but still reports the total\", { tag: \"@LIF-15\" }, async ({ apiAs, factory }) => {\n  // Arrange: vendors sharing a unique prefix, so parallel tests can't change this total\n  const prefix = uniqueName(\"Paging\");\n  await factory.vendor({ name: `${prefix} one` });\n  await factory.vendor({ name: `${prefix} two` });\n  await factory.vendor({ name: `${prefix} three` });\n  const member = await apiAs(\"member\");\n  const firstPage = await expectStatus<{ items: unknown[]; total: number }>(\n    await member.get(\"/api/vendors\", { params: { q: prefix, limit: 20, offset: 0 } }),\n    200,\n  );\n  expect(firstPage.total).toBe(3);\n\n  // Act\n  const beyond = firstPage.total + 10;\n  const response = await member.get(\"/api/vendors\", { params: { q: prefix, limit: 20, offset: beyond } });\n\n  // Assert\n  const page = await expectStatus<{ items: unknown[]; total: number; offset: number }>(response, 200);\n  expect(page.items).toEqual([]);\n  expect(page.total).toBe(firstPage.total);\n  expect(page.offset).toBe(beyond);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 142943,
+    "output_tokens": 1447,
+    "cache_read_input_tokens": 139559,
+    "cache_write_input_tokens": 3372,
+    "cost_usd": 0.083876,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 28.83554816711694,
+  "error": null,
+  "log": "  kind: api\n  plan: Create three member vendors whose names share a unique prefix, then read the first page and a page with an offset past the end, both filtered by that prefix. This keeps the total stable while other tests run in parallel. Check that both requests return 200, the far page has no items, and its total and offset match.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nLIF-15: passing: every test passes against the real app\n"
+}

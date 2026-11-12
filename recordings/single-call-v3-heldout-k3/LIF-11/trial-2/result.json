@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"LIF-11 vendor lifecycle\", () => {\n  test(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request, apiAs }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: \"Member@Northwind.TEST\", password: PASSWORD },\n    });\n\n    // Assert\n    const body = await expectStatus<{ access_token: string; user: { email: string } }>(response, 200);\n    expect(body.user.email).toBe(\"member@northwind.test\");\n\n    // The current user's email, read through the API with the issued token.\n    const member = await apiAs(\"member\");\n    const me = await expectStatus<{ email: string }>(await member.get(\"/api/me\"), 200);\n    expect(me.email).toBe(\"member@northwind.test\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13731,
+    "output_tokens": 323,
+    "cache_read_input_tokens": 13365,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.000368,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.0454503330402076,
+  "error": null,
+  "log": null
+}

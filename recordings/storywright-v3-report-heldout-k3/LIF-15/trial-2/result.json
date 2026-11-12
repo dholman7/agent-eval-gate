@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "// features/lifecycle.feature: A page past the last vendor is empty but still reports the total\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ninterface VendorPage {\n  items: unknown[];\n  total: number;\n  limit: number;\n  offset: number;\n}\n\ntest(\"a page past the last vendor is empty but still reports the total\", { tag: \"@LIF-15\" }, async ({ apiAs, factory }) => {\n  // Arrange: at least one vendor exists for the member's tenant\n  await factory.vendor();\n  const member = await apiAs(\"member\");\n\n  // Act: list past the end, bracketed by first-page reads so concurrent creates from parallel tests can't skew the comparison\n  let firstTotal = -1;\n  let past: VendorPage = { items: [], total: -1, limit: 0, offset: 0 };\n  let offset = 0;\n  await expect\n    .poll(\n      async () => {\n        const before = await expectStatus<VendorPage>(await member.get(\"/api/vendors\"), 200);\n        offset = before.total + 1000;\n        past = await expectStatus<VendorPage>(await member.get(\"/api/vendors\", { params: { offset } }), 200);\n        const after = await expectStatus<VendorPage>(await member.get(\"/api/vendors\"), 200);\n        firstTotal = after.total;\n        return before.total === after.total && after.total === past.total;\n      },\n      { message: \"vendor total is stable across the first-page and past-the-end reads\", timeout: 30_000 },\n    )\n    .toBe(true);\n\n  // Assert\n  expect(firstTotal).toBeGreaterThan(0);\n  expect(offset).toBeGreaterThan(firstTotal);\n  expect(past.items).toEqual([]);\n  expect(past.total).toBe(firstTotal);\n  expect(past.offset).toBe(offset);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22470,
+    "output_tokens": 1670,
+    "cache_read_input_tokens": 22109,
+    "cache_write_input_tokens": 359,
+    "cost_usd": 0.040702,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 26.989817625377327,
+  "error": null,
+  "log": "  kind: api\n  plan: I create a vendor through the factory so the member's list is not empty. Then I read the first page, a page at an offset well past that total, and the first page again. A poll repeats the reads until the two first-page totals match, so vendors that parallel tests create mid-read can't skew the comparison. The test asserts a 200 status, empty items, and the same total as the first page.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-15: passing: every test passes against the real app\n"
+}

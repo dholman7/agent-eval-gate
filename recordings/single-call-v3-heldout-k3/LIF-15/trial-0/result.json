@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ninterface VendorPage {\n  items: unknown[];\n  total: number;\n  limit: number;\n  offset: number;\n}\n\ntest.describe(\"vendor list paging\", () => {\n  test(\n    \"a page past the last vendor is empty but still reports the total\",\n    { tag: \"@LIF-15\" },\n    async ({ apiAs }) => {\n      // Arrange: a signed-in member, and the total from the first page.\n      const member = await apiAs(\"member\");\n      const firstPage = await expectStatus<VendorPage>(\n        await member.get(\"/api/vendors\", { params: { limit: 20, offset: 0 } }),\n        200,\n      );\n\n      // Act: request an offset far beyond any realistic total. Other tests create\n      // vendors in parallel, so a fixed \"total + 1\" offset could fall inside the list.\n      const pastEnd = await expectStatus<VendorPage>(\n        await member.get(\"/api/vendors\", { params: { limit: 20, offset: 1_000_000 } }),\n        200,\n      );\n\n      // Assert\n      expect(pastEnd.items).toEqual([]);\n      expect(pastEnd.total).toBe(firstPage.total);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13753,
+    "output_tokens": 1452,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13751,
+    "cost_usd": 0.003476,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.166975999716669,
+  "error": null,
+  "log": null
+}

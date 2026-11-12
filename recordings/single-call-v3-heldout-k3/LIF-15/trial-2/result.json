@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "import { expectStatus, expect, test, USERS, PASSWORD } from \"../../fixtures\";\n\ntest.describe(\"LIF-15 vendor lifecycle\", () => {\n  test(\n    \"A page past the last vendor is empty but still reports the total\",\n    { tag: \"@LIF-15\" },\n    async ({ apiAs }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n\n      const firstResponse = await member.get(\"/api/vendors\", {\n        params: { limit: 20, offset: 0 },\n      });\n      const firstPage = await expectStatus<{\n        items: unknown[];\n        total: number;\n        limit: number;\n        offset: number;\n      }>(firstResponse, 200);\n\n      const pastOffset = firstPage.total + 1000;\n\n      // Act\n      const response = await member.get(\"/api/vendors\", {\n        params: { limit: 20, offset: pastOffset },\n      });\n\n      // Assert\n      const body = await expectStatus<{\n        items: unknown[];\n        total: number;\n        limit: number;\n        offset: number;\n      }>(response, 200);\n      expect(body.items).toEqual([]);\n      expect(body.total).toBe(firstPage.total);\n      expect(body.offset).toBe(pastOffset);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13753,
+    "output_tokens": 429,
+    "cache_read_input_tokens": 13387,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.000421,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.404522708617151,
+  "error": null,
+  "log": null
+}

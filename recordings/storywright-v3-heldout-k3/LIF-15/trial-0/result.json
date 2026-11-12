@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor list paging\", () => {\n  test(\"a page past the last vendor is empty but still reports the total\", { tag: \"@LIF-15\" }, async ({ apiAs, factory }) => {\n    // Arrange\n    await factory.vendor({ as: \"member\" });\n    const member = await apiAs(\"member\");\n    const firstPage = await expectStatus<{ items: unknown[]; total: number; limit: number; offset: number }>(\n      await member.get(\"/api/vendors\", { params: { limit: 20, offset: 0 } }),\n      200,\n    );\n    const offset = firstPage.total + 10;\n\n    // Act\n    const response = await member.get(\"/api/vendors\", { params: { limit: 20, offset } });\n\n    // Assert\n    const page = await expectStatus<{ items: unknown[]; total: number; limit: number; offset: number }>(response, 200);\n    expect(page.items, \"items past the last vendor\").toEqual([]);\n    expect(page.total, \"total matches the first page\").toBe(firstPage.total);\n    expect(page.offset, \"offset echoes the request\").toBe(offset);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22471,
+    "output_tokens": 1737,
+    "cache_read_input_tokens": 21610,
+    "cache_write_input_tokens": 859,
+    "cost_usd": 0.001257,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 17.814469209406525,
+  "error": null,
+  "log": "  kind: api\n  plan: Create one vendor through the factory so the list is non-empty, read the first page as a member, then request an offset ten past its total. Assert 200, an empty items array, and that the total matches the first page.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-15: passing: every test passes against the real app\n"
+}

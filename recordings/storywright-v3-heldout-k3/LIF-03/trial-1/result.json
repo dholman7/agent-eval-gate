@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"once a vendor is sent back, its other documents cannot be decided\", { tag: \"@LIF-03\" }, async ({ factory, apiAs }) => {\n  // Arrange: a vendor in review, then the reviewer rejects its w9 extraction.\n  const { extractions } = await factory.vendorInReview();\n  const reviewer = await apiAs(\"reviewer\");\n  const rejection = await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n    data: { decision: \"reject\", note: \"Please re-upload the W-9.\" },\n  });\n  await expectStatus(rejection, 200);\n\n  // Act: the reviewer approves the contract extraction of the same vendor.\n  const response = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_not_in_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22491,
+    "output_tokens": 1718,
+    "cache_read_input_tokens": 22128,
+    "cache_write_input_tokens": 361,
+    "cost_usd": 0.001153,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 16.14853183273226,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then as the reviewer reject the w9 extraction through the decision endpoint (status checked). Act by approving the contract extraction, and assert a 409 with error code vendor_not_in_review, with the body shown on status failures.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-03: passing: every test passes against the real app\n"
+}

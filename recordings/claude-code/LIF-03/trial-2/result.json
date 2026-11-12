@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"once a vendor is sent back, its other documents cannot be decided\",\n    { tag: \"@LIF-03\" },\n    async ({ apiAs, factory }) => {\n      // Arrange\n      const { documents, extractions } = await factory.vendorInReview({ as: \"member\" });\n      const reviewer = await apiAs(\"reviewer\");\n      await expectStatus(\n        await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n          data: { decision: \"reject\", note: \"W-9 is unsigned\" },\n        }),\n        200,\n      );\n\n      // Act\n      const response = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert\n      const body = await expectStatus(response, 409);\n      expect(body.error.code).toBe(\"vendor_not_in_review\");\n      expect((await factory.extraction(documents.contract.id, \"reviewer\")).status).toBe(\"pending_review\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 331387,
+    "output_tokens": 4695,
+    "cache_read_input_tokens": 308193,
+    "cache_write_input_tokens": 23170,
+    "cost_usd": 0.010066,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 40.26343220798299,
+  "error": null,
+  "log": "turns: 14; I wrote `e2e/api/generated/LIF-03.spec.ts` with one test tagged `@LIF-03`. It passes with `npx playwright test --project=api api/generated/LIF-03.spec.ts`, and `npx tsc --noEmit` exits 0.\n\nThe test follows the scenario:\n- **Arrange:** `factory.vendorInReview()` builds a vendor in review with all three extractions pending. As `reviewer`, it rejects the `w9` extraction with a note, which moves the vendor out of review.\n- **Act:** As `reviewer`, it approves the `contract` extraction.\n- **Assert:** The response is 409 with error code `vendor_not_in_review`. It also re-reads the contract document's extraction and checks it is still `pending_review`, so the rejected state wasn't changed by the failed approval.\n\nMy first run failed because I passed an extraction id to `factory.extraction()`, which takes a document id. I fixed that and reran. No other files were changed. I created the `api/generated/` directory, which didn't exist before."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "import { expect, expectStatus, test, uniqueName, type APIRequestContext } from \"../../fixtures\";\n\ninterface DocumentOut {\n  id: string;\n  vendor_id: string;\n  kind: string;\n  status: string;\n}\n\ninterface ExtractionOut {\n  id: string;\n  document_id: string;\n  kind: string;\n  status: string;\n  fields: Record<string, { value: string | null; confidence: number }>;\n}\n\ntest.describe(\"LIF-08 vendor lifecycle\", () => {\n  test(\n    \"a certificate whose expiry date could not be read cannot be approved\",\n    { tag: \"@LIF-08\" },\n    async ({ apiAs }) => {\n      // Arrange: a member creates a uniquely named vendor and submits an insurance certificate.\n      const member: APIRequestContext = await apiAs(\"member\");\n      const reviewer: APIRequestContext = await apiAs(\"reviewer\");\n      const vendorName = uniqueName(\"LIF-08 Vendor\");\n\n      const vendor = await expectStatus<{ id: string }>(\n        await member.post(\"/api/vendors\", {\n          data: {\n            name: vendorName,\n            category: \"services\",\n            contact_email: `${vendorName.toLowerCase().replace(/[^a-z0-9]/g, \"\")}@vendors.test`,\n          },\n        }),\n        201,\n      );\n\n      // The certificate is uploaded with an expiry the extractor cannot parse (\"next spring\").\n      const document = await expectStatus<DocumentOut>(\n        await member.post(`/api/vendors/${vendor.id}/documents`, {\n          multipart: {\n            kind: \"insurance_certificate\",\n            file: {\n              name: \"certificate.pdf\",\n              mimeType: \"application/pdf\",\n              buffer: Buffer.from(\"Certificate of insurance. Expires: next spring\"),\n            },\n          },\n        }),\n        201,\n      );\n\n      await expectStatus(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n\n      // Wait for extraction to finish for the uploaded document.\n      await expect\n        .poll(\n          async () =>\n            (await expectStatus<DocumentOut>(await member.get(`/api/documents/${document.id}`), 200)).status,\n          { timeout: 60_000 },\n        )\n        .toBe(\"extracted\");\n\n      const extraction = await expectStatus<ExtractionOut>(\n        await reviewer.get(`/api/documents/${document.id}/extraction`),\n        200,\n      );\n      expect(extraction.status).toBe(\"pending_review\");\n      expect(extraction.kind).toBe(\"insurance_certificate\");\n\n      // Act: the reviewer tries to approve the extraction.\n      const response = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert: approval is refused with the scenario's error code.\n      const body = await expectStatus<{ error: { code: string } }>(response, 409);\n      expect(body.error.code).toBe(\"insurance_expiry_missing\");\n\n      // The extraction remains pending review.\n      const after = await expectStatus<ExtractionOut>(\n        await reviewer.get(`/api/documents/${document.id}/extraction`),\n        200,\n      );\n      expect(after.status).toBe(\"pending_review\");\n      expect(after.id).toBe(extraction.id);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13795,
+    "output_tokens": 2280,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13793,
+    "cost_usd": 0.003899,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 9.431302040815353,
+  "error": null,
+  "log": null
+}

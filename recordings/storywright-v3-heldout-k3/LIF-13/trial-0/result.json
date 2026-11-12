@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"search ignores case and matches part of a name\", { tag: \"@LIF-13\" }, async ({ apiAs, factory }) => {\n  // Arrange: a member's vendor whose name contains the scenario's wording, made unique for the shared database.\n  const vendor = await factory.vendor({ as: \"member\", name: uniqueName(\"Zephyrine Cold Storage\") });\n  const member = await apiAs(\"member\");\n\n  // Act: search with mixed case and a partial word.\n  const response = await member.get(\"/api/vendors\", { params: { q: \"COLD stor\", limit: 100 } });\n\n  // Assert: the vendor is in the results.\n  const page = await expectStatus<{ items: { id: string; name: string }[] }>(response, 200);\n  expect(page.items.map((v) => v.id)).toContain(vendor.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22466,
+    "output_tokens": 1625,
+    "cache_read_input_tokens": 21610,
+    "cache_write_input_tokens": 854,
+    "cost_usd": 0.0012,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 17.64375591604039,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test for LIF-13. It arranges a member-owned vendor through the factory with a unique name that keeps the scenario's \"Zephyrine Cold Storage\" wording, then calls GET /api/vendors with a mixed-case partial query and asserts the vendor's id is in the results. The status check carries the response body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-13: passing: every test passes against the real app\n"
+}

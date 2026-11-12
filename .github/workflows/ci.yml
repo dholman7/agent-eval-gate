@@ -61,6 +61,8 @@ jobs:
           uv run aeg split --benchmark benchmarks/vendor-intake-ui/v1 --seed 20261101 --sampled dev
       - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v1
       - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v2
+      # v3's held-out tasks are scenarios written after v2 froze, not a seeded draw: no split check.
+      - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake/v3
       - run: uv run aeg -v validate --benchmark benchmarks/vendor-intake-ui/v1
 
   gate:

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "import { USERS, PASSWORD, expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"LIF-12 vendor lifecycle\", () => {\n  test(\"an admin can review vendors\", { tag: \"@LIF-12\" }, async ({ apiAs, factory }) => {\n    // Arrange: an admin session and a vendor in review with three pending extractions\n    const admin = await apiAs(\"admin\");\n    const vendor = await factory.vendorInReview({ name: `LIF-12 Review ${Date.now()}` });\n\n    // Act: open the review queue and approve the vendor's \"w9\" extraction\n    const queueResponse = await admin.get(\"/api/review-queue\");\n    const queue = await expectStatus<Array<{ vendor_id: string; extractions: Array<{ id: string; kind: string }> }>>(queueResponse, 200);\n\n    const entry = queue.find((item) => item.vendor_id === vendor.id);\n    expect(entry, \"vendor should be listed in the review queue\").toBeDefined();\n\n    const w9 = entry!.extractions.find((e) => e.kind === \"w9\");\n    expect(w9, \"vendor should have a w9 extraction\").toBeDefined();\n\n    const decisionResponse = await admin.post(`/api/extractions/${w9!.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n\n    // Assert: the decision succeeds and the queue lists the vendor\n    await expectStatus(decisionResponse, 200);\n\n    const queueAfter = await expectStatus<Array<{ vendor_id: string }>>(await admin.get(\"/api/review-queue\"), 200);\n    expect(queueAfter.some((item) => item.vendor_id === vendor.id)).toBe(true);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13753,
+    "output_tokens": 598,
+    "cache_read_input_tokens": 13388,
+    "cache_write_input_tokens": 363,
+    "cost_usd": 0.000506,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.9059065408073366,
+  "error": null,
+  "log": null
+}

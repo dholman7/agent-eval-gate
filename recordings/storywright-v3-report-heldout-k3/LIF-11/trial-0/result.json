@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "// features/lifecycle.feature: Sign-in ignores the case of the email address\nimport { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n  // Arrange\n  const mixedCaseEmail = \"Member@Northwind.TEST\";\n\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: mixedCaseEmail, password: PASSWORD },\n  });\n\n  // Assert\n  const body = await expectStatus<{ access_token: string; user: { email: string } }>(response, 200);\n  expect(body.user.email).toBe(USERS.member);\n  expect(body.user.email).toBe(mixedCaseEmail.toLowerCase());\n\n  const me = await expectStatus<{ email: string }>(\n    await request.get(\"/api/me\", { headers: { Authorization: `Bearer ${body.access_token}` } }),\n    200,\n  );\n  expect(me.email).toBe(USERS.member);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 91870,
+    "output_tokens": 2212,
+    "cache_read_input_tokens": 88926,
+    "cache_write_input_tokens": 2936,
+    "cost_usd": 0.085545,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 36.873001707717776,
+  "error": null,
+  "log": "  kind: api\n  plan: Sign in with the mixed-case email from the scenario and the seeded PASSWORD (the guide allows this for sign-in tests). Assert 200 and the lower-cased email in the login response, then read /api/me with the returned token to confirm the email the session actually resolves to.\n  verify: 1 passed, 0 failed, 2 lint errors\n  repair 1: test_bug: The test never ran. Lint stopped it because PW-4 doesn't allow account email literals in specs. Lines 15 and 22 wrote \"member@northwind.test\" out by hand, and the lint rule says to use USERS from fixtures instead. In e2e/fixtures/users.ts, USERS.member is exactly \"member@northwind.test\", which is the email the scenario expects. Using USERS.member keeps the expected value the same and fixes the lint error. The mixed-case input \"Member@Northwind.TEST\" on line 6 wasn't flagged, so it stays as the scenario wrote it. The second body assertion now checks that the returned email equals the input email lowercased, which is the case-insensitivity the scenario is about.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nLIF-11: passing: every test passes against the real app\n"
+}

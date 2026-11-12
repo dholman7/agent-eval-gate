@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "import { PASSWORD, USERS, expect, expectStatus, test } from \"../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: \"Member@Northwind.TEST\", password: PASSWORD },\n    });\n\n    // Assert\n    const body = await expectStatus(response, 200);\n    expect(body.access_token).toBeTruthy();\n    expect(body.user.email).toBe(\"member@northwind.test\");\n  });\n\n  test(\"current user's email is normalized to lowercase after sign-in with mixed case\", { tag: \"@LIF-11\" }, async ({ request }) => {\n    // Arrange\n    const login = await request.post(\"/api/auth/login\", {\n      data: { email: \"Member@Northwind.TEST\", password: PASSWORD },\n    });\n    const { access_token } = await expectStatus<{ access_token: string }>(login, 200);\n\n    // Act\n    const response = await request.get(\"/api/me\", {\n      headers: { Authorization: `Bearer ${access_token}` },\n    });\n\n    // Assert\n    const profile = await expectStatus<{ email: string }>(response, 200);\n    expect(profile.email).toBe(\"member@northwind.test\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13731,
+    "output_tokens": 470,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13729,
+    "cost_usd": 0.002981,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.314121583942324,
+  "error": null,
+  "log": null
+}

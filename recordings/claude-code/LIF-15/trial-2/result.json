@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-15.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ninterface VendorPage {\n  items: unknown[];\n  total: number;\n  limit: number;\n  offset: number;\n}\n\ntest.describe(\"vendor list paging\", () => {\n  test(\n    \"a page past the last vendor is empty but still reports the total\",\n    { tag: \"@LIF-15\" },\n    async ({ apiAs, factory }) => {\n      // Arrange: make sure the tenant has at least one vendor, then read the first page's total.\n      await factory.vendor({ as: \"member\" });\n      const member = await apiAs(\"member\");\n      const first = await expectStatus<VendorPage>(await member.get(\"/api/vendors\"), 200);\n      expect(first.total).toBeGreaterThan(0);\n\n      // Act: ask for a page that starts beyond every vendor in the tenant.\n      const offset = first.total + 1000;\n      const response = await member.get(\"/api/vendors\", { params: { offset, limit: 20 } });\n\n      // Assert\n      const past = await expectStatus<VendorPage>(response, 200);\n      expect(past.items).toEqual([]);\n      expect(past.total).toBe(first.total);\n      expect(past.offset).toBe(offset);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 201289,
+    "output_tokens": 3330,
+    "cache_read_input_tokens": 184458,
+    "cache_write_input_tokens": 16815,
+    "cost_usd": 0.006874,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 28.70173087529838,
+  "error": null,
+  "log": "turns: 10; I wrote `e2e/api/generated/LIF-15.spec.ts` with one test tagged `@LIF-15`. It passes, and `npx tsc --noEmit` exits 0. No other file was changed.\n\nThe test signs in as the member, creates one vendor so the tenant isn't empty, and reads the first page's `total`. It then requests a page at `offset = total + 1000` and asserts:\n- status 200\n- `items` is an empty array\n- `total` equals the first page's total\n- `offset` is echoed back\n\nChoices I made:\n- **Offset:** I used `total + 1000` rather than `total + 1` so that vendors created by parallel tests between the two requests can't bring the offset back into range.\n- **Persona:** I used `apiAs(\"member\")`, which signs in as `member@northwind.test`, as the scenario requires.\n- **Unique name:** the vendor is created with the factory's `uniqueName`, so it doesn't collide with parallel tests."
+}

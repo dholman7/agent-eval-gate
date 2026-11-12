@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "// features/lifecycle.feature: Search and the status filter apply together\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"search and the status filter apply together\", { tag: \"@LIF-14\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const word = uniqueName(\"lif14\").replace(\" \", \"\");\n  const draft = await factory.vendor({ name: `Draft ${word}` });\n  const { vendor: inReview } = await factory.vendorInReview({ name: `Review ${word}` });\n  expect(draft.status, \"first vendor stays a draft\").toBe(\"draft\");\n  expect(inReview.status, \"second vendor is in review\").toBe(\"in_review\");\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(\"/api/vendors\", { params: { q: word, status: \"in_review\" } });\n\n  // Assert\n  const page = await expectStatus<{ items: { id: string; status: string }[]; total: number }>(response, 200);\n  expect(page.items.map((v) => v.id)).toEqual([inReview.id]);\n  expect(page.items[0].status).toBe(\"in_review\");\n  expect(page.total).toBe(1);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22479,
+    "output_tokens": 763,
+    "cache_read_input_tokens": 21610,
+    "cache_write_input_tokens": 867,
+    "cost_usd": 0.026526,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 16.40031029190868,
+  "error": null,
+  "log": "  kind: api\n  plan: I create one draft vendor and one in-review vendor through the factory, and give both names the same unique word. Then, as the member, I list vendors with that word as `q` and with `status=in_review`, and check that the only result is the in-review vendor and that the total is 1.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-14: passing: every test passes against the real app\n"
+}

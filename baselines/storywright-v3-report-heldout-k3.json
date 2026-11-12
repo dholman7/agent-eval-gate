@@ -1,0 +1,1501 @@
+{
+  "meta": {
+    "benchmark": "vendor-intake@v3",
+    "target_ref": "8bca46706f95b091bd869c974500097fcfbfdb8f",
+    "agent": "storywright-v3-report-heldout-k3",
+    "mode": "live",
+    "split": "heldout",
+    "trials": 3,
+    "harness_version": "0.1.0",
+    "started_at": "2026-11-11T22:09:22+00:00",
+    "model": "claude-opus-5-5"
+  },
+  "trials": [
+    {
+      "task_id": "LIF-01",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The factory builds the draft vendor and uploads the sample insurance certificate and contract. The test then uploads two W-9 text files with different \"Legal Name:\" lines straight to the API and polls until each one is extracted. After the member submits, it checks that the reviewer's queue shows the second W-9's legal name, and that the documents list has both W-9 uploads, oldest first.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nLIF-01: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 267374,
+        "output_tokens": 3476,
+        "cache_read_input_tokens": 230242,
+        "cache_write_input_tokens": 37114,
+        "cost_usd": 0.412552,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 54.29416591627523
+    },
+    {
+      "task_id": "LIF-01",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The factory creates the draft vendor and its insurance and contract documents. The member then uploads two W-9s with different \"Legal Name:\" lines, waiting for each to be extracted. Once the member submits, the reviewer's queue entry for the vendor must hold a single W-9 extraction, for the second upload, and the documents list must show both W-9s, oldest first.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nLIF-01: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 208293,
+        "output_tokens": 3439,
+        "cache_read_input_tokens": 192099,
+        "cache_write_input_tokens": 16180,
+        "cost_usd": 0.236696,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 50.0247442079708
+    },
+    {
+      "task_id": "LIF-01",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Build a draft vendor with the factory and upload its insurance certificate and contract the same way. Then upload two W-9s as text/plain buffers whose `Legal Name:` lines differ, waiting for each one to finish extracting. Submit the vendor, then as the reviewer check that the queue's w9 extraction shows \"Second Name LLC\" and that the documents list shows both W-9 uploads, oldest first.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 9\nLIF-01: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 192279,
+        "output_tokens": 3196,
+        "cache_read_input_tokens": 182841,
+        "cache_write_input_tokens": 9424,
+        "cost_usd": 0.175936,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 46.21717054210603
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Arrange a vendor in review through the factory, have the reviewer reject the contract extraction with the note, then re-read the vendor to check that its stored status is \"rejected\" and read the audit trail (ordered by id) to check that extraction.rejected comes before vendor.rejected.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nLIF-02: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 45540,
+        "output_tokens": 940,
+        "cache_read_input_tokens": 44113,
+        "cache_write_input_tokens": 1423,
+        "cost_usd": 0.039023,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 18.77981916582212
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I build a vendor in review with the factory. Then I reject the contract extraction as the reviewer, re-read the vendor and the extraction to check what was saved, and check that the audit trail (ordered by ID) has extraction.rejected followed by vendor.rejected.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing request was GET /api/documents/{id}/extraction, which returned 404 document_not_found. The test passed `extractions.contract.id` (an extraction ID) to `factory.extraction()`, but that method takes a document ID (the `documentId` parameter in fixtures/factory.ts). In backend routes/documents.py, get_extraction looks the ID up as a document and raises not_found(\"document\") when there's no match, so the app did what it should with a bad ID. The fix passes `documents.contract.id`. No assertion changed.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nLIF-02: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 141940,
+        "output_tokens": 2361,
+        "cache_read_input_tokens": 116046,
+        "cache_write_input_tokens": 25882,
+        "cost_usd": 0.277533,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 40.03867408307269
+    },
+    {
+      "task_id": "LIF-02",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Set up a vendor in review with factory.vendorInReview(). As the reviewer, reject the contract extraction with the note \"Wrong counterparty\". Then re-read the vendor and its audit trail, and check that the status is \"rejected\" and that the last two audit actions are extraction.rejected followed by vendor.rejected.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nLIF-02: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-145-21"
+      ],
+      "usage": {
+        "input_tokens": 70123,
+        "output_tokens": 1155,
+        "cache_read_input_tokens": 67486,
+        "cache_write_input_tokens": 2631,
+        "cost_usd": 0.057669,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 23.393375625368208
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I'll build the vendor in review with the factory and reject its W-9 extraction as the reviewer, checking that request's status. Then the test approves the contract extraction and asserts a 409 with error code vendor_not_in_review.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-03: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-120-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 22487,
+        "output_tokens": 616,
+        "cache_read_input_tokens": 21610,
+        "cache_write_input_tokens": 875,
+        "cost_usd": 0.02365,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 14.912668500095606
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I build a vendor in review with the factory. As the reviewer, I reject its w9 extraction (with a note) and check that the call worked. Then I approve the contract extraction and expect a 409 with error code \"vendor_not_in_review\".\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-03: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-120-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 22488,
+        "output_tokens": 607,
+        "cache_read_input_tokens": 22128,
+        "cache_write_input_tokens": 358,
+        "cost_usd": 0.019438,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 14.461407291702926
+    },
+    {
+      "task_id": "LIF-03",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The factory sets up a vendor in review. As the reviewer, the test rejects the w9 extraction and checks that the rejection succeeded. It then tries to approve the contract extraction and expects a 409 with error code vendor_not_in_review.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-03: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-120-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-120-23"
+      ],
+      "usage": {
+        "input_tokens": 22489,
+        "output_tokens": 622,
+        "cache_read_input_tokens": 22128,
+        "cache_write_input_tokens": 359,
+        "cost_usd": 0.019746,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 14.766952665988356
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Arrange a vendor in review through the factory, have the reviewer reject the w9 extraction (status-checked), then have the member submit again and assert 409, error code documents_incomplete, and missing_kinds equal to [\"w9\"] (the backend's AppError envelope puts missing_kinds under error).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nLIF-04: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-59-12": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 194839,
+        "output_tokens": 1370,
+        "cache_read_input_tokens": 183951,
+        "cache_write_input_tokens": 10874,
+        "cost_usd": 0.151238,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 31.481611667200923
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I use the factory to put a vendor into review. A reviewer client rejects its w9 extraction with a note, which the backend requires, and the status is checked with expectStatus. Then the member resubmits without uploading a new document, and the test asserts a 409, code \"documents_incomplete\", and that `error.missing_kinds` is exactly [\"w9\"] (the field name comes from `backend/src/vendor_intake/services/review.py`).\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-04: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-59-12": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 74143,
+        "output_tokens": 1063,
+        "cache_read_input_tokens": 67376,
+        "cache_write_input_tokens": 6761,
+        "cost_usd": 0.088847,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 23.976094332989305
+    },
+    {
+      "task_id": "LIF-04",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Build a vendor in review through the factory, then have the reviewer reject its w9 extraction with a note, which the app requires for a reject, and check that step's status. Then resubmit as the member and assert a 409 with error code documents_incomplete and error.missing_kinds equal to [\"w9\"], the field name the backend uses in services/review.py.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-04: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-59-12": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-59-12"
+      ],
+      "usage": {
+        "input_tokens": 74138,
+        "output_tokens": 1039,
+        "cache_read_input_tokens": 67373,
+        "cache_write_input_tokens": 6759,
+        "cost_usd": 0.088351,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 21.93411308294162
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Use the factory to put a vendor in review. A reviewer approves insurance_certificate and contract first and then rejects w9, so the vendor goes to rejected. The member then uploads a new w9, polls until it is extracted, and resubmits. The test asserts the stored vendor status and that the review queue shows exactly one pending extraction, for the new w9 document.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nLIF-05: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 131121,
+        "output_tokens": 1841,
+        "cache_read_input_tokens": 123054,
+        "cache_write_input_tokens": 8057,
+        "cost_usd": 0.125927,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 31.525274334009737
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Arrange a vendor in review through the factory. The reviewer approves the insurance_certificate and contract extractions, then rejects the w9 (in that order, because a rejection takes the vendor out of review). The member then uploads a replacement w9, polls until it is extracted, and resubmits. Assert the vendor status from the submit response and from a re-read, then check that the reviewer's queue entry for this vendor holds exactly one pending extraction, of kind w9.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nLIF-05: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 148716,
+        "output_tokens": 2110,
+        "cache_read_input_tokens": 142997,
+        "cache_write_input_tokens": 5707,
+        "cost_usd": 0.116503,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 35.29408879065886
+    },
+    {
+      "task_id": "LIF-05",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Use the factory to put a vendor in review, then as the reviewer approve the insurance certificate and the contract before rejecting the W-9. Rejecting first would move the vendor to \"rejected\", and the app then refuses any more decisions. As the member, upload a new W-9, poll until it is extracted, and resubmit. Then check the vendor's response and stored status are \"in_review\", and that its review-queue entry holds exactly one pending extraction, the W-9 for the new document.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-05: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 73242,
+        "output_tokens": 1717,
+        "cache_read_input_tokens": 67695,
+        "cache_write_input_tokens": 5541,
+        "cost_usd": 0.092231,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 27.77649995777756
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I set the vendor up through the factory and API. The reviewer approves the insurance certificate and the contract, then rejects the W-9 with a note. The member uploads a new W-9, waits for it to be extracted and resubmits. The reviewer then approves only that new W-9 extraction. The test re-reads the vendor's stored status and its audit trail.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nLIF-06: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": false,
+        "mut-backend_src_vendor_intake_services_review-81-11": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 103501,
+        "output_tokens": 2009,
+        "cache_read_input_tokens": 96237,
+        "cache_write_input_tokens": 7256,
+        "cost_usd": 0.117507,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 31.492020583711565
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I build the vendor through the factory and checked API calls. It goes into review, the reviewer approves the insurance certificate and contract and rejects the w9, and the member uploads a replacement w9, waits for extraction and resubmits. The reviewer then approves the replacement's extraction. The test checks that the vendor's saved status is \"approved\" and that the audit trail has a \"vendor.approved\" event.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nLIF-06: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": false,
+        "mut-backend_src_vendor_intake_services_review-81-11": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 108152,
+        "output_tokens": 1950,
+        "cache_read_input_tokens": 99779,
+        "cache_write_input_tokens": 8365,
+        "cost_usd": 0.125908,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 30.814014917239547
+    },
+    {
+      "task_id": "LIF-06",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I set up the state through the factory and the reviewer and member APIs. The reviewer approves the insurance certificate and contract, then rejects the w9. The member uploads a replacement w9, waits for its extraction and resubmits, which leaves the new w9 as the only pending extraction. Then the reviewer approves that w9. The test re-reads the vendor to check its status is \"approved\" and checks the audit trail for a \"vendor.approved\" event.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nLIF-06: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_audit-28-32": true,
+        "mut-backend_src_vendor_intake_repositories_audit-36-40": true,
+        "mut-backend_src_vendor_intake_schemas-121-53": true,
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-145-21": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": false,
+        "mut-backend_src_vendor_intake_services_review-81-11": false
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_audit-28-32",
+        "mut-backend_src_vendor_intake_repositories_audit-36-40",
+        "mut-backend_src_vendor_intake_schemas-121-53",
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-145-21",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 75803,
+        "output_tokens": 2066,
+        "cache_read_input_tokens": 68709,
+        "cache_write_input_tokens": 7088,
+        "cost_usd": 0.11179,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 30.710753167048097
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The backend's \"today\" is the UTC date (main.py: `utcnow().date()`), and approval is refused only when `expiry < today`. So the test uploads an insurance certificate whose `Expiry Date:` is today's UTC date, in the `Key: Value` text format the deterministic extractor reads. It uploads the W-9 and contract samples through the factory, waits for extraction to finish, and submits the vendor. Then the reviewer approves the certificate's extraction, and the test checks for a 200, an \"approved\" status in the response, and an \"approved\" status when the extraction is read back.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 11\nLIF-07: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-99-14": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 269831,
+        "output_tokens": 2828,
+        "cache_read_input_tokens": 255613,
+        "cache_write_input_tokens": 14200,
+        "cost_usd": 0.221355,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 46.33330704178661
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Write an insurance certificate whose Expiry Date is today (UTC, ISO format, which the deterministic extractor parses), and pass it to factory.vendorInReview as the certificate file. Then the reviewer approves that extraction; the test checks for 200 and status \"approved\" in the response, then reads the extraction again to confirm \"approved\" was saved.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 12\nLIF-07: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-99-14": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 311334,
+        "output_tokens": 2644,
+        "cache_read_input_tokens": 296030,
+        "cache_write_input_tokens": 15284,
+        "cost_usd": 0.234438,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 47.27877770829946
+    },
+    {
+      "task_id": "LIF-07",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Write a copy of the insurance certificate sample with today's UTC date as its expiry, use the factory to build a vendor in review with that file, approve the extraction as the reviewer, then check the status code, the status in the response, and the stored status.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nLIF-07: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-99-14": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-99-14"
+      ],
+      "usage": {
+        "input_tokens": 237242,
+        "output_tokens": 2562,
+        "cache_read_input_tokens": 221859,
+        "cache_write_input_tokens": 15367,
+        "cost_usd": 0.218612,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 43.174764750059694
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The factory sets up a vendor in review using samples/insurance_certificate_unparseable.txt, whose expiry date is \"next spring\". The reviewer approves the insurance_certificate extraction, and the test expects a 409 with code insurance_expiry_missing. It then reads the extraction again to confirm it is still pending_review.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 4\nLIF-08: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-98-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 68801,
+        "output_tokens": 985,
+        "cache_read_input_tokens": 67035,
+        "cache_write_input_tokens": 1760,
+        "cost_usd": 0.047211,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 22.826484167017043
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Use factory.vendorInReview with the repo's insurance_certificate_unparseable.txt sample, whose text is \"Expiry Date: next spring\". As the reviewer, post an approve decision on the insurance extraction. Assert the 409 and the insurance_expiry_missing error code, then read the extraction again to confirm it is still pending_review.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing request is the test's final read: GET /api/documents/{id}/extraction. The test passed an extraction ID there, but the route (routes/documents.py, get_extraction) looks the path ID up as a document with DocumentRepository.get(document_id, ...). No document has that ID, so the app returns document_not_found. The setup and the approve call did not cause the failure. The fix passes the insurance certificate's document ID, documents.insurance_certificate.id, to factory.extraction. All expected values are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 10\nLIF-08: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-98-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 219084,
+        "output_tokens": 2751,
+        "cache_read_input_tokens": 211398,
+        "cache_write_input_tokens": 7668,
+        "cost_usd": 0.158716,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 50.81647316692397
+    },
+    {
+      "task_id": "LIF-08",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I build a vendor in review with the factory, using the sample samples/insurance_certificate_unparseable.txt (\"Expiry Date: next spring\") as its insurance certificate. As the reviewer I approve that extraction and expect 409 with error code insurance_expiry_missing. Then I read the extraction again to check it is still pending_review.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-08: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-98-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-98-23"
+      ],
+      "usage": {
+        "input_tokens": 68370,
+        "output_tokens": 897,
+        "cache_read_input_tokens": 67359,
+        "cache_write_input_tokens": 1005,
+        "cost_usd": 0.039476,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 22.076960082631558
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Use factory.vendorInReview to get a submitted vendor, have a reviewer reject its contract extraction, then rename it as the member with PATCH. Assert 200 and the new name in the response, then read the vendor back with GET to confirm the name was saved.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nLIF-09: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 45253,
+        "output_tokens": 907,
+        "cache_read_input_tokens": 44076,
+        "cache_write_input_tokens": 1173,
+        "cost_usd": 0.036355,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 18.476623457856476
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Set up with factory.vendorInReview, then have a reviewer reject the contract extraction with a note (the API requires a note on a reject), checked with expectStatus. Then the member PATCHes the vendor with a new unique name, I check for 200 and the returned name, and I read the vendor back to confirm the new name was saved.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-09: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 92939,
+        "output_tokens": 1104,
+        "cache_read_input_tokens": 90543,
+        "cache_write_input_tokens": 2388,
+        "cost_usd": 0.059325,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 22.747893624939024
+    },
+    {
+      "task_id": "LIF-09",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Build a vendor in review with the factory, then have a reviewer reject the contract extraction (with the note the backend requires for a reject). Next, the member PATCHes the vendor's name. The test checks for a 200 response, checks the name in the response body, and re-reads the vendor to confirm the new name was saved.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-09: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_schemas-121-53": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_schemas-121-53"
+      ],
+      "usage": {
+        "input_tokens": 91476,
+        "output_tokens": 1143,
+        "cache_read_input_tokens": 90157,
+        "cache_write_input_tokens": 1311,
+        "cost_usd": 0.051411,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 25.331036624964327
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Use the factory to create two draft vendors with unique \"Atlas Freight\" and \"Borealis Freight\" names. PATCH Borealis to the upper-cased Atlas name, check for a 409 with code vendor_name_taken, then read Borealis again to confirm the stored name did not change.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-10: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42": true,
+        "mut-backend_src_vendor_intake_services_vendors-31-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 22523,
+        "output_tokens": 684,
+        "cache_read_input_tokens": 21610,
+        "cache_write_input_tokens": 911,
+        "cost_usd": 0.025298,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 15.766320791095495
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Use the factory to create two draft vendors with unique names, \"Atlas Freight …\" and \"Borealis Freight …\". As the member, send a PATCH that renames Borealis to Atlas's name in upper case. Expect a 409 with error code vendor_name_taken, then fetch Borealis again to confirm it kept its name.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-10: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42": true,
+        "mut-backend_src_vendor_intake_services_vendors-31-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 22523,
+        "output_tokens": 700,
+        "cache_read_input_tokens": 22164,
+        "cache_write_input_tokens": 357,
+        "cost_usd": 0.021297,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 15.414335166104138
+    },
+    {
+      "task_id": "LIF-10",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Create two draft vendors through the factory, using unique names built from \"Atlas Freight\" and \"Borealis Freight\". As the member, PATCH Borealis to the upper-case form of Atlas's name and expect 409 with vendor_name_taken. Then read Borealis back to confirm its stored name did not change.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-10: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42": true,
+        "mut-backend_src_vendor_intake_services_vendors-31-23": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-22-29",
+        "mut-backend_src_vendor_intake_repositories_vendors-25-42",
+        "mut-backend_src_vendor_intake_services_vendors-31-23"
+      ],
+      "usage": {
+        "input_tokens": 22523,
+        "output_tokens": 713,
+        "cache_read_input_tokens": 22164,
+        "cache_write_input_tokens": 357,
+        "cost_usd": 0.021557,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 15.253506166860461
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Sign in with the mixed-case email from the scenario and the seeded PASSWORD (the guide allows this for sign-in tests). Assert 200 and the lower-cased email in the login response, then read /api/me with the returned token to confirm the email the session actually resolves to.\n  verify: 1 passed, 0 failed, 2 lint errors\n  repair 1: test_bug: The test never ran. Lint stopped it because PW-4 doesn't allow account email literals in specs. Lines 15 and 22 wrote \"member@northwind.test\" out by hand, and the lint rule says to use USERS from fixtures instead. In e2e/fixtures/users.ts, USERS.member is exactly \"member@northwind.test\", which is the email the scenario expects. Using USERS.member keeps the expected value the same and fixes the lint error. The mixed-case input \"Member@Northwind.TEST\" on line 6 wasn't flagged, so it stays as the scenario wrote it. The second body assertion now checks that the returned email equals the input email lowercased, which is the case-insensitivity the scenario is about.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nLIF-11: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_users-12-65": true,
+        "mut-backend_src_vendor_intake_repositories_users-16-39": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 91870,
+        "output_tokens": 2212,
+        "cache_read_input_tokens": 88926,
+        "cache_write_input_tokens": 2936,
+        "cost_usd": 0.085545,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 36.873001707717776
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Post to /api/auth/login with the mixed-case email from the scenario and the shared PASSWORD. Then check that the login response's user.email and GET /api/me (called with the returned token) both give the lowercase seeded address, USERS.member.\n  verify: 1 passed, 0 failed, 1 lint errors\n  repair 1: test_bug: The app never ran. The test failed lint because of rule PW-4 (\"No credentials in specs\"), which bans account email literals in spec files: line 7 is the hard-coded \"Member@Northwind.TEST\" (line 8 also had a literal address). The fix builds the scenario's spelling, \"Member@Northwind.TEST\", from USERS.member, the seeded account from the fixtures, which PW-4 allows for sign-in tests. It also checks that the built address really is mixed case and lowercases back to the seeded one. The scenario's checks are unchanged: status 200, and the user's email in the response and from /api/me equals the lowercase address. All expected values still come from USERS.member, which the original test confirmed is \"member@northwind.test\".\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nLIF-11: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_users-12-65": true,
+        "mut-backend_src_vendor_intake_repositories_users-16-39": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 94263,
+        "output_tokens": 2791,
+        "cache_read_input_tokens": 89477,
+        "cache_write_input_tokens": 4778,
+        "cost_usd": 0.111971,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 42.60921008326113
+    },
+    {
+      "task_id": "LIF-11",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The test posts to /api/auth/login with the mixed-case email \"Member@Northwind.TEST\" and the seeded PASSWORD, and checks for a 200. Then it checks that the login response's user.email is \"member@northwind.test\", and calls /api/me with the returned token to confirm the stored identity has the same lowercase email.\n  verify: 1 passed, 0 failed, 2 lint errors\n  repair 1: test_bug: The only failures are PW-4 lint errors: the spec wrote the seeded account email \"member@northwind.test\" as a literal on lines 16 and 21. AGENTS.md PW-4 says to use USERS from the fixtures instead. Both expectations now use USERS.member. The Arrange step already asserts that USERS.member equals \"Member@Northwind.TEST\".toLowerCase(), so the expected value is still exactly \"member@northwind.test\" as the scenario states. The test never got far enough to call the app.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nLIF-11: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_users-12-65": true,
+        "mut-backend_src_vendor_intake_repositories_users-16-39": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_users-12-65",
+        "mut-backend_src_vendor_intake_repositories_users-16-39"
+      ],
+      "usage": {
+        "input_tokens": 68635,
+        "output_tokens": 2254,
+        "cache_read_input_tokens": 66313,
+        "cache_write_input_tokens": 2316,
+        "cost_usd": 0.076895,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 34.45670337462798
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The factory builds a vendor in review as the member. Signed in as the admin, the test reads the review queue, checks the vendor is listed with its w9 extraction, approves that extraction and expects 200, then re-reads the extraction to confirm the approval was saved.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing call is the last re-read, `factory.extraction(extractions.w9.id, \"admin\")`. `Factory.extraction(documentId, as)` requests `GET /api/documents/{documentId}/extraction`, and the route in backend/src/vendor_intake/routes/documents.py looks that ID up as a document (`DocumentRepository.get(document_id, tenant_id)`). The test passed the extraction's ID instead of the document's, so the app correctly returned 404 `document_not_found`. The queue check and the approve decision ran before this line and passed. The fix re-reads the stored extraction with `documents.w9.id` from `vendorInReview()`. No expected values or assertions change.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-12: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 118842,
+        "output_tokens": 2507,
+        "cache_read_input_tokens": 114268,
+        "cache_write_input_tokens": 4564,
+        "cost_usd": 0.109546,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 41.25610491586849
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The factory builds a vendor in review with three pending extractions. Signed in as the admin persona, the test reads the review queue, approves the w9 extraction and checks for a 200. It then re-reads the queue to confirm the vendor is still listed, and re-reads the extraction to confirm the approval was saved.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing request is GET /api/documents/{id}/extraction, which returned document_not_found. Factory.extraction(documentId, as) takes a document ID: it calls `/api/documents/${documentId}/extraction`. The test passed it extractions.w9.id, an extraction ID, so the app was right that no such document exists. The fix re-reads the stored extraction with documents.w9.id, which vendorInReview() returns. All assertions and expected values are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-12: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 45737,
+        "output_tokens": 2093,
+        "cache_read_input_tokens": 43891,
+        "cache_write_input_tokens": 1842,
+        "cost_usd": 0.06539,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 32.151817709207535
+    },
+    {
+      "task_id": "LIF-12",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Use the factory to set up a vendor in review with three pending extractions. Then, signed in as admin, read the review queue, approve the w9 extraction and check for a 200. Finally, read the queue again to confirm it still lists the vendor, and read the extraction to confirm the approval was saved.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-12: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_services_review-124-24": true,
+        "mut-backend_src_vendor_intake_services_review-79-26": true,
+        "mut-backend_src_vendor_intake_services_review-81-11": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_services_review-124-24",
+        "mut-backend_src_vendor_intake_services_review-79-26",
+        "mut-backend_src_vendor_intake_services_review-81-11"
+      ],
+      "usage": {
+        "input_tokens": 22470,
+        "output_tokens": 893,
+        "cache_read_input_tokens": 22110,
+        "cache_write_input_tokens": 358,
+        "cost_usd": 0.025154,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 17.69010974979028
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The test uses the factory to create a member vendor with a unique name based on \"Zephyrine Cold Storage\". It then lists vendors with q=\"COLD stor\" as the member, checks the status through expectStatus, and asserts that the new vendor's id and name are in the results.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-13: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 22464,
+        "output_tokens": 726,
+        "cache_read_input_tokens": 21610,
+        "cache_write_input_tokens": 852,
+        "cost_usd": 0.025666,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 15.925878416746855
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The factory creates a member vendor with a unique name that starts \"Zephyrine Cold Storage\". The test then lists vendors as the member with q=\"COLD stor\" and checks that the vendor's id is in the results. It sets limit=100 so vendors created by tests running in parallel don't push this one off the first page.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-13: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 22464,
+        "output_tokens": 686,
+        "cache_read_input_tokens": 22103,
+        "cache_write_input_tokens": 359,
+        "cost_usd": 0.021021,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 15.761133375111967
+    },
+    {
+      "task_id": "LIF-13",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I'll create a vendor through the factory with a unique name based on \"Zephyrine Cold Storage\". Then, signed in as the member, I'll list vendors with q=\"COLD stor\" and check that the created vendor's id and stored name are in the results.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-13: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54"
+      ],
+      "usage": {
+        "input_tokens": 22463,
+        "output_tokens": 685,
+        "cache_read_input_tokens": 22103,
+        "cache_write_input_tokens": 358,
+        "cost_usd": 0.020993,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 15.516297541093081
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I create one draft vendor and one in-review vendor through the factory, and give both names the same unique word. Then, as the member, I list vendors with that word as `q` and with `status=in_review`, and check that the only result is the in-review vendor and that the total is 1.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-14: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 22479,
+        "output_tokens": 763,
+        "cache_read_input_tokens": 21610,
+        "cache_write_input_tokens": 867,
+        "cost_usd": 0.026526,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 16.40031029190868
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I'll use the factory to create one draft vendor and one in-review vendor, both named with the same unique word. Then, as the member, I'll list vendors with that word as `q` and `status=in_review`, and check that the only result is the in-review vendor and that total is 1.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-14: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 22480,
+        "output_tokens": 789,
+        "cache_read_input_tokens": 22119,
+        "cache_write_input_tokens": 359,
+        "cost_usd": 0.023084,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 16.65550895780325
+    },
+    {
+      "task_id": "LIF-14",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: The factory creates two vendors whose names share one unique word: one left in draft and one submitted for review. As the member, the test then lists vendors using that word as the search and status in_review. It checks that the only result is the vendor in review, with status in_review, and that the total is 1.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-14: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-41-46",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 22479,
+        "output_tokens": 723,
+        "cache_read_input_tokens": 22119,
+        "cache_write_input_tokens": 358,
+        "cost_usd": 0.021756,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 15.830185291823
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 0,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Through the factory, create two vendors whose names share a unique tag. Use `q` to limit the list to those two, because tests running in parallel would otherwise change the tenant-wide total. Then compare the first page with a page whose offset is past that total.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 1\nLIF-15: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 45418,
+        "output_tokens": 1075,
+        "cache_read_input_tokens": 44077,
+        "cache_write_input_tokens": 1337,
+        "cost_usd": 0.041027,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 21.177334999665618
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 1,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: Create three member vendors whose names share a unique prefix, then read the first page and a page with an offset past the end, both filtered by that prefix. This keeps the total stable while other tests run in parallel. Check that both requests return 200, the far page has no items, and its total and offset match.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 5\nLIF-15: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 142943,
+        "output_tokens": 1447,
+        "cache_read_input_tokens": 139559,
+        "cache_write_input_tokens": 3372,
+        "cost_usd": 0.083876,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 28.83554816711694
+    },
+    {
+      "task_id": "LIF-15",
+      "trial": 2,
+      "agent_error": null,
+      "agent_log": "kind: api\n  plan: I create a vendor through the factory so the member's list is not empty. Then I read the first page, a page at an offset well past that total, and the first page again. A poll repeats the reads until the two first-page totals match, so vendors that parallel tests create mid-read can't skew the comparison. The test asserts a 200 status, empty items, and the same total as the first page.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-15: passing: every test passes against the real app",
+      "typechecks": true,
+      "clean_passed": 1,
+      "clean_failed": 0,
+      "load_errors": [],
+      "clean_failures": [],
+      "tagged": true,
+      "success": true,
+      "kills": {
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54": true,
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88": true
+      },
+      "bugs": [
+        "mut-backend_src_vendor_intake_repositories_vendors-37-54",
+        "mut-backend_src_vendor_intake_repositories_vendors-42-88"
+      ],
+      "usage": {
+        "input_tokens": 22470,
+        "output_tokens": 1670,
+        "cache_read_input_tokens": 22109,
+        "cache_write_input_tokens": 359,
+        "cost_usd": 0.040702,
+        "model": "claude-opus-5-5"
+      },
+      "duration_s": 26.989817625377327
+    }
+  ],
+  "summary": {
+    "task_success": {
+      "value": 1.0,
+      "low": 0.9213484012671117,
+      "high": 1.0,
+      "n": 45,
+      "successes": 45
+    },
+    "pass_all_k": {
+      "value": 1.0,
+      "low": 0.7961166989641515,
+      "high": 1.0,
+      "n": 15,
+      "successes": 15
+    },
+    "bug_detection": {
+      "value": 0.9473684210526315,
+      "low": 0.8899118941026302,
+      "high": 0.9756578384920905,
+      "n": 114,
+      "successes": 108
+    },
+    "false_failure": {
+      "value": 0.0,
+      "low": 0.0,
+      "high": 0.07865159873288836,
+      "n": 45,
+      "successes": 0
+    },
+    "cost_usd": {
+      "value": 0.09321662222222221,
+      "low": 0.07061780000000001,
+      "high": 0.11930102222222223,
+      "n": 45,
+      "successes": null
+    },
+    "duration_s": {
+      "value": 28.12264208416972,
+      "low": 24.742703545279802,
+      "high": 31.453472890518604,
+      "n": 45,
+      "successes": null
+    },
+    "by_category": {
+      "mutant:!= -> ==": {
+        "value": 1.0,
+        "low": 0.7008549515804559,
+        "high": 1.0,
+        "n": 9,
+        "successes": 9
+      },
+      "mutant:< -> <=": {
+        "value": 1.0,
+        "low": 0.4385029682449546,
+        "high": 1.0,
+        "n": 3,
+        "successes": 3
+      },
+      "mutant:== -> !=": {
+        "value": 0.9375,
+        "low": 0.8316456194505365,
+        "high": 0.9785167670916107,
+        "n": 48,
+        "successes": 45
+      },
+      "mutant:drop not": {
+        "value": 0.9,
+        "low": 0.7437891742081593,
+        "high": 0.9654001112526658,
+        "n": 30,
+        "successes": 27
+      },
+      "mutant:or -> and": {
+        "value": 1.0,
+        "low": 0.7575059933447592,
+        "high": 1.0,
+        "n": 12,
+        "successes": 12
+      },
+      "mutant:status 409 -> 400": {
+        "value": 1.0,
+        "low": 0.7575059933447592,
+        "high": 1.0,
+        "n": 12,
+        "successes": 12
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-03.spec.ts": "// features/lifecycle.feature: \"Once a vendor is sent back, its other documents cannot be decided\"\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"approving another document of a vendor that was sent back is refused\",\n    { tag: \"@LIF-03\" },\n    async ({ factory, apiAs }) => {\n      // Arrange\n      const { documents, extractions } = await factory.vendorInReview();\n      const reviewer = await apiAs(\"reviewer\");\n      await expectStatus(\n        await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n          data: { decision: \"reject\", note: \"Tax ID does not match\" },\n        }),\n        200,\n      );\n\n      // Act\n      const response = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert\n      const body = await expectStatus(response, 409);\n      expect(body.error.code).toBe(\"vendor_not_in_review\");\n      expect((await factory.extraction(documents.contract.id)).status).toBe(\"pending_review\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 283177,
+    "output_tokens": 4398,
+    "cache_read_input_tokens": 256654,
+    "cache_write_input_tokens": 26505,
+    "cost_usd": 0.010068,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 40.96263700025156,
+  "error": null,
+  "log": "turns: 11; I wrote `e2e/api/generated/LIF-03.spec.ts` with one test, tagged `@LIF-03`. It passes with `npx playwright test --project=api api/generated/LIF-03.spec.ts`, and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test uses the `factory` fixture to build a vendor in review, then has the reviewer reject the `w9` extraction with a note. It then approves the `contract` extraction and asserts a 409 with error code `vendor_not_in_review`, as the scenario specifies.\n\nI also added one check the scenario doesn't name: after the refused approval, the `contract` extraction is still `pending_review`. That follows the repo's rule to assert the stored outcome, and it doesn't weaken the scenario's assertions. Say if you want it removed."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "// Vendor lifecycle (LIF-11). Covers the sign-in scenario; the other lifecycle scenarios are not generated yet.\nimport { PASSWORD, expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"LIF-11 vendor lifecycle\", () => {\n  test(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n    // Act\n    const response = await request.post(\"/api/auth/login\", {\n      data: { email: \"Member@Northwind.TEST\", password: PASSWORD },\n    });\n\n    // Assert\n    const body = await expectStatus<{ access_token: string }>(response, 200);\n    const profile = await expectStatus<{ email: string }>(\n      await request.get(\"/api/me\", { headers: { Authorization: `Bearer ${body.access_token}` } }),\n      200,\n    );\n    expect(profile.email).toBe(\"member@northwind.test\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 127820,
+    "output_tokens": 2210,
+    "cache_read_input_tokens": 116025,
+    "cache_write_input_tokens": 11783,
+    "cost_usd": 0.004623,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 20.647950625047088,
+  "error": null,
+  "log": "turns: 6; I added `e2e/api/generated/LIF-11.spec.ts` with one test, tagged `@LIF-11`. It passes, and `npx tsc --noEmit` printed no errors.\n\nThe test signs in as `Member@Northwind.TEST` with the seeded password and expects a 200. It then calls `GET /api/me` with the returned token and expects the email to be `member@northwind.test`.\n\nTwo things to check:\n- **`/api/me` returning `email`:** I assumed the profile response has an `email` field, since the existing auth spec only reads `role` and `tenant`. The test passed, so the field is there.\n- **Scope:** The scenario file has only this one sign-in scenario, so that is all I generated. The rest of the vendor lifecycle (document replacement, reviews, boundary dates, renames, search and paging) is not in the scenario text and is not covered.\n\nI changed no other files."
+}

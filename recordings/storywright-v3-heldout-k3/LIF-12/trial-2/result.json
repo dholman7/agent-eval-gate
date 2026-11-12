@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "// features/vendor-lifecycle.feature: \"An admin can review vendors\"\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"an admin approves a vendor's w9 extraction and the queue still lists the vendor\", { tag: \"@LIF-12\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const { vendor, documents, extractions } = await factory.vendorInReview();\n  const admin = await apiAs(\"admin\");\n  expect(extractions.w9.status).toBe(\"pending_review\");\n\n  // Act\n  const decision = await admin.post(`/api/extractions/${extractions.w9.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n  const decided = await expectStatus<{ id: string; status: string }>(decision, 200);\n  expect(decided.status).toBe(\"approved\");\n\n  const queueResponse = await admin.get(\"/api/review-queue\");\n  const queue = await expectStatus<Array<{ vendor_id: string }>>(queueResponse, 200);\n\n  // Assert\n  // The stored outcome, not just the echoed response. The extraction is read through its document.\n  const stored = await factory.extraction(documents.w9.id, \"admin\");\n  expect(stored.status).toBe(\"approved\");\n  expect(documents.w9.id).toBeTruthy();\n\n  // The vendor still has pending extractions, so it stays in the queue.\n  expect(queue.map((item) => item.vendor_id)).toContain(vendor.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 45747,
+    "output_tokens": 2849,
+    "cache_read_input_tokens": 43891,
+    "cache_write_input_tokens": 1852,
+    "cost_usd": 0.002234,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 26.554915540851653,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test: the admin arranges a vendor in review through the factory, approves its w9 extraction via the decision endpoint, re-reads the stored extraction to confirm the approval was saved, then checks the review queue still lists the vendor (its other two extractions remain pending) with a 200.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failure comes from the test's read-back step. `factory.extraction(documentId)` calls GET /api/documents/{document_id}/extraction, but the test passes `extractions.w9.id`, which is an extraction ID, not a document ID. The API correctly reports document_not_found. The decision POST and the queue check are fine. The fix is to pass the W-9 document ID, `documents.w9.id`, which the test already holds. No assertion, expected value, or tag changes.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-12: passing: every test passes against the real app\n"
+}

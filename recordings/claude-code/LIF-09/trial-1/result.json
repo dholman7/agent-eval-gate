@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-09.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"a vendor sent back for a rejected contract extraction can be renamed\", { tag: \"@LIF-09\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n  const reviewer = await apiAs(\"reviewer\");\n  const rejected = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n    data: { decision: \"reject\", note: \"Signature page missing\" },\n  });\n  await expectStatus(rejected, 200);\n  const member = await apiAs(\"member\");\n  const newName = uniqueName(\"Renamed Vendor\");\n\n  // Act\n  const response = await member.patch(`/api/vendors/${vendor.id}`, { data: { name: newName } });\n\n  // Assert\n  const updated = await expectStatus<{ id: string; name: string }>(response, 200);\n  expect(updated.name).toBe(newName);\n  const stored = await expectStatus<{ name: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.name).toBe(newName);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 293020,
+    "output_tokens": 3757,
+    "cache_read_input_tokens": 267193,
+    "cache_write_input_tokens": 25807,
+    "cost_usd": 0.009714,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 30.866238499991596,
+  "error": null,
+  "log": "turns: 10; I wrote `e2e/api/generated/LIF-09.spec.ts` with one test tagged `@LIF-09`. It passes with `npx playwright test --project=api api/generated/LIF-09.spec.ts`, and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test does the following:\n- **Arrange:** Builds a member's vendor in review through `factory.vendorInReview`. A reviewer then rejects the contract extraction with a note, which sends the vendor back.\n- **Act:** The member sends `PATCH /api/vendors/{id}` with a unique new name.\n- **Assert:** The response is 200 with the new name. A follow-up `GET` returns the same name, so the rename is confirmed as stored.\n\nTwo choices I made:\n- The scenario says \"a reviewer rejected\" the contract extraction. I read that as the reviewer posting a `reject` decision with a note, which the backend turns into a rejected vendor.\n- I asserted only what the scenario names: status 200 and the new name. I did not add a check on the vendor's status after the rename."
+}

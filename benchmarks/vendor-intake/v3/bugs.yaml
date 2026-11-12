@@ -1,0 +1,106 @@
+# Hand-written bugs from v2, for the dev tasks only (the held-out tasks get mutants, see
+# mutants.yaml). Same format as v2: an exact text replacement applied only while scoring.
+bugs:
+- id: hand-vendor-name-case-sensitive
+  category: validation
+  tasks:
+  - VEN-03
+  expected_failure: a name differing only in case is accepted as a new vendor
+  file: backend/src/vendor_intake/services/vendors.py
+  old: '        name_key=data.name.lower(),'
+  new: '        name_key=data.name,'
+- id: hand-vendor-tenant-leak
+  category: authorization
+  tasks:
+  - VEN-07
+  - AUD-02
+  expected_failure: another tenant's vendor (and its audit trail) is readable
+  file: backend/src/vendor_intake/repositories/vendors.py
+  old: '            select(Vendor).where(Vendor.id == vendor_id, Vendor.tenant_id == tenant_id)'
+  new: '            select(Vendor).where(Vendor.id == vendor_id)'
+- id: hand-pagination-skips-first
+  category: pagination
+  tasks:
+  - VEN-05
+  expected_failure: each page starts one row late, so the last page is short
+  file: backend/src/vendor_intake/repositories/vendors.py
+  old: .limit(limit).offset(offset)
+  new: .limit(limit).offset(offset + 1)
+- id: hand-update-ignores-lock
+  category: state
+  tasks:
+  - VEN-09
+  expected_failure: a vendor in review can be edited
+  file: backend/src/vendor_intake/services/vendors.py
+  old: "def update_vendor(session: Session, user: User, vendor: Vendor, data: VendorUpdate) -> Vendor:\n    ensure_editable(vendor)\n"
+  new: 'def update_vendor(session: Session, user: User, vendor: Vendor, data: VendorUpdate) -> Vendor:
+
+    '
+- id: hand-coverage-field-dropped
+  category: extraction
+  tasks:
+  - DOC-02
+  expected_failure: insurance extractions have no coverage_amount field
+  file: backend/src/vendor_intake/services/extraction.py
+  old: '        "coverage_amount": ("coverage_amount", _money),
+
+    '
+  new: ''
+- id: hand-unparseable-date-confident
+  category: extraction
+  tasks:
+  - DOC-03
+  expected_failure: an unparseable date gets high confidence
+  file: backend/src/vendor_intake/services/extraction.py
+  old: '    return None, 0.3
+
+
+
+    def _money'
+  new: '    return None, 0.9
+
+
+
+    def _money'
+- id: hand-upload-ignores-lock
+  category: state
+  tasks:
+  - DOC-06
+  expected_failure: documents can be added to a vendor in review
+  file: backend/src/vendor_intake/services/documents.py
+  old: ") -> Document:\n    ensure_editable(vendor)\n"
+  new: ') -> Document:
+
+    '
+- id: hand-approval-not-audited
+  category: audit
+  tasks:
+  - REV-05
+  expected_failure: approving the last extraction records no vendor.approved event
+  file: backend/src/vendor_intake/services/review.py
+  old: "    if vendor.status != VendorStatus.IN_REVIEW:\n        audit.record("
+  new: "    if vendor.status == VendorStatus.REJECTED:\n        audit.record("
+- id: hand-expiry-comparison-inverted
+  category: dates
+  tasks:
+  - REV-07
+  expected_failure: an insurance certificate that expired yesterday can be approved
+  file: backend/src/vendor_intake/services/review.py
+  old: '    if expiry < today:'
+  new: '    if expiry > today:'
+- id: hand-submit-audit-misnamed
+  category: audit
+  tasks:
+  - REV-01
+  expected_failure: submitting records vendor.submit instead of vendor.submitted
+  file: backend/src/vendor_intake/services/review.py
+  old: action="vendor.submitted"
+  new: action="vendor.submit"
+- id: hand-logout-keeps-cookie
+  category: security
+  tasks:
+  - AUTH-06
+  expected_failure: signing out leaves the session cookie in place
+  file: backend/src/vendor_intake/routes/auth.py
+  old: '    response.delete_cookie(SESSION_COOKIE, httponly=True, samesite="lax")'
+  new: '    response.headers["cache-control"] = "no-store"'

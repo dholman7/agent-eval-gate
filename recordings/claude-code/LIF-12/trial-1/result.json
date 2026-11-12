@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "// features/lifecycle.feature: \"An admin can review vendors\"\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ninterface QueueItem {\n  vendor_id: string;\n  vendor_name: string;\n}\n\ntest.describe(\"vendor lifecycle: review\", () => {\n  test(\"an admin approves a pending extraction and the vendor stays in the queue\", { tag: \"@LIF-12\" }, async ({ apiAs, factory }) => {\n    // Arrange\n    const { vendor, documents, extractions } = await factory.vendorInReview();\n    const admin = await apiAs(\"admin\");\n\n    // Act: open the review queue\n    const openQueue = await admin.get(\"/api/review-queue\");\n    const queueBefore = await expectStatus<QueueItem[]>(openQueue, 200);\n    expect(queueBefore.map((item) => item.vendor_id)).toContain(vendor.id);\n\n    // Act: approve the vendor's w9 extraction\n    const decision = await admin.post(`/api/extractions/${extractions.w9.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n\n    // Assert: the decision is accepted and the stored extraction is approved\n    await expectStatus(decision, 200);\n    expect((await factory.extraction(documents.w9.id, \"admin\")).status).toBe(\"approved\");\n\n    // Assert: the queue still lists the vendor, which has two extractions left to decide\n    const queueAfter = await expectStatus<QueueItem[]>(await admin.get(\"/api/review-queue\"), 200);\n    expect(queueAfter.map((item) => item.vendor_id)).toContain(vendor.id);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 405785,
+    "output_tokens": 5779,
+    "cache_read_input_tokens": 378822,
+    "cache_write_input_tokens": 26937,
+    "cost_usd": 0.012068,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 50.25536704203114,
+  "error": null,
+  "log": "turns: 15; I wrote `e2e/api/generated/LIF-12.spec.ts` with one test tagged `@LIF-12`. It passes, and `npx tsc --noEmit` exits 0. No other file changed.\n\nThe test follows the scenario as an admin journey:\n- **Arrange:** `factory.vendorInReview()` builds a vendor with three pending extractions. The admin client comes from `apiAs(\"admin\")`.\n- **Act:** the admin opens `GET /api/review-queue` and checks the vendor is listed. Then the admin approves the w9 extraction with `POST /api/extractions/{id}/decision`.\n- **Assert:** the decision returns 200. The stored w9 extraction reads back as `approved`, since the scenario's outcome has to be stored, not just echoed. The queue still lists the vendor, which has two extractions left to decide.\n\nThe first run failed because I passed an extraction ID to `factory.extraction()`, which takes a document ID. I switched it to the w9 document ID that `vendorInReview` also returns. I didn't run `npm run lint`."
+}

@@ -119,6 +119,40 @@ The first v0.3 run wasn't kept, so the second row reconstructs it from the commi
 
 Each run starts the Next.js app and the API, writes the test through page objects (adding any entry it needs), and verifies it against the real screens before handing it over. The whole run cost $0.08. Six tasks give wide intervals: 18/18 is consistent with a true rate as low as 82%.
 
+## Blind benchmark (v3)
+
+Storywright was tuned while v1/v2's held-out scores were visible, so those numbers aren't blind. [`benchmarks/vendor-intake/v3`](benchmarks/vendor-intake/v3) fixes that:
+
+- **Held-out tasks no agent has seen.** The 15 held-out tasks are vendor-intake-app's [`features/lifecycle.feature`](https://github.com/dholman7/vendor-intake-app/blob/8bca46706f95b091bd869c974500097fcfbfdb8f/features/lifecycle.feature). These are re-uploads, send-backs, boundary dates, case-insensitive names and search, and pagination past the end. All of it was written and committed (the pinned ref) before any agent ran on it. Dev keeps v2's 12 tasks.
+- **Bugs chosen by code, not by hand.** [`aeg mutants`](src/agent_eval_gate/mutants.py) applies standard operators at every eligible token of 17 backend files: comparisons, `and`/`or`, booleans, a dropped `not`, and HTTP status codes. That gives 97 mutants, and each is run against all 27 reference tests.
+  - **35 survive every reference.** Some are equivalent to the original, and the rest are behavior no task covers. That's a 64% mutation score for the reference suite.
+  - **Discriminating mutants are drawn for each task.** A mutant counts as discriminating when 1 to 6 tasks (a quarter of 27) catch it. Up to 2 per task are drawn with a fixed seed, giving 23 in [`mutants.yaml`](benchmarks/vendor-intake/v3/mutants.yaml), next to v2's 11 hand-written dev bugs. The full kill matrix is committed.
+- **Validated like the others.** `aeg validate`: 27 references and 71 bug checks, 0 problems. CI runs it.
+
+**Held-out results** (15 tasks, 3 trials each, run once after the split froze):
+
+| Agent | Trials succeeded | All 3 trials succeed | Seeded bugs caught | Failing on correct code | Cost per trial* |
+|---|---|---|---|---|---|
+| Storywright, Claude Opus 5.5 | 100% (45/45), CI 92–100% | 100% (15/15) | 95% (108/114), CI 89–98% | 0% (0/45) | $0.093 |
+| Claude Code (`--agent claude-code`), Haiku 5.5 | 100% (45/45), CI 92–100% | 100% (15/15) | 89% (102/114), CI 82–94% | 0% (0/45) | $0.010 |
+| Storywright, Haiku 5.5 | 98% (44/45), CI 88–100% | 93% (14/15) | 86% (98/114), CI 78–91% | 0% (0/44) | $0.003 |
+| One call, no tools, Haiku 5.5 | 16% (7/45), CI 8–29% | 7% (1/15) | 7% (8/114), CI 4–13% | 83% (35/42) | $0.002 |
+
+\* Every run went through headless Claude Code on a Claude subscription (the `claude-code` transports), not the API. Costs are Claude Code's list-price estimates for the same requests, which include its 1-hour cache writes and a short preamble, so they run higher than the API-billed costs above and aren't comparable with them.
+
+Paired by task (`aeg gate`):
+
+- **Storywright and Claude Code are tied on Haiku.** Bug detection differs by 5 points, p = 0.25, and Storywright costs about a third as much per trial.
+- **Opus catches 10 points more bugs than Haiku,** but with 15 tasks that isn't significant (p = 0.125).
+- **Both agents beat the one-call baseline by about 80 points** on every metric (p < 0.001).
+
+So, on tasks no agent had seen: a purpose-built agent matches a general coding agent at a third of the cost, and both are far ahead of one well-prompted call.
+
+What else to know:
+
+- **Storywright's one failed trial** (LIF-11) was a transport error. On a repair, Claude Code ended without returning its structured output.
+- **These runs had a harness bug,** fixed afterwards. Scoring deleted the target's own example tests (`e2e/api/generated/KAN-*`) and didn't restore them, so only trials that started before a run's first scoring saw them. Every agent ran under the same condition, but Storywright's context lists KAN-4 as an example. The v1 and v2 numbers above ran under it too.
+
 ## Use it
 
 ```bash
@@ -153,6 +187,22 @@ uv run aeg run --agent single-call --command "python -m agent_eval_gate.baseline
 
 `AEG_MODEL` and `AEG_EFFORT` override either part. On models that support it (Opus 5.5, Sonnet 5.5), server-side refusal fallback is on, and every result records the model that actually answered. The report shows measured cost per trial.
 
+`AEG_TRANSPORT=claude-code` sends the same prompt through headless Claude Code (`claude -p`) instead of the API. It is billed to a Claude subscription login, and the API key is stripped from its environment. It runs with no tools, settings or MCP servers. Its costs are Claude Code's list-price estimates, and it has no refusal fallback. CI uses the default, `api`.
+
+### Claude Code as the agent
+
+```bash
+uv run aeg run --agent claude-code --benchmark benchmarks/vendor-intake/v3 --split heldout
+```
+
+Answers "does a purpose-built agent beat a general coding agent given the same task?" Headless Claude Code gets:
+
+- the scenario and the single call's rules;
+- the app, running on a free port;
+- the benchmark's own run and type-check commands.
+
+It may read and edit its workspace copy and run those two commands. Every other tool and command is denied, and it gets no user or project settings, MCP servers or skills. It runs on the Claude login with the API key stripped, capped at $1.00 of estimated spend per task, the same as Storywright's budget. `AEG_PROFILE` picks the model, as above.
+
 ### GitHub Action
 
 ```yaml
@@ -168,13 +218,14 @@ The run's Markdown summary goes to the job summary, and OpenTelemetry spans (Gen
 ## Not in v1
 
 - **Model-graded acceptance-criteria scoring.** Planned with agreement against hand labels (Cohen's κ) published before it counts toward any claim. v1 scores coverage deterministically, by tag.
-- **Mutation-tool bugs** (mutmut). All 32 bugs are hand-written; adding generated mutants, kept only when a reference test catches them, removes the risk that the bug author unconsciously picks easy targets.
+- **Generated bugs.** v1 and v2's bugs are hand-written; v3 adds mutants selected by a kill matrix (above).
 
 ## Layout
 
 ```
-src/agent_eval_gate/     runner, scoring, stats, gate, telemetry, CLI
+src/agent_eval_gate/     runner, scoring, stats, gate, telemetry, mutants, CLI
   baselines/single_call  one-call Claude baseline
+  baselines/claude_code  headless Claude Code as the agent
 benchmarks/vendor-intake/v1/
   benchmark.yaml         target repo, pinned ref, how to start the app and run tests
   tasks.yaml             32 tasks with frozen splits

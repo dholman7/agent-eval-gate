@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-05.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"after a replacement, only the new document waits for review\", { tag: \"@LIF-05\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review; reviewer approves insurance and contract, rejects the W-9.\n  const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n  const reviewer = await apiAs(\"reviewer\");\n  const member = await apiAs(\"member\");\n\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n      data: { decision: \"approve\" },\n    }),\n    200,\n  );\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n      data: { decision: \"approve\" },\n    }),\n    200,\n  );\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n      data: { decision: \"reject\", note: \"W-9 is unreadable\" },\n    }),\n    200,\n  );\n\n  // Act: upload a replacement W-9, wait for extraction, and submit the vendor again.\n  const newW9 = await factory.upload(vendor.id, \"w9\", \"w9.txt\", \"member\");\n  await expect\n    .poll(\n      async () =>\n        (await expectStatus<{ status: string }>(await member.get(`/api/documents/${newW9.id}`), 200)).status,\n      { message: \"replacement W-9 is extracted\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n  const submitted = await expectStatus<{ status: string }>(\n    await member.post(`/api/vendors/${vendor.id}/submit`),\n    200,\n  );\n\n  // Assert: the vendor is back in review, and only the new W-9 extraction is pending.\n  expect(submitted.status).toBe(\"in_review\");\n\n  const queue = await expectStatus<\n    Array<{ vendor_id: string; extractions: Array<{ kind: string; status: string }> }>\n  >(await reviewer.get(\"/api/review-queue\"), 200);\n  const item = queue.find((entry) => entry.vendor_id === vendor.id);\n  expect(item, \"vendor appears in the review queue\").toBeDefined();\n  const pending = (item?.extractions ?? []).filter((e) => e.status === \"pending_review\");\n  expect(pending.map((e) => e.kind)).toEqual([\"w9\"]);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22543,
+    "output_tokens": 3002,
+    "cache_read_input_tokens": 22180,
+    "cache_write_input_tokens": 361,
+    "cost_usd": 0.001795,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 20.816220958251506,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, have a reviewer approve two extractions and reject the W-9, then upload a new W-9 as the member, wait for extraction, and resubmit. Assert the vendor returns to in_review and the review queue shows exactly one pending extraction, of kind w9. The reject note and the endpoint shapes follow the OpenAPI document; every status check carries the response body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-05: passing: every test passes against the real app\n"
+}

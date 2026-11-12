@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "// features/lifecycle.feature: Search ignores case and matches part of a name\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\nimport type { Vendor } from \"../../fixtures\";\n\ntest(\"search ignores case and matches part of a name\", { tag: \"@LIF-13\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ as: \"member\", name: uniqueName(\"Zephyrine Cold Storage\") });\n\n  // Act\n  const response = await member.get(\"/api/vendors\", { params: { q: \"COLD stor\", limit: 100 } });\n\n  // Assert\n  const page = await expectStatus<{ items: Vendor[]; total: number }>(response, 200);\n  const found = page.items.find((v) => v.id === vendor.id);\n  expect(found, `vendor ${vendor.name} is in the search results`).toBeDefined();\n  expect(found?.name).toBe(vendor.name);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22463,
+    "output_tokens": 685,
+    "cache_read_input_tokens": 22103,
+    "cache_write_input_tokens": 358,
+    "cost_usd": 0.020993,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 15.516297541093081,
+  "error": null,
+  "log": "  kind: api\n  plan: I'll create a vendor through the factory with a unique name based on \"Zephyrine Cold Storage\". Then, signed in as the member, I'll list vendors with q=\"COLD stor\" and check that the created vendor's id and stored name are in the results.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-13: passing: every test passes against the real app\n"
+}

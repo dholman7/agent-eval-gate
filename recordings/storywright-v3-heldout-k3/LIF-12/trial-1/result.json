@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"an admin approves a vendor's w9 extraction and the vendor stays in the review queue\", { tag: \"@LIF-12\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const { vendor, documents, extractions } = await factory.vendorInReview();\n  const admin = await apiAs(\"admin\");\n  const w9 = extractions.w9;\n\n  // Act\n  const decision = await admin.post(`/api/extractions/${w9.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const decided = await expectStatus<{ id: string; status: string }>(decision, 200);\n  expect(decided.id).toBe(w9.id);\n  expect(decided.status).toBe(\"approved\");\n\n  // The stored outcome, not just the echoed response. The extraction is read through its document.\n  const stored = await factory.extraction(documents.w9.id, \"admin\");\n  expect(stored.status).toBe(\"approved\");\n\n  // The queue still lists the vendor, since its other extractions await review.\n  const queue = await expectStatus<Array<{ vendor_id: string }>>(\n    await admin.get(\"/api/review-queue\"),\n    200,\n  );\n  expect(queue.map((item) => item.vendor_id)).toContain(vendor.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 45694,
+    "output_tokens": 2549,
+    "cache_read_input_tokens": 43891,
+    "cache_write_input_tokens": 1799,
+    "cost_usd": 0.002074,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.159780874848366,
+  "error": null,
+  "log": "  kind: api\n  plan: An API test: the factory builds a submitted vendor with three pending extractions, then an admin client approves the w9 extraction. It checks the decision response, re-reads the stored extraction, and checks the review queue still lists the vendor, which keeps two pending extractions.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing request is GET /api/documents/{id}/extraction, and the id in the URL is an extraction id, not a document id. The test calls `factory.extraction(w9.id, \"admin\")`, where `w9` is `extractions.w9` (an Extraction object). `factory.extraction` takes a document id and builds `/api/documents/${documentId}/extraction`, so the server correctly reports `document_not_found`. The OpenAPI document has no GET route for a bare extraction id, so the stored-outcome check has to go through the document id. `vendorInReview()` already returns `documents` keyed by kind, so the fix is to pass `documents.w9.id`. The approve decision and the queue assertions are unchanged, and the @LIF-12 tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-12: passing: every test passes against the real app\n"
+}

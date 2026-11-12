@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor list search and status filter\", () => {\n  test(\"search and the status filter apply together\", { tag: \"@LIF-14\" }, async ({ apiAs, factory }) => {\n    // Arrange: one unique word shared by a draft vendor and a vendor in review\n    const member = await apiAs(\"member\");\n    const word = `lif14${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;\n    const draft = await factory.vendor({ name: `${word} draft` });\n    const { vendor: inReview } = await factory.vendorInReview({ name: `${word} review` });\n\n    // Act\n    const response = await member.get(\"/api/vendors\", {\n      params: { q: word, status: \"in_review\" },\n    });\n\n    // Assert\n    const page = await expectStatus<{ items: { id: string; name: string; status: string }[]; total: number }>(\n      response,\n      200,\n    );\n    expect(page.items.map((v) => v.id)).toEqual([inReview.id]);\n    expect(page.items.map((v) => v.id)).not.toContain(draft.id);\n    expect(page.items[0].status).toBe(\"in_review\");\n    expect(page.total).toBe(1);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 224189,
+    "output_tokens": 3527,
+    "cache_read_input_tokens": 206899,
+    "cache_write_input_tokens": 17272,
+    "cost_usd": 0.007289,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 30.113739582709968,
+  "error": null,
+  "log": "turns: 9; I added `e2e/api/generated/LIF-14.spec.ts` with one test tagged `@LIF-14`. It passes, and `npx tsc --noEmit` exits 0. No other file changed.\n\nThe test covers the scenario \"Search and the status filter apply together\":\n\n- **Arrange:** It makes a unique lowercase word, then creates a draft vendor named `<word> draft` and an in-review vendor named `<word> review` through `factory`. Both are created as `member`.\n- **Act:** It calls `GET /api/vendors` as `member` with `q` set to the word and `status=in_review`.\n- **Assert:** The response is 200. The item IDs are exactly the in-review vendor's ID, and the draft is absent. That vendor's status is `in_review`, and `total` is 1.\n\nI read the `VendorPage` shape and the `q` and `status` parameters from `openapi.json`. I did not check the backend source, so the search matching behaviour is inferred from the spec."
+}

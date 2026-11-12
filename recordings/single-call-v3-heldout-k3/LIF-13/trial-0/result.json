@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "import { expectStatus, expect, test, uniqueName, USERS, PASSWORD } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"search ignores case and matches part of a name\",\n    { tag: \"@LIF-13\" },\n    async ({ apiAs, factory }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const name = uniqueName(\"Zephyrine Cold Storage\");\n      const vendor = await factory.vendor({ name });\n\n      // Act\n      const response = await member.get(\"/api/vendors\", {\n        params: { q: \"COLD stor\", limit: 100 },\n      });\n\n      // Assert\n      const page = await expectStatus<{ items: { id: string; name: string }[] }>(response, 200);\n      const ids = page.items.map((v) => v.id);\n      expect(ids).toContain(vendor.id);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13747,
+    "output_tokens": 312,
+    "cache_read_input_tokens": 0,
+    "cache_write_input_tokens": 13745,
+    "cost_usd": 0.002905,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 2.1207080828025937,
+  "error": null,
+  "log": null
+}

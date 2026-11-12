@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\n  \"search and the status filter apply together\",\n  { tag: \"@LIF-14\" },\n  async ({ apiAs }) => {\n    // Arrange: a unique word shared by two vendor names so parallel runs don't collide.\n    const member = await apiAs(\"member\");\n    const word = `lifecycle${Date.now()}${Math.random().toString(36).slice(2, 8)}`;\n\n    const draftResponse = await member.post(\"/api/vendors\", {\n      data: {\n        name: `${word} Draft Co`,\n        category: \"services\",\n        contact_email: `${word}-draft@example.test`,\n      },\n    });\n    const draft = await expectStatus<{ id: string; status: string }>(draftResponse, 201);\n\n    const reviewResponse = await member.post(\"/api/vendors\", {\n      data: {\n        name: `${word} Review Co`,\n        category: \"services\",\n        contact_email: `${word}-review@example.test`,\n      },\n    });\n    const toReview = await expectStatus<{ id: string; status: string }>(reviewResponse, 201);\n\n    // Submit only the second vendor so it moves into review.\n    const submitResponse = await member.post(`/api/vendors/${toReview.id}/submit`);\n    const submitted = await expectStatus<{ id: string; status: string }>(submitResponse, 200);\n    expect(submitted.status).toBe(\"in_review\");\n\n    // Act: search by the shared word and filter to in_review.\n    const listResponse = await member.get(\"/api/vendors\", {\n      params: { q: word, status: \"in_review\" },\n    });\n\n    // Assert: exactly the vendor in review, and the total agrees.\n    const page = await expectStatus<{\n      items: { id: string; name: string; status: string }[];\n      total: number;\n      limit: number;\n      offset: number;\n    }>(listResponse, 200);\n\n    expect(page.total).toBe(1);\n    expect(page.items).toHaveLength(1);\n    expect(page.items[0].id).toBe(toReview.id);\n    expect(page.items[0].id).not.toBe(draft.id);\n    expect(page.items[0].status).toBe(\"in_review\");\n  },\n);\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13763,
+    "output_tokens": 1480,
+    "cache_read_input_tokens": 13397,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.000947,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 7.244768041651696,
+  "error": null,
+  "log": null
+}

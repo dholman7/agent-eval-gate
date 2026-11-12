@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-11.spec.ts": "// features/lifecycle.feature: Sign-in ignores the case of the email address\nimport { PASSWORD, USERS, expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"sign-in ignores the case of the email address\", { tag: \"@LIF-11\" }, async ({ request }) => {\n  // Arrange\n  const mixedCaseEmail = \"Member@Northwind.TEST\";\n  const expectedEmail = USERS.member;\n  expect(mixedCaseEmail.toLowerCase(), \"the mixed-case address is the seeded member's\").toBe(expectedEmail);\n\n  // Act\n  const response = await request.post(\"/api/auth/login\", {\n    data: { email: mixedCaseEmail, password: PASSWORD },\n  });\n\n  // Assert\n  const body = await expectStatus<{ access_token: string; user: { email: string } }>(response, 200);\n  expect(body.user.email).toBe(expectedEmail);\n  const me = await expectStatus<{ email: string }>(\n    await request.get(\"/api/me\", { headers: { Authorization: `Bearer ${body.access_token}` } }),\n    200,\n  );\n  expect(me.email).toBe(expectedEmail);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 68635,
+    "output_tokens": 2254,
+    "cache_read_input_tokens": 66313,
+    "cache_write_input_tokens": 2316,
+    "cost_usd": 0.076895,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 34.45670337462798,
+  "error": null,
+  "log": "  kind: api\n  plan: The test posts to /api/auth/login with the mixed-case email \"Member@Northwind.TEST\" and the seeded PASSWORD, and checks for a 200. Then it checks that the login response's user.email is \"member@northwind.test\", and calls /api/me with the returned token to confirm the stored identity has the same lowercase email.\n  verify: 1 passed, 0 failed, 2 lint errors\n  repair 1: test_bug: The only failures are PW-4 lint errors: the spec wrote the seeded account email \"member@northwind.test\" as a literal on lines 16 and 21. AGENTS.md PW-4 says to use USERS from the fixtures instead. Both expectations now use USERS.member. The Arrange step already asserts that USERS.member equals \"Member@Northwind.TEST\".toLowerCase(), so the expected value is still exactly \"member@northwind.test\" as the scenario states. The test never got far enough to call the app.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 2\nLIF-11: passing: every test passes against the real app\n"
+}

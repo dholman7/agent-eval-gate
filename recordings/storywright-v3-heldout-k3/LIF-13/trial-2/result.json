@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "// features/vendor-lifecycle.feature: \"Search ignores case and matches part of a name\"\nimport { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"Search ignores case and matches part of a name\", { tag: \"@LIF-13\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const name = uniqueName(\"Zephyrine Cold Storage\");\n  const vendor = await factory.vendor({ as: \"member\", name });\n  const member = await apiAs(\"member\");\n\n  // Act\n  const response = await member.get(\"/api/vendors\", { params: { q: \"COLD stor\", limit: 100 } });\n\n  // Assert\n  const page = await expectStatus<{ items: { id: string; name: string }[]; total: number }>(response, 200);\n  const match = page.items.find((item) => item.id === vendor.id);\n  expect(match, `vendor \"${name}\" should be in results for \"COLD stor\"`).toBeDefined();\n  expect(match?.name).toBe(name);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22465,
+    "output_tokens": 1126,
+    "cache_read_input_tokens": 22103,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.000856,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 14.849670791998506,
+  "error": null,
+  "log": "  kind: api\n  plan: One API test: a member creates a vendor whose unique name contains \"Zephyrine Cold Storage\", then lists vendors with the query \"COLD stor\" and checks the vendor is returned. The name is made unique with uniqueName so parallel tests don't collide, and the search still matches the scenario's text.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-13: passing: every test passes against the real app\n"
+}

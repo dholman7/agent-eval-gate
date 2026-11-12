@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-04.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"resubmitting without replacing the rejected w9 is refused with documents_incomplete\",\n    { tag: \"@LIF-04\" },\n    async ({ apiAs, factory }) => {\n      // Arrange: a vendor in review whose w9 extraction a reviewer rejected\n      const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n      const reviewer = await apiAs(\"reviewer\");\n      await expectStatus(\n        await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n          data: { decision: \"reject\", note: \"Tax ID does not match\" },\n        }),\n        200,\n      );\n      const member = await apiAs(\"member\");\n\n      // Act\n      const response = await member.post(`/api/vendors/${vendor.id}/submit`);\n\n      // Assert\n      const body = await expectStatus(response, 409);\n      expect(body.error.code).toBe(\"documents_incomplete\");\n      expect(body.error.missing_kinds).toEqual([\"w9\"]);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 235291,
+    "output_tokens": 4238,
+    "cache_read_input_tokens": 210138,
+    "cache_write_input_tokens": 25137,
+    "cost_usd": 0.009249,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 36.03743674978614,
+  "error": null,
+  "log": "turns: 10; I added `e2e/api/generated/LIF-04.spec.ts` with one test tagged `@LIF-04`. It passes, and `npx tsc --noEmit` produced no errors. No other file changed.\n\nThe test arranges a vendor in review through the factory, has a reviewer reject the w9 extraction through `POST /api/extractions/{id}/decision`, then has the member submit. It asserts a 409, error code `documents_incomplete`, and `missing_kinds` equal to `[\"w9\"]`.\n\nI took the scenario's \"error lists missing kind 'w9' only\" to mean the exact list `[\"w9\"]`, not a containment check. I didn't add a check that the vendor stays rejected after the refused submit, since the scenario doesn't name it."
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-13.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"search ignores case and matches part of a name\", { tag: \"@LIF-13\" }, async ({ apiAs, factory }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const vendor = await factory.vendor({ as: \"member\", name: uniqueName(\"Zephyrine Cold Storage\") });\n\n  // Act\n  const response = await member.get(\"/api/vendors\", { params: { q: \"COLD stor\", limit: 100 } });\n\n  // Assert\n  const page = await expectStatus<{ items: { id: string; name: string }[]; total: number }>(response, 200);\n  expect(page.items.map((v) => v.id)).toContain(vendor.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 209136,
+    "output_tokens": 2985,
+    "cache_read_input_tokens": 190542,
+    "cache_write_input_tokens": 18578,
+    "cost_usd": 0.007115,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 27.21702970797196,
+  "error": null,
+  "log": "turns: 10; I added `e2e/api/generated/LIF-13.spec.ts` with one test tagged `@LIF-13`. It passes, and `npx tsc --noEmit` exits 0. No other file changed.\n\nThe test creates a vendor named \"Zephyrine Cold Storage\" plus a unique suffix, then calls `GET /api/vendors?q=COLD stor` as the member. It asserts a 200 and that the new vendor's id is in `items`.\n\nChoices I made:\n- **Page size:** I passed `limit=100`, the maximum. Other tests share the database and may create matching vendors, so a single default page of 20 could push this one off the results.\n- **Assertion scope:** I checked only the id in `items`, as the scenario says. I did not assert on `total`."
+}

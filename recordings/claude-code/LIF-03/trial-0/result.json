@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-03.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"approving another extraction after the vendor was sent back is refused with vendor_not_in_review\",\n    { tag: \"@LIF-03\" },\n    async ({ apiAs, factory }) => {\n      // Arrange\n      const { extractions } = await factory.vendorInReview();\n      const reviewer = await apiAs(\"reviewer\");\n      await expectStatus(\n        await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n          data: { decision: \"reject\", note: \"Wrong counterparty\" },\n        }),\n        200,\n      );\n\n      // Act\n      const response = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert\n      const body = await expectStatus(response, 409);\n      expect(body.error.code).toBe(\"vendor_not_in_review\");\n    },\n  );\n\n  test(\n    \"the refused contract extraction stays pending review\",\n    { tag: \"@LIF-03\" },\n    async ({ apiAs, factory }) => {\n      // Arrange\n      const { documents, extractions } = await factory.vendorInReview();\n      const reviewer = await apiAs(\"reviewer\");\n      await expectStatus(\n        await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n          data: { decision: \"reject\", note: \"Wrong counterparty\" },\n        }),\n        200,\n      );\n      await expectStatus(\n        await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n          data: { decision: \"approve\" },\n        }),\n        409,\n      );\n\n      // Act\n      const contract = await factory.extraction(documents.contract.id, \"reviewer\");\n\n      // Assert\n      expect(contract.status).toBe(\"pending_review\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 263875,
+    "output_tokens": 4435,
+    "cache_read_input_tokens": 242659,
+    "cache_write_input_tokens": 21196,
+    "cost_usd": 0.008885,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 37.78121833270416,
+  "error": null,
+  "log": "turns: 10; I wrote `e2e/api/generated/LIF-03.spec.ts` with two tests, both tagged `@LIF-03`. Both pass with `npx playwright test --project=api api/generated/LIF-03.spec.ts`, and `npx tsc --noEmit` exits 0. No other file was changed.\n\n- **Main test:** a vendor in review gets its `w9` extraction rejected, which sends the vendor back. Approving the `contract` extraction then returns 409 with error code `vendor_not_in_review`, as the scenario specifies.\n- **Extra test:** after that refused approval, the `contract` extraction is still `pending_review`. The scenario doesn't state this, so drop it if you want only the scenario's assertions.\n\nBoth tests use the `factory.vendorInReview()` fixture, so each one creates its own uniquely named vendor and doesn't share data. The reject and approve calls go through `POST /api/extractions/{id}/decision` as the reviewer, based on `openapi.json`. The 409 error code is read from `body.error.code`, matching the existing auth tests."
+}

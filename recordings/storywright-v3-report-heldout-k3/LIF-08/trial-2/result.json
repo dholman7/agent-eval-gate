@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "// features/lifecycle.feature: A certificate whose expiry date could not be read cannot be approved\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"a certificate whose expiry date could not be read cannot be approved\", { tag: \"@LIF-08\" }, async ({ apiAs, factory }) => {\n  // Arrange: the sample certificate says \"Expiry Date: next spring\"\n  const { extractions, documents } = await factory.vendorInReview({\n    files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n  });\n  const reviewer = await apiAs(\"reviewer\");\n\n  // Act\n  const response = await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"insurance_expiry_missing\");\n  const stored = await factory.extraction(documents.insurance_certificate.id, \"reviewer\");\n  expect(stored.status).toBe(\"pending_review\");\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 68370,
+    "output_tokens": 897,
+    "cache_read_input_tokens": 67359,
+    "cache_write_input_tokens": 1005,
+    "cost_usd": 0.039476,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 22.076960082631558,
+  "error": null,
+  "log": "  kind: api\n  plan: I build a vendor in review with the factory, using the sample samples/insurance_certificate_unparseable.txt (\"Expiry Date: next spring\") as its insurance certificate. As the reviewer I approve that extraction and expect 409 with error code insurance_expiry_missing. Then I read the extraction again to check it is still pending_review.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-08: passing: every test passes against the real app\n"
+}

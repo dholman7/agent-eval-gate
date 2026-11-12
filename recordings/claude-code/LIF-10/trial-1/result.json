@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-10.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"a vendor cannot be renamed to another vendor's name, whatever the case\",\n    { tag: \"@LIF-10\" },\n    async ({ apiAs, factory }) => {\n      // Arrange\n      const member = await apiAs(\"member\");\n      const taken = await factory.vendor({ name: uniqueName(\"Atlas Freight\") });\n      const borealis = await factory.vendor({ name: uniqueName(\"Borealis Freight\") });\n      const clashingName = taken.name.toUpperCase();\n\n      // Act\n      const response = await member.patch(`/api/vendors/${borealis.id}`, {\n        data: { name: clashingName },\n      });\n\n      // Assert\n      const body = await expectStatus<{ error: { code: string } }>(response, 409);\n      expect(body.error.code).toBe(\"vendor_name_taken\");\n\n      const stored = await expectStatus<{ name: string }>(await member.get(`/api/vendors/${borealis.id}`), 200);\n      expect(stored.name).toBe(borealis.name);\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 226597,
+    "output_tokens": 3019,
+    "cache_read_input_tokens": 209536,
+    "cache_write_input_tokens": 17043,
+    "cost_usd": 0.007015,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 30.474926291964948,
+  "error": null,
+  "log": "turns: 9; I added `e2e/api/generated/LIF-10.spec.ts`, which has one test tagged `@LIF-10`. It passes, and `npx tsc --noEmit` exits 0. No other files were changed.\n\nThe test follows the scenario:\n\n- **Arrange:** As `member`, it creates two draft vendors through the factory. Their names are made unique with `uniqueName`, so parallel runs don't collide. The clashing name is the first vendor's name in upper case, which exercises the case-insensitive check.\n- **Act:** It sends `PATCH /api/vendors/{id}` with the clashing name to the second vendor. I took the rename endpoint from the existing backend tests, which use the same route.\n- **Assert:** The status is 409 with the error code `vendor_name_taken`. A follow-up `GET` confirms the second vendor still has its original name, so the test checks the stored outcome and not only the response.\n\nThe scenario's table-free layout means there's one test, with no need to split by outcome."
+}

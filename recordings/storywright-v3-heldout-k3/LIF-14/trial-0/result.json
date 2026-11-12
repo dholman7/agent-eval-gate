@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-14.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"search and the status filter apply together\", { tag: \"@LIF-14\" }, async ({ apiAs, factory }) => {\n  // Arrange: two vendors sharing one unique word, one draft and one in review\n  const word = uniqueName(\"Lifecycle\").replace(/\\s+/g, \"\");\n  const draft = await factory.vendor({ name: `${word} Draft Supply` });\n  const review = await factory.vendorInReview({ name: `${word} Review Supply` });\n\n  // Act: list with the shared word as the search and status in_review\n  const member = await apiAs(\"member\");\n  const response = await member.get(\"/api/vendors\", {\n    params: { q: word, status: \"in_review\" },\n  });\n\n  // Assert: exactly the vendor in review, and the total is 1\n  const page = await expectStatus<{ items: { id: string; name: string; status: string }[]; total: number }>(response, 200);\n  expect(page.total).toBe(1);\n  expect(page.items.map((v) => v.id)).toEqual([review.vendor.id]);\n  expect(page.items[0].status).toBe(\"in_review\");\n  expect(page.items.map((v) => v.id)).not.toContain(draft.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22481,
+    "output_tokens": 1293,
+    "cache_read_input_tokens": 21610,
+    "cache_write_input_tokens": 869,
+    "cost_usd": 0.001037,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.547259333077818,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange two vendors that share a unique search word: one left as a draft and one submitted for review through the factory. Act with a single list request that combines q and status=in_review, then assert the results contain exactly the review vendor and the total is 1, with every status assertion carrying its body.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-14: passing: every test passes against the real app\n"
+}

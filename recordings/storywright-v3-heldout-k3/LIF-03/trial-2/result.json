@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-03.spec.ts": "// features/lifecycle.feature: \"Once a vendor is sent back, its other documents cannot be decided\"\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"approving a document after its vendor was sent back is refused with 409\", { tag: \"@LIF-03\" }, async ({ factory, apiAs }) => {\n  // Arrange: a vendor in review, and a reviewer who rejects its w9 (which sends the vendor back)\n  const { vendor, documents, extractions } = await factory.vendorInReview({ as: \"member\" });\n  const reviewer = await apiAs(\"reviewer\");\n  const rejected = await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n    data: { decision: \"reject\", note: \"Please re-upload the W-9.\" },\n  });\n  await expectStatus(rejected, 200);\n\n  // Act: the reviewer tries to approve the contract extraction of the same vendor\n  const response = await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n    data: { decision: \"approve\" },\n  });\n\n  // Assert: refused with the stable error code\n  const body = await expectStatus(response, 409);\n  expect(body.error.code).toBe(\"vendor_not_in_review\");\n\n  // Assert: the stored outcome is unchanged, so the contract is still awaiting a decision\n  const stored = await factory.extraction(documents.contract.id, \"reviewer\");\n  expect(stored.status).toBe(\"pending_review\");\n  expect(vendor.id).toBeTruthy();\n});"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 45803,
+    "output_tokens": 2704,
+    "cache_read_input_tokens": 43909,
+    "cache_write_input_tokens": 1890,
+    "cost_usd": 0.002169,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 23.42278895806521,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then as a reviewer reject its w9 extraction and approve its contract extraction. Assert the approval returns 409 with error code vendor_not_in_review, and re-read the contract extraction to confirm it stayed pending_review. Each setup step is status-checked through expectStatus.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing call is the final stored-outcome check. `factory.extraction(documentId, persona)` requests `/api/documents/{documentId}/extraction`, but the test passes `extractions.contract.id`, which is an extraction ID. The app correctly answers `document_not_found` because it has no document with that ID. The test chose the wrong identifier. The fix is to pass the contract document's ID, `documents.contract.id`, which `vendorInReview` returns. The scenario, the 409 status, the error code, and the expected `pending_review` status are unchanged.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-03: passing: every test passes against the real app\n"
+}

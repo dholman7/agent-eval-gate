@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "// features/vendor_lifecycle.feature: a certificate with an unreadable expiry date cannot be approved.\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"a certificate whose expiry date could not be read cannot be approved\",\n    { tag: \"@LIF-08\" },\n    async ({ apiAs }) => {\n      // Arrange: a vendor in review whose insurance certificate has an unreadable expiry date.\n      const member = await apiAs(\"member\");\n      const reviewer = await apiAs(\"reviewer\");\n      const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\n      const createResponse = await member.post(\"/api/vendors\", {\n        data: {\n          name: `Expiry Vendor ${suffix}`,\n          category: \"services\",\n          contact_email: `ops+${suffix}@example.test`,\n        },\n      });\n      const vendor = await expectStatus<{ id: string }>(createResponse, 201);\n\n      // The certificate text carries the unreadable expiry value.\n      const uploadResponse = await member.post(`/api/vendors/${vendor.id}/documents`, {\n        multipart: {\n          kind: \"insurance_certificate\",\n          file: {\n            name: `certificate-${suffix}.txt`,\n            mimeType: \"text/plain\",\n            buffer: Buffer.from(\"Certificate of insurance. Expiry date: next spring.\\n\"),\n          },\n        },\n      });\n      const document = await expectStatus<{ id: string }>(uploadResponse, 201);\n\n      // Wait for extraction to finish on the uploaded document.\n      await expect\n        .poll(async () => {\n          const response = await member.get(`/api/documents/${document.id}`);\n          const body = await expectStatus<{ status: string }>(response, 200);\n          return body.status;\n        })\n        .not.toBe(\"processing\");\n\n      const submitResponse = await member.post(`/api/vendors/${vendor.id}/submit`);\n      await expectStatus<{ status: string }>(submitResponse, 200);\n\n      const extractionResponse = await member.get(`/api/documents/${document.id}/extraction`);\n      const extraction = await expectStatus<{ id: string; status: string }>(extractionResponse, 200);\n      expect(extraction.status).toBe(\"pending_review\");\n\n      // Act: the reviewer tries to approve the certificate extraction.\n      const decisionResponse = await reviewer.post(`/api/extractions/${extraction.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert: the approval is refused and the extraction stays pending review.\n      const body = await expectStatus<{ error: { code: string } }>(decisionResponse, 409);\n      expect(body.error.code).toBe(\"insurance_expiry_missing\");\n\n      const afterResponse = await reviewer.get(`/api/documents/${document.id}/extraction`);\n      const after = await expectStatus<{ status: string }>(afterResponse, 200);\n      expect(after.status).toBe(\"pending_review\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 13794,
+    "output_tokens": 2051,
+    "cache_read_input_tokens": 13428,
+    "cache_write_input_tokens": 364,
+    "cost_usd": 0.001233,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 8.767492165789008,
+  "error": null,
+  "log": null
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-05.spec.ts": "// features/lifecycle.feature: After a replacement, only the new document waits for review\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest(\"after a replacement, only the new document waits for review\", { tag: \"@LIF-05\" }, async ({ factory, apiAs }) => {\n  // Arrange\n  const member = await apiAs(\"member\");\n  const reviewer = await apiAs(\"reviewer\");\n  const { vendor, extractions } = await factory.vendorInReview();\n  // Approve first: a rejection moves the vendor out of review, after which nothing else can be decided.\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.insurance_certificate.id}/decision`, { data: { decision: \"approve\" } }),\n    200,\n  );\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, { data: { decision: \"approve\" } }),\n    200,\n  );\n  await expectStatus(\n    await reviewer.post(`/api/extractions/${extractions.w9.id}/decision`, {\n      data: { decision: \"reject\", note: \"Please upload a signed W-9\" },\n    }),\n    200,\n  );\n\n  // Act\n  const replacement = await factory.upload(vendor.id, \"w9\");\n  await expect\n    .poll(\n      async () => (await expectStatus<{ status: string }>(await member.get(`/api/documents/${replacement.id}`), 200)).status,\n      { message: \"the replacement w9 is extracted\", timeout: 30_000 },\n    )\n    .toBe(\"extracted\");\n  const submitted = await expectStatus<{ status: string }>(await member.post(`/api/vendors/${vendor.id}/submit`), 200);\n\n  // Assert\n  expect(submitted.status).toBe(\"in_review\");\n  const stored = await expectStatus<{ status: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.status).toBe(\"in_review\");\n\n  const queue = await expectStatus<\n    { vendor_id: string; extractions: { document_id: string; kind: string; status: string }[] }[]\n  >(await reviewer.get(\"/api/review-queue\"), 200);\n  const entries = queue.filter((item) => item.vendor_id === vendor.id);\n  expect(entries, \"the vendor appears once in the review queue\").toHaveLength(1);\n  const pending = entries[0].extractions.filter((e) => e.status === \"pending_review\");\n  expect(pending, \"exactly one pending extraction\").toHaveLength(1);\n  expect(pending[0].kind).toBe(\"w9\");\n  expect(pending[0].document_id).toBe(replacement.id);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 148716,
+    "output_tokens": 2110,
+    "cache_read_input_tokens": 142997,
+    "cache_write_input_tokens": 5707,
+    "cost_usd": 0.116503,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 35.29408879065886,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory. The reviewer approves the insurance_certificate and contract extractions, then rejects the w9 (in that order, because a rejection takes the vendor out of review). The member then uploads a replacement w9, polls until it is extracted, and resubmits. Assert the vendor status from the submit response and from a re-read, then check that the reviewer's queue entry for this vendor holds exactly one pending extraction, of kind w9.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 6\nLIF-05: passing: every test passes against the real app\n"
+}

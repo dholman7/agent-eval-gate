@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-08.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\n    \"a certificate whose expiry date could not be read cannot be approved\",\n    { tag: \"@LIF-08\" },\n    async ({ apiAs, factory }) => {\n      // Arrange: a vendor in review whose insurance certificate reads \"next spring\" as its expiry\n      const { documents, extractions } = await factory.vendorInReview({\n        files: { insurance_certificate: \"insurance_certificate_unparseable.txt\" },\n      });\n      const certificate = extractions.insurance_certificate;\n      const reviewer = await apiAs(\"reviewer\");\n\n      // Act\n      const response = await reviewer.post(`/api/extractions/${certificate.id}/decision`, {\n        data: { decision: \"approve\" },\n      });\n\n      // Assert\n      const body = await expectStatus(response, 409);\n      expect(body.error.code).toBe(\"insurance_expiry_missing\");\n      expect((await factory.extraction(documents.insurance_certificate.id)).status).toBe(\"pending_review\");\n    },\n  );\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 264397,
+    "output_tokens": 4214,
+    "cache_read_input_tokens": 242780,
+    "cache_write_input_tokens": 21597,
+    "cost_usd": 0.008856,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 36.43503187503666,
+  "error": null,
+  "log": "turns: 12; I wrote `e2e/api/generated/LIF-08.spec.ts` with one test tagged `@LIF-08`. The API test passes, and `npx tsc --noEmit` printed no errors. No other file was changed.\n\nThe test arranges a vendor in review through `factory.vendorInReview`, using the existing `insurance_certificate_unparseable.txt` sample (expiry \"next spring\"). It then has the reviewer POST an approve decision and asserts a 409 with `insurance_expiry_missing`. Finally it re-reads the document's extraction and asserts it is still `pending_review`.\n\nMy first run failed because I passed the extraction ID to `factory.extraction`, which takes a document ID. The fix was to use `documents.insurance_certificate.id`."
+}

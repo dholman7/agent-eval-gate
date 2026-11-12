@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "import { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"an admin approves a vendor's w9 extraction from the review queue\", { tag: \"@LIF-12\" }, async ({ factory, apiAs }) => {\n    // Arrange\n    const { vendor, documents, extractions } = await factory.vendorInReview({ as: \"member\" });\n    const admin = await apiAs(\"admin\");\n\n    // Act\n    const queueBefore = await expectStatus<{ vendor_id: string }[]>(await admin.get(\"/api/review-queue\"), 200);\n    expect(queueBefore.map((item) => item.vendor_id)).toContain(vendor.id);\n\n    const decision = await admin.post(`/api/extractions/${extractions.w9.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n    const decided = await expectStatus<{ id: string; status: string }>(decision, 200);\n\n    // Assert\n    expect(decided.status).toBe(\"approved\");\n    const stored = await factory.extraction(documents.w9.id, \"admin\");\n    expect(stored.status, \"approval is stored, not just echoed\").toBe(\"approved\");\n\n    const queueAfter = await expectStatus<{ vendor_id: string }[]>(await admin.get(\"/api/review-queue\"), 200);\n    expect(queueAfter.map((item) => item.vendor_id), \"vendor still listed in the queue\").toContain(vendor.id);\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 45745,
+    "output_tokens": 2469,
+    "cache_read_input_tokens": 43391,
+    "cache_write_input_tokens": 2350,
+    "cost_usd": 0.002139,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 25.66563362488523,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then as the admin read the review queue, approve the w9 extraction, and re-read both the queue and the stored extraction. Every status is checked with expectStatus so failures carry the response body.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The test passes the extraction ID to factory.extraction(), which takes a document ID and calls GET /api/documents/{document_id}/extraction. The app correctly returns 404 document_not_found because extractions.w9.id is not a document ID. The fix is to use the w9 document's ID, which vendorInReview() already returns as documents.w9. The app is not at fault: the 200 status and approval behavior in the scenario are not contradicted. No expected value or assertion changes; only the ID passed to the lookup is corrected, and the tag is kept.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-12: passing: every test passes against the real app\n"
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-12.spec.ts": "// features/lifecycle.feature: An admin can review vendors\nimport { expect, expectStatus, test } from \"../../fixtures\";\n\ntest.describe(\"vendor lifecycle\", () => {\n  test(\"an admin can open the review queue and approve a vendor's w9 extraction\", { tag: \"@LIF-12\" }, async ({ apiAs, factory }) => {\n    // Arrange\n    const { vendor, documents, extractions } = await factory.vendorInReview();\n    const admin = await apiAs(\"admin\");\n\n    // Act\n    const queueResponse = await admin.get(\"/api/review-queue\");\n    const queue = await expectStatus<{ vendor_id: string; vendor_name: string; extractions: { id: string }[] }[]>(queueResponse, 200);\n    const decisionResponse = await admin.post(`/api/extractions/${extractions.w9.id}/decision`, {\n      data: { decision: \"approve\" },\n    });\n\n    // Assert\n    const item = queue.find((q) => q.vendor_id === vendor.id);\n    expect(item, `review queue lists vendor ${vendor.name}`).toBeDefined();\n    expect(item?.vendor_name).toBe(vendor.name);\n    expect(item?.extractions.map((e) => e.id)).toContain(extractions.w9.id);\n    const decided = await expectStatus<{ id: string; status: string }>(decisionResponse, 200);\n    expect(decided.status).toBe(\"approved\");\n    const stored = await factory.extraction(documents.w9.id, \"admin\");\n    expect(stored.status).toBe(\"approved\");\n  });\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 118842,
+    "output_tokens": 2507,
+    "cache_read_input_tokens": 114268,
+    "cache_write_input_tokens": 4564,
+    "cost_usd": 0.109546,
+    "model": "claude-opus-5-5"
+  },
+  "duration_s": 41.25610491586849,
+  "error": null,
+  "log": "  kind: api\n  plan: The factory builds a vendor in review as the member. Signed in as the admin, the test reads the review queue, checks the vendor is listed with its w9 extraction, approves that extraction and expects 200, then re-reads the extraction to confirm the approval was saved.\n  verify: 0 passed, 1 failed\n  repair 1: test_bug: The failing call is the last re-read, `factory.extraction(extractions.w9.id, \"admin\")`. `Factory.extraction(documentId, as)` requests `GET /api/documents/{documentId}/extraction`, and the route in backend/src/vendor_intake/routes/documents.py looks that ID up as a document (`DocumentRepository.get(document_id, tenant_id)`). The test passed the extraction's ID instead of the document's, so the app correctly returned 404 `document_not_found`. The queue check and the approve decision ran before this line and passed. The fix re-reads the stored extraction with `documents.w9.id` from `vendorInReview()`. No expected values or assertions change.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 3\nLIF-12: passing: every test passes against the real app\n"
+}

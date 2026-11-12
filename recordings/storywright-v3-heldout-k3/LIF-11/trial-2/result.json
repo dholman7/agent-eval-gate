@@ -1,0 +1,15 @@
+{
+  "files": {},
+  "support": {},
+  "usage": {
+    "input_tokens": 205139,
+    "output_tokens": 7510,
+    "cache_read_input_tokens": 197719,
+    "cache_write_input_tokens": 7402,
+    "cost_usd": 0.007214,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 40.82432204158977,
+  "error": "  kind: api\n  plan: One API test for LIF-11. It signs in with a mixed-case email and the seeded password, expects a 200, and checks that the returned user and the stored profile from /api/me both carry the lowercased email. Each status check goes through expectStatus so a failure shows the response body.\n  verify: 1 passed, 0 failed, 1 lint errors\n  repair failed: claude -p returned no structured output\n  tool calls: 2\nLIF-11: agent_error: claude -p returned no structured output\n",
+  "log": "  kind: api\n  plan: One API test for LIF-11. It signs in with a mixed-case email and the seeded password, expects a 200, and checks that the returned user and the stored profile from /api/me both carry the lowercased email. Each status check goes through expectStatus so a failure shows the response body.\n  verify: 1 passed, 0 failed, 1 lint errors\n  repair failed: claude -p returned no structured output\n  tool calls: 2\nLIF-11: agent_error: claude -p returned no structured output\n"
+}

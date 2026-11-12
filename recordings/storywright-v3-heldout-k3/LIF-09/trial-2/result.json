@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LIF-09.spec.ts": "import { expect, expectStatus, test, uniqueName } from \"../../fixtures\";\n\ntest(\"a vendor sent back for a rejected contract can be renamed\", { tag: \"@LIF-09\" }, async ({ apiAs, factory }) => {\n  // Arrange: a vendor in review, then a reviewer rejects its contract extraction\n  const { vendor, extractions } = await factory.vendorInReview({ as: \"member\" });\n  const reviewer = await apiAs(\"reviewer\");\n  const decision = await expectStatus<{ status: string }>(\n    await reviewer.post(`/api/extractions/${extractions.contract.id}/decision`, {\n      data: { decision: \"reject\", note: \"Contract signature page is missing.\" },\n    }),\n    200,\n  );\n  expect(decision.status, \"contract extraction is rejected\").toBe(\"rejected\");\n\n  const newName = uniqueName(\"Renamed Vendor\");\n  const member = await apiAs(\"member\");\n\n  // Act: the member changes the vendor's name\n  const response = await member.patch(`/api/vendors/${vendor.id}`, { data: { name: newName } });\n\n  // Assert: the response carries the new name\n  const updated = await expectStatus<{ id: string; name: string }>(response, 200);\n  expect(updated.id).toBe(vendor.id);\n  expect(updated.name).toBe(newName);\n\n  // Assert: the stored vendor has the new name\n  const stored = await expectStatus<{ name: string }>(await member.get(`/api/vendors/${vendor.id}`), 200);\n  expect(stored.name).toBe(newName);\n});\n"
+  },
+  "support": {},
+  "usage": {
+    "input_tokens": 22471,
+    "output_tokens": 1429,
+    "cache_read_input_tokens": 22109,
+    "cache_write_input_tokens": 360,
+    "cost_usd": 0.001008,
+    "model": "claude-haiku-5-5"
+  },
+  "duration_s": 15.181533625349402,
+  "error": null,
+  "log": "  kind: api\n  plan: Arrange a vendor in review through the factory, then have a reviewer reject its contract extraction through the decision endpoint. As the member, PATCH the vendor's name, assert 200 and the new name in the response, and re-read the vendor to confirm the name was stored.\n  verify: 1 passed, 0 failed\n  stop: passing\n  tool calls: 0\nLIF-09: passing: every test passes against the real app\n"
+}
