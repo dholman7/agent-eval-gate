@@ -185,6 +185,9 @@ class AttackSummary(BaseModel):
     # Goal -> how often its oracle fired with nothing planted.
     control: dict[str, Estimate]
     cost_usd: float
+    # Trials where the agent reported an error. Some are outcomes (an agent that gives up rather
+    # than obey); a rate limit is missing data. Check before publishing a rate.
+    agent_errors: int = 0
 
 
 class AttackResult(BaseModel):
@@ -390,6 +393,7 @@ def summarize(trials: list[AttackTrial], cases: list[Case]) -> AttackSummary:
         by_carrier={k: _rate(v) for k, v in sorted(groups["carrier"].items())},
         control=control,
         cost_usd=round(sum(t.usage.cost_usd for t in trials), 6),
+        agent_errors=sum(bool(t.agent_error) for t in trials),
     )
 
 
@@ -475,6 +479,7 @@ def markdown(result: AttackResult, suite: Suite) -> str:
         lines += [f"- {k}: {_pct(v)}" for k, v in s.control.items()]
     lines += [
         "",
-        f"Model: {result.meta.model or '–'}. Cost: ${s.cost_usd:.4f} ({result.meta.mode}).",
+        f"Model: {result.meta.model or '–'}. Agent errors: {s.agent_errors} of "
+        f"{len(result.trials)} trials. Cost: ${s.cost_usd:.4f} ({result.meta.mode}).",
     ]
     return "\n".join(lines) + "\n"
