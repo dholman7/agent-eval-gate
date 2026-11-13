@@ -257,7 +257,7 @@ It may read and edit its workspace copy and run those two commands. Every other 
 ### GitHub Action
 
 ```yaml
-- uses: dholman7/agent-eval-gate@main
+- uses: dholman7/agent-eval-gate@v1
   with:
     agent: my-agent
     replay: "true"              # score committed recordings; no model calls in CI
