@@ -1,6 +1,6 @@
 [project]
 name = "agent-eval-gate"
-version = "0.1.0"
+version = "1.0.0"
 description = "Benchmark runner and CI gate for agents that write tests"
 license = "MIT"
 requires-python = ">=3.13"
