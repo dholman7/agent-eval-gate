@@ -12,7 +12,7 @@ dependencies = [
 
 [project.optional-dependencies]
 # 1.x is the documented, settled line; 2.0 shipped 2026-10-21 and is not adopted yet.
-claude = ["anthropic>=1.15,<2"]
+claude = ["anthropic>=1.15,<3"]
 
 [project.scripts]
 aeg = "agent_eval_gate.cli:main"
